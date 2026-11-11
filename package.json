@@ -1,0 +1,23 @@
+{
+  "name": "medchain",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "test": "bun test",
+    "test:domain": "bun --filter @medchain/domain test",
+    "test:api": "bun --filter @medchain/api test",
+    "test:mobile": "bun --filter @medchain/mobile test",
+    "typecheck": "bun --filter '*' typecheck",
+    "dev:api": "bun --filter @medchain/api dev",
+    "dev:mobile": "bun --filter @medchain/mobile start",
+    "start": "bun --filter @medchain/mobile start"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "~6.0.3"
+  }
+}

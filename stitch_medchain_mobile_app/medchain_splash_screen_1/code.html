@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MedChain — Splash Screen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background-color: #F8FAFC;
+    }
+    .brand-wordmark {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: -0.03em;
+    }
+    .tagline-text {
+      letter-spacing: 0.01em;
+    }
+    /* Subtle respectful entrance fade */
+    @keyframes subtleReveal {
+      0% {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-reveal {
+      animation: subtleReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .animate-reveal {
+        animation: none;
+        opacity: 1;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#F8FAFC] text-[#172B2A] h-screen w-full flex flex-col justify-between items-center select-none overflow-hidden p-6 relative">
+
+  <!-- Top status bar spacing placeholder / subtle platform headroom -->
+  <div class="w-full pt-8 flex justify-center items-center opacity-0 pointer-events-none" aria-hidden="true">
+    <div class="h-6"></div>
+  </div>
+
+  <!-- Central Brand Unit -->
+  <main class="w-full max-w-xs flex flex-col items-center justify-center text-center my-auto animate-reveal">
+    
+    <!-- Logo: Minimal geometric capsule & chain link motif in solid #0F766E -->
+    <div class="mb-8 flex items-center justify-center" aria-label="MedChain Logo">
+      <svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-20 h-20 sm:w-[88px] sm:h-[88px]">
+        <!-- Top capsule half loop / link -->
+        <path d="M28 38V28C28 19.1634 35.1634 12 44 12C52.8366 12 60 19.1634 60 28V38" 
+              stroke="#0F766E" 
+              stroke-width="7.5" 
+              stroke-linecap="round" />
+        
+        <!-- Bottom interlocking capsule half loop / link -->
+        <path d="M60 50V60C60 68.8366 52.8366 76 44 76C35.1634 76 28 68.8366 28 60V50" 
+              stroke="#0F766E" 
+              stroke-width="7.5" 
+              stroke-linecap="round" />
+        
+        <!-- Interlocking horizontal connector bridge creating the continuous chain-and-pill synergy -->
+        <path d="M24 44H64" 
+              stroke="#0F766E" 
+              stroke-width="7.5" 
+              stroke-linecap="round" />
+        
+        <!-- Central core nodes reinforcing secure sync connection -->
+        <circle cx="34" cy="44" r="3.75" fill="#F8FAFC" />
+        <circle cx="54" cy="44" r="3.75" fill="#F8FAFC" />
+      </svg>
+    </div>
+
+    <!-- Wordmark -->
+    <h1 class="brand-wordmark text-[34px] sm:text-[38px] font-bold text-[#172B2A] leading-tight mb-2 tracking-tight">
+      MedChain
+    </h1>
+
+    <!-- Tagline -->
+    <p class="tagline-text text-[15px] sm:text-[16px] text-[#64748B] font-normal leading-relaxed">
+      Medication care, in sync.
+    </p>
+
+  </main>
+
+  <!-- Bottom quiet baseline reassurance / offline-first indicator -->
+  <footer class="w-full pb-8 flex flex-col items-center justify-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100/80 border border-slate-200/60">
+      <span class="w-1.5 h-1.5 rounded-full bg-[#0F766E]"></span>
+      <span class="text-[12px] font-medium tracking-wide text-[#64748B] uppercase">Offline-Ready &middot; Private Sync</span>
+    </div>
+  </footer>
+
+</body>
+</html>

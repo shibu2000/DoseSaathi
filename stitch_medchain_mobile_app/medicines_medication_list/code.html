@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-highest": "#d9e5e0", "error": "#ba1a1a", "tertiary": "#00452c", "secondary-fixed": "#ffddb1", "on-tertiary": "#ffffff", "on-secondary-fixed-variant": "#624000", "tertiary-fixed-dim": "#96d4b2", "on-tertiary-fixed-variant": "#105137", "error-container": "#ffdad6", "primary-fixed": "#b6eedf", "on-error": "#ffffff", "primary-fixed-dim": "#9ad2c3", "primary": "#034339", "on-error-container": "#93000a", "canvas": "#F7F5EF", "ink-muted": "#58645F", "surface-tint": "#32685c", "surface-container-high": "#dfebe6", "tertiary-fixed": "#b1f0cd", "on-tertiary-fixed": "#002113", "danger": "#A33E38", "ink": "#202B28", "on-background": "#131e1b", "secondary-container": "#ffbd56", "surface-variant": "#d9e5e0", "surface-muted": "#ECEFE9", "secondary-fixed-dim": "#fcba53", "on-secondary-fixed": "#291800", "inverse-primary": "#9ad2c3", "brand-soft": "#DCE9E2", "outline-variant": "#bfc9c5", "primary-container": "#245b50", "on-surface": "#131e1b", "on-tertiary-container": "#96d4b1", "surface-container": "#e4f1ec", "on-primary-container": "#99d1c3", "on-secondary": "#ffffff", "surface-dim": "#d0ddd8", "on-primary": "#ffffff", "warning": "#8A5A16", "on-surface-variant": "#404946", "on-secondary-container": "#734c00", "background": "#f0fcf7", "brand-pressed": "#19483F", "outline": "#D4D9D2", "surface-container-lowest": "#ffffff", "surface-container-low": "#eaf6f1", "inverse-on-surface": "#e7f4ee", "on-primary-fixed": "#00201a", "tertiary-container": "#205d42", "surface-bright": "#f0fcf7", "on-primary-fixed-variant": "#164f45", "secondary": "#815600", "inverse-surface": "#283330", "surface": "#FFFEFA" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "gutter-lg": "1.5rem", "gutter-sm": "0.75rem", "space-sm": "0.5rem", "margin-mobile": "1.25rem", "gutter": "1rem", "space-md": "1rem", "margin-tablet": "2rem", "margin": "1.25rem", "margin-desktop": "3rem", "space-lg": "1.5rem", "space-xl": "2rem", "space-xs": "0.25rem" }, fontFamily: { "display": ["Atkinson Hyperlegible Next"], "body-xl": ["Atkinson Hyperlegible Next"], "body-sm": ["Atkinson Hyperlegible Next"], "label-lg": ["Atkinson Hyperlegible Next"], "headline-md": ["Atkinson Hyperlegible Next"], "body-md": ["Atkinson Hyperlegible Next"], "label-sm": ["Atkinson Hyperlegible Next"], "label-md": ["Atkinson Hyperlegible Next"], "headline-sm": ["Atkinson Hyperlegible Next"], "body-lg": ["Atkinson Hyperlegible Next"], "headline-lg": ["Atkinson Hyperlegible Next"] }, fontSize: { "display": ["32px", { lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "700" }], "body-xl": ["20px", { lineHeight: "28px", fontWeight: "400" }], "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }], "label-lg": ["18px", { lineHeight: "24px", fontWeight: "600" }], "headline-md": ["22px", { lineHeight: "28px", fontWeight: "700" }], "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }], "label-sm": ["14px", { lineHeight: "18px", fontWeight: "600" }], "label-md": ["16px", { lineHeight: "22px", fontWeight: "600" }], "headline-sm": ["18px", { lineHeight: "24px", fontWeight: "700" }], "body-lg": ["18px", { lineHeight: "26px", fontWeight: "400" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "700" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#F7F5EF;color:#202B28;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 0.5rem);}.pt-safe{padding-top:env(safe-area-inset-top, 0px);}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-canvas font-body-md text-ink min-h-screen flex flex-col antialiased selection:bg-brand-soft"><header class="fixed top-0 inset-x-0 z-50 bg-canvas/90 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.03)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm min-w-0"><h1 class="font-headline-md text-headline-md text-ink truncate select-none">Medicines</h1></div><div class="flex items-center gap-space-sm"><button aria-label="Notifications and reminders" class="w-11 h-11 flex items-center justify-center rounded-full text-ink-muted hover:text-ink hover:bg-surface-muted transition-colors"><span class="material-symbols-outlined text-[24px]">notifications</span></button><div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary"><span class="material-symbols-outlined text-[20px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-24 bg-canvas"><div class="flex flex-col w-full">
+<div class="px-margin pt-space-md pb-space-lg flex flex-col gap-space-lg">
+<div class="flex items-center justify-between gap-space-md">
+<p class="font-body-md text-body-md text-ink-muted">Manage your medication plans.</p>
+<button aria-label="Add medication" class="w-11 h-11 shrink-0 rounded-full bg-surface text-primary flex items-center justify-center shadow-sm active:bg-surface-muted transition-colors border border-outline/30" id="btn-add-top" type="button">
+<span class="material-symbols-outlined text-[24px]">add</span>
+</button>
+</div>
+<div class="relative w-full">
+<div class="absolute inset-y-0 left-0 pl-space-md flex items-center pointer-events-none text-ink-muted">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input aria-label="Search medicines" class="w-full h-12 pl-11 pr-space-md bg-surface text-ink font-body-md placeholder:text-ink-muted rounded-xl shadow-sm border border-outline/30 focus:outline-none transition-shadow" id="med-search-input" placeholder="Search medicines" type="text"/>
+</div>
+<div aria-label="Medication status filter" class="bg-surface-muted p-1 rounded-xl flex items-center gap-1 select-none" role="tablist">
+<button aria-selected="true" class="tab-btn flex-1 py-2 px-space-sm rounded-lg font-label-sm text-center transition-all bg-primary-container text-on-primary shadow-sm" data-filter="all" role="tab">
+        All
+      </button>
+<button aria-selected="false" class="tab-btn flex-1 py-2 px-space-sm rounded-lg font-label-sm text-center transition-all text-ink-muted hover:text-ink" data-filter="active" role="tab">
+        Active
+      </button>
+<button aria-selected="false" class="tab-btn flex-1 py-2 px-space-sm rounded-lg font-label-sm text-center transition-all text-ink-muted hover:text-ink" data-filter="queued" role="tab">
+        Queued
+      </button>
+<button aria-selected="false" class="tab-btn flex-1 py-2 px-space-sm rounded-lg font-label-sm text-center transition-all text-ink-muted hover:text-ink" data-filter="completed" role="tab">
+        Completed
+      </button>
+</div>
+<div class="flex flex-col gap-space-lg" id="med-list-container">
+<section class="med-section flex flex-col gap-space-sm" data-section="active">
+<div class="flex items-center justify-between px-space-xs">
+<span class="font-label-sm text-ink-muted uppercase tracking-wider">Current schedule</span>
+<span class="font-label-sm text-primary font-semibold">1 active</span>
+</div>
+<div class="med-card bg-surface rounded-xl p-space-md flex items-center justify-between gap-space-md shadow-sm border border-outline/20 active:bg-surface-muted transition-colors cursor-pointer" data-category="active" data-name="Medicine A">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">medication</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-headline-sm text-ink truncate">Medicine A</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-surface-container-low text-primary">
+<span class="w-1.5 h-1.5 rounded-full bg-primary shrink-0"></span>
+                  Active
+                </span>
+</div>
+<p class="font-body-sm text-ink-muted mt-0.5 truncate">1 tablet • Daily at 08:00 AM</p>
+</div>
+</div>
+<div class="text-ink-muted shrink-0 flex items-center">
+<span class="material-symbols-outlined text-[22px]">chevron_right</span>
+</div>
+</div>
+</section>
+<section class="med-section flex flex-col gap-space-sm" data-section="queued">
+<div class="flex items-center justify-between px-space-xs">
+<span class="font-label-sm text-ink-muted uppercase tracking-wider">Upcoming sequence</span>
+<span class="font-label-sm text-warning font-semibold">1 queued</span>
+</div>
+<div class="med-card bg-surface rounded-xl p-space-md flex flex-col gap-space-sm shadow-sm border border-outline/20 active:bg-surface-muted transition-colors cursor-pointer" data-category="queued" data-name="Medicine B">
+<div class="flex items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-xl bg-secondary-fixed text-on-secondary-fixed-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">hourglass_top</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-headline-sm text-ink truncate">Medicine B</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-secondary-fixed text-on-secondary-fixed-variant">
+                    Queued
+                  </span>
+</div>
+<p class="font-body-sm text-ink-muted mt-0.5 truncate">2 capsules • Waiting for previous course</p>
+</div>
+</div>
+<div class="text-ink-muted shrink-0 flex items-center">
+<span class="material-symbols-outlined text-[22px]">chevron_right</span>
+</div>
+</div>
+<div class="bg-surface-muted rounded-lg px-space-sm py-1.5 flex items-center gap-space-xs text-ink-muted">
+<span class="material-symbols-outlined text-[16px] shrink-0 text-warning">info</span>
+<p class="font-body-sm text-xs truncate">Starts automatically after Medicine A is completed.</p>
+</div>
+</div>
+</section>
+<section class="med-section flex flex-col gap-space-sm" data-section="completed">
+<div class="flex items-center justify-between px-space-xs">
+<span class="font-label-sm text-ink-muted uppercase tracking-wider">Finished courses</span>
+<span class="font-label-sm text-ink-muted font-semibold">1 completed</span>
+</div>
+<div class="med-card bg-surface rounded-xl p-space-md flex flex-col gap-space-sm shadow-sm border border-outline/20 active:bg-surface-muted transition-colors cursor-pointer" data-category="completed" data-name="Medicine C">
+<div class="flex items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-xl bg-surface-muted text-ink-muted flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">check_circle</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-headline-sm text-ink truncate">Medicine C</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-surface-muted text-ink-muted">
+<span class="material-symbols-outlined text-[12px]">check</span>
+                    Completed
+                  </span>
+</div>
+<p class="font-body-sm text-ink-muted mt-0.5 truncate">1 tablet • Course finished</p>
+</div>
+</div>
+<div class="text-ink-muted shrink-0 flex items-center">
+<span class="material-symbols-outlined text-[22px]">chevron_right</span>
+</div>
+</div>
+<div class="bg-surface-muted rounded-lg px-space-sm py-1.5 flex items-center gap-space-xs text-ink-muted">
+<span class="material-symbols-outlined text-[16px] shrink-0">event_available</span>
+<p class="font-body-sm text-xs truncate">Treatment finished.</p>
+</div>
+</div>
+</section>
+<div class="hidden flex flex-col items-center justify-center py-space-xl text-center" id="empty-state">
+<div class="w-16 h-16 rounded-full bg-surface-muted flex items-center justify-center text-ink-muted mb-space-sm">
+<span class="material-symbols-outlined text-[32px]">manage_search</span>
+</div>
+<p class="font-headline-sm text-ink">No medicines found</p>
+<p class="font-body-sm text-ink-muted max-w-xs mt-1">Try adjusting your search query or switching the category filter.</p>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    const searchInput = document.getElementById('med-search-input');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const sections = document.querySelectorAll('.med-section');
+    const cards = document.querySelectorAll('.med-card');
+    const emptyState = document.getElementById('empty-state');
+    const addTop = document.getElementById('btn-add-top');
+
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    const navItems = document.querySelectorAll('nav a');
+    navItems.forEach(item => {
+      const path = item.getAttribute('data-path');
+      if (path === 'medicines') {
+        item.classList.remove('text-ink-muted');
+        item.classList.add('text-primary-container', 'font-headline-sm');
+      } else {
+        item.classList.remove('text-primary-container', 'font-headline-sm');
+        item.classList.add('text-ink-muted');
+      }
+    });
+
+    function applyFilterAndSearch() {
+      let visibleCount = 0;
+
+      sections.forEach(section => {
+        const secFilter = section.getAttribute('data-section');
+        const sectionCards = section.querySelectorAll('.med-card');
+        let sectionVisibleCards = 0;
+
+        sectionCards.forEach(card => {
+          const medCategory = card.getAttribute('data-category');
+          const medName = (card.getAttribute('data-name') || '').toLowerCase();
+          
+          const matchesFilter = (currentFilter === 'all') || (currentFilter === medCategory);
+          const matchesSearch = medName.includes(searchQuery.toLowerCase());
+
+          if (matchesFilter && matchesSearch) {
+            card.style.display = 'flex';
+            sectionVisibleCards++;
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        if (sectionVisibleCards > 0) {
+          section.style.display = 'flex';
+        } else {
+          section.style.display = 'none';
+        }
+      });
+
+      if (visibleCount === 0) {
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+      }
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabButtons.forEach(b => {
+          b.setAttribute('aria-selected', 'false');
+          b.classList.remove('bg-primary-container', 'text-on-primary', 'shadow-sm');
+          b.classList.add('text-ink-muted');
+        });
+
+        btn.setAttribute('aria-selected', 'true');
+        btn.classList.add('bg-primary-container', 'text-on-primary', 'shadow-sm');
+        btn.classList.remove('text-ink-muted');
+
+        currentFilter = btn.getAttribute('data-filter');
+        applyFilterAndSearch();
+      });
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim();
+        applyFilterAndSearch();
+      });
+    }
+
+    function handleAddMedication() {
+      if (searchInput) {
+        searchInput.value = '';
+        searchQuery = '';
+      }
+      const allTab = document.querySelector('[data-filter="all"]');
+      if (allTab) allTab.click();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (addTop) addTop.addEventListener('click', handleAddMedication);
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        card.classList.add('scale-[0.99]');
+        setTimeout(() => card.classList.remove('scale-[0.99]'), 150);
+      });
+    });
+  })();
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(32,43,40,0.05)] border-t border-outline/20" data-active-classes="text-primary-container font-headline-sm"><div class="flex justify-around items-center h-16 px-space-sm max-w-lg mx-auto"><a class="flex-1 flex flex-col items-center justify-center min-w-[48px] h-12 rounded-lg text-ink-muted hover:text-ink transition-colors" data-path="today" href="#"><span class="material-symbols-outlined text-[24px]">calendar_today</span><span class="font-label-sm text-label-sm tracking-tight mt-0.5">Today</span></a><a aria-current="page" class="flex-1 flex flex-col items-center justify-center min-w-[48px] h-12 rounded-lg transition-colors text-primary-container font-headline-sm" data-path="medicines" href="#"><span class="material-symbols-outlined text-[24px]">medication</span><span class="font-label-sm text-label-sm tracking-tight mt-0.5">Medicines</span></a><a class="flex-1 flex flex-col items-center justify-center min-w-[48px] h-12 rounded-lg text-ink-muted hover:text-ink transition-colors" data-path="family" href="#"><span class="material-symbols-outlined text-[24px]">group</span><span class="font-label-sm text-label-sm tracking-tight mt-0.5">Family</span></a><a class="flex-1 flex flex-col items-center justify-center min-w-[48px] h-12 rounded-lg text-ink-muted hover:text-ink transition-colors" data-path="profile" href="#"><span class="material-symbols-outlined text-[24px]">account_circle</span><span class="font-label-sm text-label-sm tracking-tight mt-0.5">Profile</span></a></div></nav></body></html>

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<meta content="mobile_stack" name="shell-type"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-tint": "#32685c",
+            "ink": "#202B28",
+            "inverse-on-surface": "#e7f4ee",
+            "inverse-surface": "#283330",
+            "on-secondary-container": "#734c00",
+            "on-tertiary-fixed": "#002113",
+            "surface-variant": "#d9e5e0",
+            "surface": "#FFFEFA",
+            "on-primary-fixed-variant": "#164f45",
+            "on-error-container": "#93000a",
+            "tertiary-fixed-dim": "#96d4b2",
+            "secondary-fixed": "#ffddb1",
+            "surface-container-highest": "#d9e5e0",
+            "surface-container-low": "#eaf6f1",
+            "inverse-primary": "#9ad2c3",
+            "secondary-container": "#ffbd56",
+            "on-background": "#131e1b",
+            "tertiary-fixed": "#b1f0cd",
+            "secondary-fixed-dim": "#fcba53",
+            "primary-fixed-dim": "#9ad2c3",
+            "on-primary": "#ffffff",
+            "surface-bright": "#f0fcf7",
+            "surface-container": "#e4f1ec",
+            "danger": "#A33E38",
+            "primary-fixed": "#b6eedf",
+            "outline-variant": "#bfc9c5",
+            "error": "#ba1a1a",
+            "primary-container": "#245b50",
+            "on-primary-container": "#99d1c3",
+            "surface-dim": "#d0ddd8",
+            "brand-soft": "#DCE9E2",
+            "brand-pressed": "#19483F",
+            "on-tertiary": "#ffffff",
+            "on-surface-variant": "#404946",
+            "background": "#f0fcf7",
+            "on-secondary": "#ffffff",
+            "canvas": "#F7F5EF",
+            "on-tertiary-container": "#96d4b1",
+            "on-error": "#ffffff",
+            "on-surface": "#131e1b",
+            "warning": "#8A5A16",
+            "on-primary-fixed": "#00201a",
+            "on-secondary-fixed-variant": "#624000",
+            "on-tertiary-fixed-variant": "#105137",
+            "ink-muted": "#58645F",
+            "surface-container-lowest": "#ffffff",
+            "primary": "#034339",
+            "tertiary-container": "#205d42",
+            "outline": "#D4D9D2",
+            "secondary": "#815600",
+            "tertiary": "#00452c",
+            "surface-muted": "#ECEFE9",
+            "surface-container-high": "#dfebe6",
+            "error-container": "#ffdad6",
+            "on-secondary-fixed": "#291800"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "space-xl": "2rem",
+            "margin-tablet": "2rem",
+            "margin": "1.25rem",
+            "gutter-lg": "1.5rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "margin-desktop": "3rem",
+            "gutter": "1rem",
+            "space-xs": "0.25rem",
+            "gutter-sm": "0.75rem",
+            "margin-mobile": "1.25rem",
+            "space-sm": "0.5rem"
+          },
+          fontFamily: {
+            "label-md": ["Atkinson Hyperlegible Next", "sans-serif"],
+            "display": ["Atkinson Hyperlegible Next", "sans-serif"],
+            "body-lg": ["Atkinson Hyperlegible Next", "sans-serif"],
+            "body-md": ["Atkinson Hyperlegible Next", "sans-serif"],
+            "body-xl": ["Atkinson Hyperlegible Next", "sans-serif"],
+            "body-sm": ["Atkinson Hyperlegible Next", "sans-serif"],
+            "label-sm": ["Atkinson Hyperlegible Next", "sans-serif"],
+            "label-lg": ["Atkinson Hyperlegible Next", "sans-serif"],
+            "headline-sm": ["Atkinson Hyperlegible Next", "sans-serif"],
+            "headline-lg": ["Atkinson Hyperlegible Next", "sans-serif"],
+            "headline-md": ["Atkinson Hyperlegible Next", "sans-serif"]
+          },
+          fontSize: {
+            "label-sm": ["14px", { "lineHeight": "18px", "fontWeight": "600" }],
+            "label-md": ["16px", { "lineHeight": "22px", "fontWeight": "600" }],
+            "label-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }],
+            "body-xl": ["20px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "700" }],
+            "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "700" }],
+            "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "display": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    @layer base {
+      html, body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #F7F5EF;
+      }
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+      .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+    }
+    ::-webkit-scrollbar { display: none; }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-canvas text-ink antialiased min-h-screen flex flex-col">
+<!-- Fixed Top Header -->
+<header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl border-b border-outline/40 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+<div class="h-16 px-margin flex items-center justify-between">
+<button aria-label="Go back" class="w-12 h-12 -ml-2 rounded-full flex items-center justify-center text-ink hover:bg-surface-muted transition-colors active:scale-95" onclick="history.back()">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<div class="flex-1 text-center px-space-sm">
+<h1 class="font-headline-sm text-headline-sm text-ink truncate">Reminder Schedule</h1>
+</div>
+<div class="flex items-center justify-end min-w-[48px]">
+<span class="font-label-sm text-label-sm text-ink-muted bg-surface-muted px-2.5 py-1 rounded-full border border-outline/50">2 of 4</span>
+</div>
+</div>
+</header>
+<main class="flex-1 w-full pt-16 pb-safe bg-canvas flex flex-col">
+<div class="flex flex-col w-full max-w-[680px] mx-auto">
+<div class="px-margin pt-space-md pb-32 space-y-space-lg">
+<!-- Heading & Editorial Intro -->
+<div class="space-y-space-xs">
+<h2 class="font-headline-lg text-headline-lg text-ink tracking-tight">When should you take this medicine?</h2>
+<p class="font-body-md text-body-md text-ink-muted">Choose a reminder pattern. You can change it later.</p>
+</div>
+<!-- 3 Interactive Scheduling Pattern Cards -->
+<div aria-label="Reminder patterns" class="space-y-space-sm" role="radiogroup">
+<!-- Pattern 1: Fixed Times -->
+<label class="flex items-start gap-space-md p-space-md rounded-xl bg-surface border-2 border-primary/20 cursor-pointer shadow-sm transition-all select-none hover:border-primary/40" id="opt-label-fixed" onclick="selectPattern('fixed')">
+<div class="pt-0.5">
+<input checked="" class="sr-only" name="reminder_pattern" type="radio" value="fixed"/>
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary transition-all" id="radio-indicator-fixed">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-2">
+<span class="font-label-lg text-label-lg text-ink">Fixed times</span>
+<span class="font-label-sm text-label-sm bg-brand-soft text-primary px-2.5 py-0.5 rounded-full font-medium">Recommended</span>
+</div>
+<p class="font-body-sm text-body-sm text-ink-muted mt-space-xs">Remind me at specific times.</p>
+</div>
+</label>
+<!-- Pattern 2: Every Few Hours -->
+<label class="flex items-start gap-space-md p-space-md rounded-xl bg-surface border border-outline/50 cursor-pointer shadow-sm transition-all select-none hover:border-outline" id="opt-label-interval" onclick="selectPattern('interval')">
+<div class="pt-0.5">
+<input class="sr-only" name="reminder_pattern" type="radio" value="interval"/>
+<div class="w-6 h-6 rounded-full bg-surface-muted border border-outline flex items-center justify-center text-transparent transition-all" id="radio-indicator-interval">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<span class="font-label-lg text-label-lg text-ink">Every few hours</span>
+<p class="font-body-sm text-body-sm text-ink-muted mt-space-xs">Repeat at a fixed hour interval.</p>
+</div>
+</label>
+<!-- Pattern 3: After Another Medicine -->
+<label class="flex items-start gap-space-md p-space-md rounded-xl bg-surface border border-outline/50 cursor-pointer shadow-sm transition-all select-none hover:border-outline" id="opt-label-linked" onclick="selectPattern('linked')">
+<div class="pt-0.5">
+<input class="sr-only" name="reminder_pattern" type="radio" value="linked"/>
+<div class="w-6 h-6 rounded-full bg-surface-muted border border-outline flex items-center justify-center text-transparent transition-all" id="radio-indicator-linked">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<span class="font-label-lg text-label-lg text-ink">After another medicine</span>
+<p class="font-body-sm text-body-sm text-ink-muted mt-space-xs">Remind me after I take another medicine.</p>
+</div>
+</label>
+</div>
+<!-- Global Inline Validation Banner -->
+<div class="hidden p-space-sm px-space-md rounded-xl bg-error-container/80 text-on-error-container border border-error/20 flex items-center gap-space-xs transition-all" id="validation-banner">
+<span class="material-symbols-outlined text-[20px] text-error flex-shrink-0">error</span>
+<span class="font-body-sm text-body-sm text-error font-medium" id="validation-message">Please review the fields below.</span>
+</div>
+<!-- PANEL 1: Fixed Times Panel -->
+<div class="space-y-space-lg" id="panel-fixed">
+<!-- Recurrence Segments -->
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-ink-muted uppercase tracking-wider">Repeat Frequency</span>
+</div>
+<div class="bg-surface-muted p-1 rounded-xl flex items-center gap-1">
+<button class="flex-1 py-2.5 px-3 rounded-lg font-label-sm text-label-sm text-on-primary bg-primary shadow-sm transition-all" id="repeat-tab-daily" onclick="selectRepeatTab('daily')" type="button">Every day</button>
+<button class="flex-1 py-2.5 px-3 rounded-lg font-label-sm text-label-sm text-ink bg-transparent transition-all hover:bg-surface/50" id="repeat-tab-selected" onclick="selectRepeatTab('selected')" type="button">Selected days</button>
+<button class="flex-1 py-2.5 px-3 rounded-lg font-label-sm text-label-sm text-ink bg-transparent transition-all hover:bg-surface/50" id="repeat-tab-cycle" onclick="selectRepeatTab('cycle')" type="button">Custom cycle</button>
+</div>
+<!-- Recurrence View 1: Daily Info Note -->
+<div class="px-space-xs pt-1 flex items-center gap-space-xs text-ink-muted font-body-sm text-body-sm" id="repeat-detail-daily">
+<span class="material-symbols-outlined text-[18px] text-primary">event_repeat</span>
+<span>Repeats daily at scheduled times.</span>
+</div>
+<!-- Recurrence View 2: Selected Days (Initial NONE selected) -->
+<div class="hidden bg-surface p-space-md rounded-xl space-y-space-sm border border-outline/50 shadow-sm" id="repeat-detail-selected">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-ink">Select recurring days:</span>
+<span class="font-body-sm text-body-sm text-ink-muted" id="selected-days-count">0 selected</span>
+</div>
+<div class="flex justify-between items-center gap-1.5 pt-1" id="weekday-pills-container">
+<button class="fixed-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all active:scale-95" data-day="Mon" onclick="toggleFixedDay(this)" type="button">Mon</button>
+<button class="fixed-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all active:scale-95" data-day="Tue" onclick="toggleFixedDay(this)" type="button">Tue</button>
+<button class="fixed-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all active:scale-95" data-day="Wed" onclick="toggleFixedDay(this)" type="button">Wed</button>
+<button class="fixed-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all active:scale-95" data-day="Thu" onclick="toggleFixedDay(this)" type="button">Thu</button>
+<button class="fixed-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all active:scale-95" data-day="Fri" onclick="toggleFixedDay(this)" type="button">Fri</button>
+<button class="fixed-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all active:scale-95" data-day="Sat" onclick="toggleFixedDay(this)" type="button">Sat</button>
+<button class="fixed-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all active:scale-95" data-day="Sun" onclick="toggleFixedDay(this)" type="button">Sun</button>
+</div>
+<p class="hidden font-body-sm text-body-sm text-error pt-1" id="fixed-days-error">Please select at least one weekday.</p>
+</div>
+<!-- Recurrence View 3: Custom Cycle -->
+<div class="hidden bg-surface p-space-md rounded-xl space-y-space-md border border-outline/50 shadow-sm" id="repeat-detail-cycle">
+<div class="grid grid-cols-2 gap-space-md">
+<div class="bg-surface-muted p-space-sm rounded-lg space-y-1">
+<label class="font-label-sm text-label-sm text-ink-muted block" for="cycle-days-on">Days ON</label>
+<div class="flex items-center gap-1.5">
+<input class="w-full bg-surface border border-outline rounded-lg px-2.5 py-1.5 font-headline-sm text-headline-sm text-ink focus:outline-none focus:border-primary" id="cycle-days-on" min="1" placeholder="e.g. 21" type="number" value="21"/>
+<span class="font-body-sm text-body-sm text-ink-muted">days</span>
+</div>
+</div>
+<div class="bg-surface-muted p-space-sm rounded-lg space-y-1">
+<label class="font-label-sm text-label-sm text-ink-muted block" for="cycle-days-off">Days OFF</label>
+<div class="flex items-center gap-1.5">
+<input class="w-full bg-surface border border-outline rounded-lg px-2.5 py-1.5 font-headline-sm text-headline-sm text-ink focus:outline-none focus:border-primary" id="cycle-days-off" min="1" placeholder="e.g. 7" type="number" value="7"/>
+<span class="font-body-sm text-body-sm text-ink-muted">days</span>
+</div>
+</div>
+</div>
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-ink-muted block" for="cycle-start-date">Cycle start date</label>
+<input class="w-full bg-surface-muted border border-outline/60 px-space-md py-2.5 rounded-xl font-body-md text-body-md text-ink focus:outline-none focus:border-primary" id="cycle-start-date" type="date"/>
+</div>
+<p class="font-body-sm text-body-sm text-ink-muted">Common for contraceptive schedules, hormone therapies, or cyclical antibiotic protocols.</p>
+</div>
+</div>
+<!-- Scheduled Times List (Starts with ONE clean editable row) -->
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-md text-label-md text-ink">Scheduled times</span>
+<span class="font-label-sm text-label-sm bg-brand-soft text-primary px-2 py-0.5 rounded-full" id="dose-counter">1 time daily</span>
+</div>
+<span class="font-body-sm text-body-sm text-ink-muted">Tap to edit</span>
+</div>
+<div class="space-y-space-sm" id="time-list-container">
+<!-- Initial Row 1 -->
+<div class="flex items-center justify-between p-space-md bg-surface border border-outline/50 rounded-xl shadow-sm gap-space-md time-entry-row" id="time-row-1">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-full bg-brand-soft flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[24px]">alarm</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<input aria-label="Reminder time" class="time-input bg-surface-muted border border-outline/60 px-2.5 py-1 rounded-lg font-headline-sm text-headline-sm text-ink focus:outline-none focus:border-primary" onchange="validateTimesList()" type="time" value="08:00"/>
+</div>
+<span class="dose-label font-body-sm text-body-sm text-ink-muted block truncate mt-0.5">Dose: 1 tablet • Morning</span>
+</div>
+</div>
+<button aria-label="Delete dose" class="w-11 h-11 rounded-full flex items-center justify-center text-ink-muted hover:bg-surface-muted transition-colors flex-shrink-0 active:scale-95" onclick="removeTimeRow('time-row-1')" type="button">
+<span class="material-symbols-outlined text-[22px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Inline Time Validation Note -->
+<p class="hidden font-body-sm text-body-sm text-error px-1" id="time-validation-msg"></p>
+<!-- Add Dose Action -->
+<button class="w-full h-13 py-3.5 bg-surface border border-primary/30 rounded-xl flex items-center justify-center gap-space-xs text-primary font-label-md text-label-md shadow-sm active:bg-surface-muted transition-colors hover:border-primary" onclick="addTimeRow()" type="button">
+<span class="material-symbols-outlined text-[22px]">add</span>
+<span>Add another time</span>
+</button>
+</div>
+</div>
+<!-- PANEL 2: Every Few Hours Panel -->
+<div class="hidden space-y-space-lg" id="panel-interval">
+<div class="bg-surface p-space-md rounded-xl space-y-space-md border border-outline/50 shadow-sm">
+<!-- Numeric Interval Stepper -->
+<div class="flex items-center justify-between pb-1 border-b border-outline/30">
+<div>
+<span class="font-label-md text-label-md text-ink block">Repeat every</span>
+<span class="font-body-sm text-body-sm text-ink-muted">Between 2 and 24 hours</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button aria-label="Decrease interval" class="w-10 h-10 rounded-full bg-surface-muted border border-outline/60 text-ink flex items-center justify-center active:bg-brand-soft transition-colors" onclick="adjustInterval(-1)" type="button">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<div class="flex items-center">
+<input class="w-12 text-center bg-surface-muted border border-outline/60 py-1.5 rounded-lg font-headline-sm text-headline-sm text-ink focus:outline-none focus:border-primary" id="interval-input" max="24" min="2" onchange="onIntervalInputChange(this.value)" type="number" value="6"/>
+<span class="font-label-md text-label-md text-ink ml-1.5">hrs</span>
+</div>
+<button aria-label="Increase interval" class="w-10 h-10 rounded-full bg-surface-muted border border-outline/60 text-ink flex items-center justify-center active:bg-brand-soft transition-colors" onclick="adjustInterval(1)" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+<!-- First Reminder Time -->
+<div class="space-y-space-xs">
+<label class="font-label-sm text-label-sm text-ink-muted block" for="interval-start-time">First reminder time</label>
+<div class="flex items-center gap-2">
+<input class="flex-1 bg-surface-muted border border-outline/60 px-space-md py-3 rounded-xl font-headline-sm text-headline-sm text-ink focus:outline-none focus:border-primary" id="interval-start-time" onchange="updateIntervalCalculations()" type="time" value="06:00"/>
+</div>
+</div>
+<!-- Recurrence Selector for Interval: Every Day / Selected Days -->
+<div class="space-y-space-xs pt-1">
+<span class="font-label-sm text-label-sm text-ink-muted block">Active Days</span>
+<div class="bg-surface-muted p-1 rounded-xl flex items-center gap-1">
+<button class="flex-1 py-2 rounded-lg font-label-sm text-label-sm text-on-primary bg-primary transition-all" id="interval-rec-daily" onclick="setIntervalRecurrence('daily')" type="button">Every day</button>
+<button class="flex-1 py-2 rounded-lg font-label-sm text-label-sm text-ink bg-transparent transition-all hover:bg-surface/50" id="interval-rec-selected" onclick="setIntervalRecurrence('selected')" type="button">Selected days</button>
+</div>
+<!-- Weekday selector when Selected Days chosen -->
+<div class="hidden pt-2 space-y-1.5" id="interval-days-container">
+<div class="flex justify-between items-center gap-1">
+<button class="interval-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all" data-day="Mon" onclick="toggleIntervalDay(this)" type="button">Mon</button>
+<button class="interval-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all" data-day="Tue" onclick="toggleIntervalDay(this)" type="button">Tue</button>
+<button class="interval-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all" data-day="Wed" onclick="toggleIntervalDay(this)" type="button">Wed</button>
+<button class="interval-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all" data-day="Thu" onclick="toggleIntervalDay(this)" type="button">Thu</button>
+<button class="interval-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all" data-day="Fri" onclick="toggleIntervalDay(this)" type="button">Fri</button>
+<button class="interval-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all" data-day="Sat" onclick="toggleIntervalDay(this)" type="button">Sat</button>
+<button class="interval-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all" data-day="Sun" onclick="toggleIntervalDay(this)" type="button">Sun</button>
+</div>
+<p class="hidden font-body-sm text-body-sm text-error" id="interval-days-error">Please select at least one day.</p>
+</div>
+</div>
+<!-- Dynamic Calculated Preview Chips -->
+<div class="space-y-space-xs pt-1">
+<span class="font-label-sm text-label-sm text-ink-muted block">Calculated Daily Times</span>
+<div class="flex flex-wrap gap-2" id="interval-preview-chips">
+<!-- Dynamically generated preview chips -->
+</div>
+</div>
+<!-- Explanatory Copy -->
+<div class="p-space-sm rounded-lg bg-surface-muted border border-outline/40 flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary mt-0.5 flex-shrink-0">info</span>
+<p class="font-body-sm text-body-sm text-ink-muted">Alarms trigger on the mathematical clock interval from the start time, avoiding confusion with dose confirmation events.</p>
+</div>
+</div>
+</div>
+<!-- PANEL 3: After Another Medicine Panel -->
+<div class="hidden space-y-space-lg" id="panel-linked">
+<!-- Demonstration Scenario Toggle -->
+<div class="flex items-center justify-between p-2.5 px-3 rounded-lg bg-surface-muted border border-outline/50">
+<span class="font-body-sm text-body-sm text-ink">Scenario preview:</span>
+<button class="font-label-sm text-label-sm text-primary underline" onclick="toggleEligibleMedicinesEmptyState()" type="button">
+<span id="mock-toggle-label">Simulate empty medicines</span>
+</button>
+</div>
+<!-- Empty State (Hidden by default unless toggled) -->
+<div class="hidden p-space-lg bg-surface rounded-xl border border-outline/50 text-center space-y-space-sm shadow-sm" id="linked-empty-state">
+<div class="w-12 h-12 mx-auto rounded-full bg-surface-muted flex items-center justify-center text-ink-muted">
+<span class="material-symbols-outlined text-[26px]">medication</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-ink">No other medicines found</h3>
+<p class="font-body-sm text-body-sm text-ink-muted max-w-sm mx-auto">Please add your first medicine with fixed times or intervals before creating a chained reminder.</p>
+</div>
+<!-- Standard Active Configuration for Linked Panel -->
+<div class="space-y-space-md" id="linked-content-state">
+<div class="bg-surface p-space-md rounded-xl space-y-space-md border border-outline/50 shadow-sm">
+<!-- Medicine Selector -->
+<div class="space-y-space-xs">
+<label class="font-label-sm text-label-sm text-ink-muted block" for="primary-med-select">Primary medication</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-muted border border-outline/60 p-space-md pr-10 rounded-xl font-label-md text-label-md text-ink focus:outline-none focus:border-primary" id="primary-med-select" onchange="updateLinkedExplanation()">
+<!-- Strictly excludes current medicine being created: Amoxicillin -->
+<option value="Lisinopril 10 mg">Lisinopril 10 mg (Daily at 08:00 AM)</option>
+<option value="Metformin 500 mg">Metformin 500 mg (Twice daily with meals)</option>
+<option value="Levothyroxine 50 mcg">Levothyroxine 50 mcg (Morning fasting)</option>
+</select>
+<span class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-ink-muted text-[22px]">unfold_more</span>
+</div>
+</div>
+<!-- Reminder Delay Chips -->
+<div class="space-y-space-xs">
+<span class="font-label-sm text-label-sm text-ink-muted block">Delay after taking primary medicine</span>
+<div class="grid grid-cols-5 gap-2">
+<button class="delay-chip py-2.5 rounded-lg bg-surface-muted border border-outline/40 text-ink font-label-sm text-label-sm text-center transition-all" onclick="selectDelayChip(10, this)" type="button">10 min</button>
+<button class="delay-chip py-2.5 rounded-lg bg-surface-muted border border-outline/40 text-ink font-label-sm text-label-sm text-center transition-all" onclick="selectDelayChip(15, this)" type="button">15 min</button>
+<button class="delay-chip py-2.5 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm text-center shadow-sm transition-all" onclick="selectDelayChip(30, this)" type="button">30 min</button>
+<button class="delay-chip py-2.5 rounded-lg bg-surface-muted border border-outline/40 text-ink font-label-sm text-label-sm text-center transition-all" onclick="selectDelayChip(60, this)" type="button">60 min</button>
+<button class="delay-chip py-2.5 rounded-lg bg-surface-muted border border-outline/40 text-ink font-label-sm text-label-sm text-center transition-all" onclick="selectDelayChip('custom', this)" type="button">Custom</button>
+</div>
+<!-- Custom Delay Minutes Input -->
+<div class="hidden pt-2" id="custom-delay-container">
+<div class="flex items-center gap-2 bg-surface-muted p-2 rounded-xl border border-outline">
+<input class="w-24 bg-surface border border-outline/60 px-3 py-1.5 rounded-lg font-headline-sm text-headline-sm text-ink focus:outline-none focus:border-primary" id="custom-delay-input" min="1" oninput="onCustomDelayChange(this.value)" placeholder="e.g. 45" type="number" value="45"/>
+<span class="font-body-md text-body-md text-ink-muted">minutes after parent intake</span>
+</div>
+</div>
+</div>
+<!-- Dynamic Plain-Language Explanation -->
+<div class="p-space-sm rounded-lg bg-brand-soft/40 border border-brand-soft flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-primary mt-0.5 flex-shrink-0">schedule_send</span>
+<p class="font-body-sm text-body-sm text-ink" id="linked-explanation-text">
+                  If Lisinopril 10 mg is marked taken at 09:15 AM, this medicine will be scheduled for 09:45 AM.
+                </p>
+</div>
+<!-- Critical Safety Behavioral Notes -->
+<div class="p-space-md rounded-xl bg-surface-muted border border-outline/40 space-y-2">
+<div class="flex items-start gap-space-xs text-ink">
+<span class="material-symbols-outlined text-[18px] text-warning mt-0.5 flex-shrink-0">warning</span>
+<p class="font-body-sm text-body-sm">
+<strong class="font-label-sm">Intake confirmation required:</strong> The countdown begins only after the parent dose is marked Taken. Snoozing the parent dose does not start the countdown.
+                  </p>
+</div>
+<div class="flex items-start gap-space-xs text-ink-muted border-t border-outline/30 pt-2">
+<span class="material-symbols-outlined text-[18px] text-ink-muted mt-0.5 flex-shrink-0">alt_route</span>
+<p class="font-body-sm text-body-sm">
+                    If parent dose is skipped: you can choose whether to skip this dose or trigger at a fallback time.
+                  </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Offline Reliability Banner -->
+<div class="bg-surface-muted px-space-md py-space-sm rounded-xl flex items-center gap-space-sm text-ink-muted border border-outline/40">
+<span class="material-symbols-outlined text-[20px] text-ink-muted flex-shrink-0">cloud_off</span>
+<p class="font-body-sm text-body-sm">Local schedule runs reliably offline without an internet connection.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Fixed Bottom Bar -->
+<aside class="fixed bottom-0 left-0 right-0 p-margin bg-surface/90 backdrop-blur-xl border-t border-outline/40 shadow-lg z-40 pb-safe">
+<div class="max-w-[680px] mx-auto w-full">
+<button class="w-full h-14 bg-primary text-on-primary rounded-xl font-label-lg text-label-lg flex items-center justify-center gap-space-sm active:bg-brand-pressed transition-colors shadow-sm cursor-pointer" onclick="handleContinue()" type="button">
+<span>Continue</span>
+<span class="material-symbols-outlined text-[22px]">arrow_forward</span>
+</button>
+</div>
+</aside>
+<!-- Vanilla JS Engine with full validation & interactions -->
+<script>
+    // State Tracking
+    let activePattern = 'fixed';
+    let currentFixedTab = 'daily';
+    let currentIntervalHours = 6;
+    let currentIntervalRecurrence = 'daily';
+    let selectedFixedDays = new Set();
+    let selectedIntervalDays = new Set();
+    let linkedDelayMinutes = 30;
+    let isMockEmptyState = false;
+
+    // Dose label config (simulating carry-over dose from Screen 09)
+    const passedDoseDescription = "1 tablet";
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Default cycle start date to today (YYYY-MM-DD)
+      const today = new Date().toISOString().split('T')[0];
+      const cycleDateEl = document.getElementById('cycle-start-date');
+      if (cycleDateEl) cycleDateEl.value = today;
+
+      // Initialize preview calculations
+      updateIntervalCalculations();
+      updateLinkedExplanation();
+    });
+
+    // 1. Pattern Selector
+    function selectPattern(type) {
+      activePattern = type;
+      hideValidationAlert();
+      const types = ['fixed', 'interval', 'linked'];
+      types.forEach(t => {
+        const label = document.getElementById('opt-label-' + t);
+        const radio = document.getElementById('radio-indicator-' + t);
+        const panel = document.getElementById('panel-' + t);
+        if (t === type) {
+          label.className = "flex items-start gap-space-md p-space-md rounded-xl bg-surface border-2 border-primary/20 cursor-pointer shadow-sm transition-all select-none hover:border-primary/40";
+          radio.className = "w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary transition-all";
+          radio.innerHTML = '<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: \'FILL\' 1;">check</span>';
+          panel.classList.remove('hidden');
+        } else {
+          label.className = "flex items-start gap-space-md p-space-md rounded-xl bg-surface border border-outline/50 cursor-pointer shadow-sm transition-all select-none hover:border-outline";
+          radio.className = "w-6 h-6 rounded-full bg-surface-muted border border-outline flex items-center justify-center text-transparent transition-all";
+          radio.innerHTML = '<span class="material-symbols-outlined text-[16px]">check</span>';
+          panel.classList.add('hidden');
+        }
+      });
+    }
+
+    // 2. Fixed Times - Repeat Tabs
+    function selectRepeatTab(tab) {
+      currentFixedTab = tab;
+      hideValidationAlert();
+      const tabs = ['daily', 'selected', 'cycle'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('repeat-tab-' + t);
+        const detail = document.getElementById('repeat-detail-' + t);
+        if (t === tab) {
+          btn.className = "flex-1 py-2.5 px-3 rounded-lg font-label-sm text-label-sm text-on-primary bg-primary shadow-sm transition-all";
+          detail.classList.remove('hidden');
+        } else {
+          btn.className = "flex-1 py-2.5 px-3 rounded-lg font-label-sm text-label-sm text-ink bg-transparent transition-all hover:bg-surface/50";
+          detail.classList.add('hidden');
+        }
+      });
+    }
+
+    // 3. Fixed Times - Day Chips (Initialized to None)
+    function toggleFixedDay(btn) {
+      hideValidationAlert();
+      const day = btn.getAttribute('data-day');
+      if (selectedFixedDays.has(day)) {
+        selectedFixedDays.delete(day);
+        btn.className = "fixed-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all active:scale-95";
+      } else {
+        selectedFixedDays.add(day);
+        btn.className = "fixed-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-primary text-on-primary flex items-center justify-center transition-all active:scale-95 shadow-sm";
+      }
+      const countEl = document.getElementById('selected-days-count');
+      countEl.textContent = `${selectedFixedDays.size} selected`;
+      if (selectedFixedDays.size > 0) {
+        document.getElementById('fixed-days-error').classList.add('hidden');
+      }
+    }
+
+    // 4. Fixed Times - Dynamic Row Management
+    function getTimePeriodLabel(timeVal) {
+      if (!timeVal) return 'Morning';
+      const hour = parseInt(timeVal.split(':')[0], 10);
+      if (hour < 12) return 'Morning';
+      if (hour < 17) return 'Afternoon';
+      if (hour < 21) return 'Evening';
+      return 'Night';
+    }
+
+    function addTimeRow() {
+      hideValidationAlert();
+      const container = document.getElementById('time-list-container');
+      const existingRows = container.querySelectorAll('.time-entry-row');
+      
+      // Determine intelligent next time (+4 hours from last, or wrap)
+      let defaultNext = "12:00";
+      if (existingRows.length > 0) {
+        const lastInput = existingRows[existingRows.length - 1].querySelector('.time-input');
+        if (lastInput && lastInput.value) {
+          const parts = lastInput.value.split(':');
+          let nextH = (parseInt(parts[0], 10) + 4) % 24;
+          defaultNext = `${String(nextH).padStart(2, '0')}:${parts[1] || '00'}`;
+        }
+      }
+
+      const newId = 'time-row-' + Date.now();
+      const newIndex = existingRows.length + 1;
+      const period = getTimePeriodLabel(defaultNext);
+
+      const div = document.createElement('div');
+      div.id = newId;
+      div.className = "flex items-center justify-between p-space-md bg-surface border border-outline/50 rounded-xl shadow-sm gap-space-md time-entry-row";
+      div.innerHTML = `
+        <div class="flex items-center gap-space-md min-w-0">
+          <div class="w-12 h-12 rounded-full bg-brand-soft flex items-center justify-center text-primary flex-shrink-0">
+            <span class="material-symbols-outlined text-[24px]">alarm</span>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <input type="time" value="${defaultNext}" onchange="validateTimesList()" aria-label="Reminder time" class="time-input bg-surface-muted border border-outline/60 px-2.5 py-1 rounded-lg font-headline-sm text-headline-sm text-ink focus:outline-none focus:border-primary" />
+            </div>
+            <span class="dose-label font-body-sm text-body-sm text-ink-muted block truncate mt-0.5">Dose: ${passedDoseDescription} • ${period}</span>
+          </div>
+        </div>
+        <button type="button" onclick="removeTimeRow('${newId}')" aria-label="Delete dose" class="w-11 h-11 rounded-full flex items-center justify-center text-ink-muted hover:bg-surface-muted transition-colors flex-shrink-0 active:scale-95">
+          <span class="material-symbols-outlined text-[22px]">delete</span>
+        </button>
+      `;
+      container.appendChild(div);
+      updateDoseCounter();
+      validateTimesList();
+    }
+
+    function removeTimeRow(id) {
+      const container = document.getElementById('time-list-container');
+      const rows = container.querySelectorAll('.time-entry-row');
+      if (rows.length <= 1) {
+        showValidationAlert("At least one reminder time is required.");
+        return;
+      }
+      const target = document.getElementById(id);
+      if (target) {
+        target.remove();
+        updateDoseCounter();
+        validateTimesList();
+      }
+    }
+
+    function updateDoseCounter() {
+      const rows = document.querySelectorAll('#time-list-container .time-entry-row');
+      const count = rows.length;
+      const badge = document.getElementById('dose-counter');
+      badge.textContent = count + (count === 1 ? ' time daily' : ' times daily');
+    }
+
+    function validateTimesList() {
+      const inputs = document.querySelectorAll('#time-list-container .time-input');
+      const timeValues = [];
+      let hasDuplicate = false;
+
+      inputs.forEach(inp => {
+        const val = inp.value;
+        if (timeValues.includes(val)) {
+          hasDuplicate = true;
+        }
+        timeValues.push(val);
+        // Update period label
+        const row = inp.closest('.time-entry-row');
+        if (row) {
+          const lbl = row.querySelector('.dose-label');
+          if (lbl) {
+            lbl.textContent = `Dose: ${passedDoseDescription} • ${getTimePeriodLabel(val)}`;
+          }
+        }
+      });
+
+      const errEl = document.getElementById('time-validation-msg');
+      if (hasDuplicate) {
+        errEl.textContent = "Duplicate reminder times detected. Please ensure all scheduled times are distinct.";
+        errEl.classList.remove('hidden');
+        return false;
+      } else {
+        errEl.classList.add('hidden');
+        return true;
+      }
+    }
+
+    // 5. Interval Logic & Calculator
+    function adjustInterval(delta) {
+      hideValidationAlert();
+      const input = document.getElementById('interval-input');
+      let val = parseInt(input.value, 10) || 6;
+      val = Math.max(2, Math.min(24, val + delta));
+      input.value = val;
+      currentIntervalHours = val;
+      updateIntervalCalculations();
+    }
+
+    function onIntervalInputChange(val) {
+      hideValidationAlert();
+      let num = parseInt(val, 10);
+      if (isNaN(num) || num < 2) num = 2;
+      if (num > 24) num = 24;
+      document.getElementById('interval-input').value = num;
+      currentIntervalHours = num;
+      updateIntervalCalculations();
+    }
+
+    function setIntervalRecurrence(type) {
+      currentIntervalRecurrence = type;
+      hideValidationAlert();
+      const dailyBtn = document.getElementById('interval-rec-daily');
+      const selectedBtn = document.getElementById('interval-rec-selected');
+      const daysContainer = document.getElementById('interval-days-container');
+
+      if (type === 'daily') {
+        dailyBtn.className = "flex-1 py-2 rounded-lg font-label-sm text-label-sm text-on-primary bg-primary transition-all";
+        selectedBtn.className = "flex-1 py-2 rounded-lg font-label-sm text-label-sm text-ink bg-transparent transition-all hover:bg-surface/50";
+        daysContainer.classList.add('hidden');
+      } else {
+        dailyBtn.className = "flex-1 py-2 rounded-lg font-label-sm text-label-sm text-ink bg-transparent transition-all hover:bg-surface/50";
+        selectedBtn.className = "flex-1 py-2 rounded-lg font-label-sm text-label-sm text-on-primary bg-primary transition-all";
+        daysContainer.classList.remove('hidden');
+      }
+    }
+
+    function toggleIntervalDay(btn) {
+      hideValidationAlert();
+      const day = btn.getAttribute('data-day');
+      if (selectedIntervalDays.has(day)) {
+        selectedIntervalDays.delete(day);
+        btn.className = "interval-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-surface-muted text-ink border border-outline/50 flex items-center justify-center transition-all";
+      } else {
+        selectedIntervalDays.add(day);
+        btn.className = "interval-day-chip w-10 h-10 rounded-full font-label-sm text-label-sm bg-primary text-on-primary flex items-center justify-center transition-all shadow-sm";
+      }
+      if (selectedIntervalDays.size > 0) {
+        document.getElementById('interval-days-error').classList.add('hidden');
+      }
+    }
+
+    function formatTime12h(totalMinutes) {
+      let m = totalMinutes % (24 * 60);
+      let h = Math.floor(m / 60);
+      let min = m % 60;
+      let ampm = h >= 12 ? 'PM' : 'AM';
+      let h12 = h % 12;
+      if (h12 === 0) h12 = 12;
+      return `${String(h12).padStart(2, '0')}:${String(min).padStart(2, '0')} ${ampm}`;
+    }
+
+    function updateIntervalCalculations() {
+      const startTimeVal = document.getElementById('interval-start-time').value || "06:00";
+      const parts = startTimeVal.split(':');
+      const startMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      const intervalMinutes = currentIntervalHours * 60;
+      
+      const container = document.getElementById('interval-preview-chips');
+      container.innerHTML = '';
+
+      let cur = startMin;
+      // Generate daily points within a 24-hr cycle
+      const endLimit = startMin + 24 * 60;
+      while (cur < endLimit) {
+        const timeStr = formatTime12h(cur);
+        const span = document.createElement('span');
+        span.className = "px-3 py-1.5 rounded-lg bg-surface-muted border border-outline/50 font-label-sm text-label-sm text-ink";
+        span.textContent = timeStr;
+        container.appendChild(span);
+        cur += intervalMinutes;
+      }
+    }
+
+    // 6. Linked Medicine Panel
+    function toggleEligibleMedicinesEmptyState() {
+      isMockEmptyState = !isMockEmptyState;
+      const emptyBox = document.getElementById('linked-empty-state');
+      const contentBox = document.getElementById('linked-content-state');
+      const label = document.getElementById('mock-toggle-label');
+      if (isMockEmptyState) {
+        emptyBox.classList.remove('hidden');
+        contentBox.classList.add('hidden');
+        label.textContent = "Restore eligible medicines";
+      } else {
+        emptyBox.classList.add('hidden');
+        contentBox.classList.remove('hidden');
+        label.textContent = "Simulate empty medicines";
+      }
+    }
+
+    function selectDelayChip(val, chipBtn) {
+      hideValidationAlert();
+      document.querySelectorAll('.delay-chip').forEach(c => {
+        c.className = "delay-chip py-2.5 rounded-lg bg-surface-muted border border-outline/40 text-ink font-label-sm text-label-sm text-center transition-all";
+      });
+      chipBtn.className = "delay-chip py-2.5 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm text-center shadow-sm transition-all";
+
+      const customBox = document.getElementById('custom-delay-container');
+      if (val === 'custom') {
+        customBox.classList.remove('hidden');
+        const customInput = document.getElementById('custom-delay-input');
+        linkedDelayMinutes = parseInt(customInput.value, 10) || 45;
+      } else {
+        customBox.classList.add('hidden');
+        linkedDelayMinutes = val;
+      }
+      updateLinkedExplanation();
+    }
+
+    function onCustomDelayChange(val) {
+      linkedDelayMinutes = parseInt(val, 10) || 1;
+      updateLinkedExplanation();
+    }
+
+    function updateLinkedExplanation() {
+      const select = document.getElementById('primary-med-select');
+      const medName = select ? select.value.split(' (')[0] : 'Lisinopril 10 mg';
+      
+      // Calculate dynamic preview: intake at 09:15 AM + linkedDelayMinutes
+      const baseMinutes = 9 * 60 + 15; // 09:15 AM
+      const targetTimeStr = formatTime12h(baseMinutes + linkedDelayMinutes);
+      
+      const explanationEl = document.getElementById('linked-explanation-text');
+      if (explanationEl) {
+        explanationEl.innerHTML = `If <strong>${medName}</strong> is marked taken at 09:15 AM, this medicine will be scheduled for <strong>${targetTimeStr}</strong>.`;
+      }
+    }
+
+    // 7. Validation & Submission
+    function showValidationAlert(msg) {
+      const banner = document.getElementById('validation-banner');
+      const text = document.getElementById('validation-message');
+      text.textContent = msg;
+      banner.classList.remove('hidden');
+      banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function hideValidationAlert() {
+      const banner = document.getElementById('validation-banner');
+      if (banner) banner.classList.add('hidden');
+    }
+
+    function handleContinue() {
+      hideValidationAlert();
+
+      if (activePattern === 'fixed') {
+        // Validate Selected Days
+        if (currentFixedTab === 'selected' && selectedFixedDays.size === 0) {
+          document.getElementById('fixed-days-error').classList.remove('hidden');
+          showValidationAlert("Please select at least one weekday for your recurring schedule.");
+          return;
+        }
+
+        // Validate Custom Cycle
+        if (currentFixedTab === 'cycle') {
+          const daysOn = parseInt(document.getElementById('cycle-days-on').value, 10);
+          const daysOff = parseInt(document.getElementById('cycle-days-off').value, 10);
+          if (isNaN(daysOn) || daysOn < 1 || isNaN(daysOff) || daysOff < 1) {
+            showValidationAlert("Please provide valid cycle days ON and days OFF (minimum 1 day).");
+            return;
+          }
+        }
+
+        // Validate Times
+        const rows = document.querySelectorAll('#time-list-container .time-entry-row');
+        if (rows.length === 0) {
+          showValidationAlert("Please configure at least one reminder time.");
+          return;
+        }
+
+        if (!validateTimesList()) {
+          showValidationAlert("Duplicate alarm times detected. Please adjust your scheduled times.");
+          return;
+        }
+
+      } else if (activePattern === 'interval') {
+        if (currentIntervalRecurrence === 'selected' && selectedIntervalDays.size === 0) {
+          document.getElementById('interval-days-error').classList.remove('hidden');
+          showValidationAlert("Please select at least one active weekday for interval reminders.");
+          return;
+        }
+        if (currentIntervalHours < 2 || currentIntervalHours > 24) {
+          showValidationAlert("Interval must be between 2 and 24 hours.");
+          return;
+        }
+
+      } else if (activePattern === 'linked') {
+        if (isMockEmptyState) {
+          showValidationAlert("No primary medicine available to link. Please switch pattern or restore medicines.");
+          return;
+        }
+        if (linkedDelayMinutes < 1) {
+          showValidationAlert("Please set a valid reminder delay.");
+          return;
+        }
+      }
+
+      // Validated successfully
+      alert("Reminder schedule configured successfully. Advancing to Step 3 of 4...");
+    }
+  </script>
+</body></html>

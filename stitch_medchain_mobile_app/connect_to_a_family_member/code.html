@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><meta content="" name="csrf-token"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400..700;1,400..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-tertiary": "#ffffff", "surface-tint": "#32685c", "tertiary-fixed-dim": "#96d4b2", "surface-dim": "#d0ddd8", "primary-container": "#245b50", "secondary-fixed-dim": "#fcba53", "surface-container-highest": "#d9e5e0", "on-secondary-fixed-variant": "#624000", "warning": "#8A5A16", "surface-bright": "#f0fcf7", "tertiary": "#00452c", "tertiary-fixed": "#b1f0cd", "brand-pressed": "#19483F", "surface-variant": "#d9e5e0", "on-secondary-fixed": "#291800", "canvas": "#F7F5EF", "surface-container-low": "#eaf6f1", "surface-container": "#e4f1ec", "on-primary": "#ffffff", "on-secondary-container": "#734c00", "inverse-on-surface": "#e7f4ee", "surface-container-lowest": "#ffffff", "surface": "#FFFEFA", "brand-soft": "#DCE9E2", "on-error": "#ffffff", "on-tertiary-container": "#96d4b1", "on-primary-fixed": "#00201a", "error": "#ba1a1a", "on-surface-variant": "#404946", "on-surface": "#131e1b", "ink-muted": "#58645F", "on-primary-fixed-variant": "#164f45", "background": "#f0fcf7", "outline": "#D4D9D2", "on-error-container": "#93000a", "on-tertiary-fixed-variant": "#105137", "error-container": "#ffdad6", "surface-muted": "#ECEFE9", "on-tertiary-fixed": "#002113", "inverse-surface": "#283330", "danger": "#A33E38", "primary-fixed-dim": "#9ad2c3", "primary": "#034339", "inverse-primary": "#9ad2c3", "secondary-fixed": "#ffddb1", "on-background": "#131e1b", "on-secondary": "#ffffff", "on-primary-container": "#99d1c3", "tertiary-container": "#205d42", "secondary-container": "#ffbd56", "ink": "#202B28", "secondary": "#815600", "outline-variant": "#bfc9c5", "primary-fixed": "#b6eedf", "surface-container-high": "#dfebe6" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter": "1rem", "margin": "1.25rem", "space-lg": "1.5rem", "space-xl": "2rem", "space-md": "1rem", "margin-mobile": "1.25rem", "space-xs": "0.25rem", "gutter-lg": "1.5rem", "gutter-sm": "0.75rem", "margin-desktop": "3rem", "margin-tablet": "2rem", "space-sm": "0.5rem" }, "fontFamily": { "body-lg": ["Atkinson Hyperlegible Next"], "headline-lg": ["Atkinson Hyperlegible Next"], "label-md": ["Atkinson Hyperlegible Next"], "body-sm": ["Atkinson Hyperlegible Next"], "label-sm": ["Atkinson Hyperlegible Next"], "body-xl": ["Atkinson Hyperlegible Next"], "label-lg": ["Atkinson Hyperlegible Next"], "headline-md": ["Atkinson Hyperlegible Next"], "body-md": ["Atkinson Hyperlegible Next"], "display": ["Atkinson Hyperlegible Next"], "headline-sm": ["Atkinson Hyperlegible Next"] }, "fontSize": { "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }], "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-md": ["16px", { "lineHeight": "22px", "fontWeight": "600" }], "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "label-sm": ["14px", { "lineHeight": "18px", "fontWeight": "600" }], "body-xl": ["20px", { "lineHeight": "28px", "fontWeight": "400" }], "label-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "700" }], "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "display": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "700" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;min-height:100%;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-canvas font-body-md text-ink flex flex-col min-h-screen antialiased selection:bg-brand-soft"><header class="fixed top-0 w-full z-50 bg-canvas/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-20 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><button aria-label="Go back" class="w-12 h-12 -ml-2 rounded-full flex items-center justify-center text-ink hover:bg-surface-muted transition-colors active:scale-95" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex flex-col justify-center"><span class="font-label-sm text-label-sm text-ink-muted uppercase tracking-wider">Caregiver access</span><h1 class="font-headline-md text-headline-md text-ink leading-tight">Connect To Family</h1></div></div><div class="flex items-center"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-sm" id="header-avatar-container"><span class="material-symbols-outlined text-on-primary text-[18px]" id="header-avatar-icon">person</span><span class="text-on-primary font-label-sm text-label-sm hidden" id="header-avatar-initials"></span></div></div></div></header><main class="flex flex-col flex-1 relative w-full px-margin pt-20 pb-safe bg-canvas"><div class="flex flex-col w-full pb-10">
+<!-- Caregiver Persistent Context Ribbon (Dignified Warm Paper Aesthetic) -->
+<div class="w-full bg-surface-muted rounded-xl p-space-md mb-space-lg flex items-center justify-between">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-full bg-brand-soft text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">supervisor_account</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-ink-muted">Account setup</span>
+<span class="font-headline-sm text-headline-sm text-ink truncate">Requesting linked access</span>
+</div>
+</div>
+<div class="inline-flex items-center gap-1 bg-surface-container px-3 py-1.5 rounded-full">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-secondary">Step 2 of 2</span>
+</div>
+</div>
+<!-- Introduction with Tactile Chain Motif -->
+<div class="flex flex-col space-y-space-sm mb-space-lg">
+<h2 class="font-headline-lg text-headline-lg text-ink">
+      Stay connected to someone you care about.
+    </h2>
+<p class="font-body-md text-body-md text-ink-muted">
+      Enter the 6-digit pairing code shown on your family member’s phone or scan their screen to initiate a secure, patient-approved link.
+    </p>
+<!-- Warm Tactile Pairing Motif Illustration -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-md flex items-center justify-center my-space-sm">
+<div class="flex items-center gap-4 py-2">
+<!-- Phone A: Patient -->
+<div class="flex flex-col items-center">
+<div class="w-14 h-22 rounded-lg bg-surface flex flex-col items-center p-1.5 shadow-sm">
+<div class="w-4 h-1 bg-surface-container-highest rounded-full mb-1"></div>
+<div class="w-full flex-1 bg-surface-muted rounded flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">elderly</span>
+</div>
+<div class="w-1.5 h-1.5 bg-secondary rounded-full mt-1"></div>
+</div>
+<span class="font-label-sm text-label-sm text-ink-muted mt-1.5">Their phone</span>
+</div>
+<!-- Connecting Link Motif -->
+<div class="flex items-center px-1">
+<div class="w-4 h-0.5 bg-brand-soft"></div>
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-sm -mx-1 z-10">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">link</span>
+</div>
+<div class="w-4 h-0.5 bg-brand-soft"></div>
+</div>
+<!-- Phone B: Caregiver -->
+<div class="flex flex-col items-center">
+<div class="w-14 h-22 rounded-lg bg-surface flex flex-col items-center p-1.5 shadow-sm">
+<div class="w-4 h-1 bg-surface-container-highest rounded-full mb-1"></div>
+<div class="w-full flex-1 bg-brand-soft rounded flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">person_check</span>
+</div>
+<div class="w-1.5 h-1.5 bg-primary rounded-full mt-1"></div>
+</div>
+<span class="font-label-sm text-label-sm text-ink-muted mt-1.5">Your phone</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Segmented Control: Code vs QR -->
+<div class="w-full bg-surface-muted p-1 rounded-xl flex items-center mb-space-lg shadow-sm" role="tablist">
+<button aria-selected="true" class="flex-1 min-h-[48px] rounded-lg font-label-md text-label-md flex items-center justify-center gap-2 transition-all duration-200 bg-surface text-ink shadow-sm" id="tab-code-btn" onclick="switchMethod('code')" role="tab" type="button">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">pin</span>
+<span>Enter 6-digit code</span>
+</button>
+<button aria-selected="false" class="flex-1 min-h-[48px] rounded-lg font-label-md text-label-md flex items-center justify-center gap-2 transition-all duration-200 text-ink-muted hover:text-ink" id="tab-qr-btn" onclick="switchMethod('qr')" role="tab" type="button">
+<span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
+<span>Scan QR code</span>
+</button>
+</div>
+<!-- Interactive Feedback Banner -->
+<div class="hidden mb-space-lg w-full p-space-md rounded-xl flex items-start gap-space-sm transition-all" id="error-banner">
+<span class="material-symbols-outlined text-[22px] shrink-0 mt-0.5" id="banner-icon">error_outline</span>
+<div class="flex-1 flex flex-col">
+<span class="font-label-md text-label-md font-bold" id="banner-title">Code not recognized or expired</span>
+<span class="font-body-sm text-body-sm" id="banner-desc">Verify the numbers on your family member's screen or request a new code from their profile.</span>
+<button class="mt-2 self-start font-label-sm text-label-sm underline" id="banner-action-btn" onclick="clearInputs()" type="button">Try entering again</button>
+</div>
+</div>
+<!-- VIEW A: ENTER CODE CARD -->
+<div class="flex flex-col w-full bg-surface rounded-xl p-space-md mb-space-lg shadow-sm" id="view-code">
+<div class="flex items-center justify-between mb-space-xs">
+<h3 class="font-headline-sm text-headline-sm text-ink">Patient pairing code</h3>
+<span class="inline-flex items-center gap-1 bg-surface-container px-2.5 py-1 rounded-full text-ink-muted font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+        Single-use
+      </span>
+</div>
+<p class="font-body-md text-body-md text-ink-muted mb-space-lg">
+      Enter the six numbers displayed in their app under <span class="font-semibold text-ink">Profile &gt; Connect Caregiver</span>.
+    </p>
+<!-- 6-Digit Split Input -->
+<div class="flex items-center justify-between gap-1 sm:gap-2 mb-space-md" id="otp-container">
+<!-- First Group of 3 -->
+<div class="flex gap-1.5 sm:gap-2">
+<input aria-label="Digit 1" class="otp-box w-11 h-14 sm:w-12 sm:h-14 bg-canvas text-center font-headline-md text-headline-md text-ink rounded-lg focus:outline-none focus:bg-surface focus:shadow-md transition-all" data-index="0" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text"/>
+<input aria-label="Digit 2" class="otp-box w-11 h-14 sm:w-12 sm:h-14 bg-canvas text-center font-headline-md text-headline-md text-ink rounded-lg focus:outline-none focus:bg-surface focus:shadow-md transition-all" data-index="1" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text"/>
+<input aria-label="Digit 3" class="otp-box w-11 h-14 sm:w-12 sm:h-14 bg-canvas text-center font-headline-md text-headline-md text-ink rounded-lg focus:outline-none focus:bg-surface focus:shadow-md transition-all" data-index="2" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text"/>
+</div>
+<!-- Mid Divider -->
+<div class="w-3 h-0.5 bg-ink-muted/40 rounded-full"></div>
+<!-- Second Group of 3 -->
+<div class="flex gap-1.5 sm:gap-2">
+<input aria-label="Digit 4" class="otp-box w-11 h-14 sm:w-12 sm:h-14 bg-canvas text-center font-headline-md text-headline-md text-ink rounded-lg focus:outline-none focus:bg-surface focus:shadow-md transition-all" data-index="3" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text"/>
+<input aria-label="Digit 5" class="otp-box w-11 h-14 sm:w-12 sm:h-14 bg-canvas text-center font-headline-md text-headline-md text-ink rounded-lg focus:outline-none focus:bg-surface focus:shadow-md transition-all" data-index="4" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text"/>
+<input aria-label="Digit 6" class="otp-box w-11 h-14 sm:w-12 sm:h-14 bg-canvas text-center font-headline-md text-headline-md text-ink rounded-lg focus:outline-none focus:bg-surface focus:shadow-md transition-all" data-index="5" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text"/>
+</div>
+</div>
+<!-- Quick Actions Row -->
+<div class="flex items-center justify-between pt-1">
+<button class="inline-flex items-center gap-1.5 font-label-md text-label-md text-primary hover:text-brand-pressed py-2 px-1 transition-colors" onclick="handleClipboardPaste()" type="button">
+<span class="material-symbols-outlined text-[18px]">content_paste</span>
+<span>Paste code</span>
+</button>
+<button class="inline-flex items-center gap-1 font-label-sm text-label-sm text-ink-muted hover:text-ink py-2 px-1 transition-colors" onclick="clearInputs()" type="button">
+<span class="material-symbols-outlined text-[16px]">backspace</span>
+<span>Clear</span>
+</button>
+</div>
+</div>
+<!-- VIEW B: SCAN QR CARD (Hidden by default) -->
+<div class="hidden flex-col w-full bg-surface rounded-xl p-space-md mb-space-lg shadow-sm" id="view-qr">
+<div class="flex items-center justify-between mb-space-xs">
+<h3 class="font-headline-sm text-headline-sm text-ink">Camera scanner</h3>
+<span class="inline-flex items-center gap-1 bg-surface-container px-2.5 py-1 rounded-full text-ink font-label-sm text-label-sm" id="camera-status-pill">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary" id="camera-status-dot"></span>
+<span id="camera-status-text">Standby</span>
+</span>
+</div>
+<p class="font-body-md text-body-md text-ink-muted mb-space-md">
+      Align their phone screen inside the frame. The code will read automatically.
+    </p>
+<!-- Genuine Camera & Viewfinder Frame -->
+<div class="relative w-full h-64 bg-ink rounded-xl overflow-hidden flex items-center justify-center p-6 mb-space-md shadow-inner">
+<!-- Real HTML5 Video Preview Stream (In React Native: Native Camera View via react-native-vision-camera / expo-camera) -->
+<video autoplay="" class="absolute inset-0 w-full h-full object-cover hidden" id="qr-video" muted="" playsinline=""></video>
+<!-- Background grid overlay -->
+<div class="absolute inset-0 opacity-25 bg-[radial-gradient(#96d4b2_1px,transparent_1px)] [background-size:16px_16px]" id="scanner-bg-pattern"></div>
+<!-- Camera Permission / Error Fallback Overlay -->
+<div class="relative z-20 flex flex-col items-center justify-center text-center px-4 hidden" id="camera-error-overlay">
+<span class="material-symbols-outlined text-surface-tint text-[36px] mb-2">videocam_off</span>
+<p class="font-label-md text-label-md text-surface mb-1" id="camera-error-title">Camera access unavailable</p>
+<p class="font-body-sm text-body-sm text-surface-dim mb-3" id="camera-error-msg">Allow camera permissions in browser settings or upload a QR image.</p>
+<button class="bg-surface text-ink px-3 py-1.5 rounded-lg font-label-sm text-label-sm shadow-sm" onclick="startScannerCamera()" type="button">
+        Try camera again
+      </button>
+</div>
+<!-- Corner Reticles & Scanning Beam -->
+<div class="relative w-48 h-48 flex items-center justify-center pointer-events-none z-10" id="scanner-reticle">
+<!-- Animated Scan Line -->
+<div class="absolute w-full h-1 bg-secondary shadow-[0_0_8px_#fcba53] animate-bounce top-4" id="scanner-line"></div>
+<div class="absolute top-0 left-0 w-8 h-8 rounded-tl-lg bg-surface"></div>
+<div class="absolute top-0 right-0 w-8 h-8 rounded-tr-lg bg-surface"></div>
+<div class="absolute bottom-0 left-0 w-8 h-8 rounded-bl-lg bg-surface"></div>
+<div class="absolute bottom-0 right-0 w-8 h-8 rounded-br-lg bg-surface"></div>
+<!-- Center Target Symbol -->
+<span class="material-symbols-outlined text-surface/30 text-[48px]" id="scanner-center-icon">qr_code_2</span>
+</div>
+<!-- Hidden Canvas for Video Frame Processing -->
+<canvas class="hidden" id="qr-canvas"></canvas>
+</div>
+<!-- Scanner Secondary Actions -->
+<div class="flex items-center gap-space-sm justify-center">
+<label class="flex-1 min-h-[48px] bg-surface-muted hover:bg-surface-container rounded-lg font-label-md text-label-md text-ink flex items-center justify-center gap-1.5 cursor-pointer transition-colors">
+<input accept="image/*" class="sr-only" id="qr-file-input" onchange="handleQRFileUpload(event)" type="file"/>
+<span class="material-symbols-outlined text-[18px]">photo_library</span>
+<span>Upload photo</span>
+</label>
+<button class="min-h-[48px] px-4 bg-surface-muted hover:bg-surface-container rounded-lg font-label-md text-label-md text-ink flex items-center justify-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled="" id="torch-toggle-btn" onclick="toggleTorch(this)" type="button">
+<span class="material-symbols-outlined text-[18px]">flash_on</span>
+<span>Light</span>
+</button>
+</div>
+</div>
+<!-- Caregiver Profile Preview Card ("How you will appear to them") -->
+<div class="w-full bg-surface rounded-xl p-space-md mb-space-lg shadow-sm" id="cg-card">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm text-ink-muted uppercase tracking-wider">How you will appear to them</span>
+<span class="font-label-sm text-label-sm text-ink-muted flex items-center gap-1" id="cg-verified-badge">
+<span class="material-symbols-outlined text-[16px]">lock_clock</span>
+        Unverified
+      </span>
+</div>
+<div class="flex items-center gap-space-md pt-1 pb-2">
+<!-- Caregiver Avatar with Badge -->
+<div class="relative">
+<div class="w-14 h-14 rounded-full bg-surface-muted text-ink-muted font-headline-sm text-headline-sm flex items-center justify-center shadow-sm" id="cg-avatar">
+<span class="material-symbols-outlined text-[26px]" id="cg-avatar-icon">person</span>
+<span class="hidden font-headline-sm" id="cg-avatar-initials"></span>
+</div>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-surface flex items-center justify-center shadow-sm">
+<span class="w-3.5 h-3.5 rounded-full bg-ink-muted/40" id="cg-status-indicator"></span>
+</div>
+</div>
+<!-- Identity Details -->
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center gap-2">
+<h4 class="font-headline-sm text-headline-sm text-ink truncate" id="cg-name">Caregiver Account</h4>
+<span class="bg-surface-muted text-ink-muted font-label-sm text-label-sm px-2 py-0.5 rounded-md">You</span>
+</div>
+<span class="font-body-sm text-body-sm text-ink-muted" id="cg-role">Designated Caregiver</span>
+<span class="font-body-sm text-body-sm text-ink-muted/80" id="cg-device">Device • MedChain SafeSync</span>
+</div>
+</div>
+<!-- Sign In Required Prompt Box (Prominent and Clear) -->
+<div class="mt-space-sm p-space-sm bg-surface-container-low rounded-lg flex flex-col gap-2.5 border border-outline/50" id="cg-auth-box">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-warning text-[20px] shrink-0 mt-0.5">info</span>
+<div class="flex-1">
+<p class="font-body-sm text-body-sm text-ink leading-snug" id="cg-disclaimer-note">
+<span class="font-bold text-ink">Sign-in required:</span> Please sign in to an authenticated caregiver account to connect with family.
+          </p>
+</div>
+</div>
+<div class="flex items-center justify-end pt-1" id="cg-auth-action-row">
+<button class="bg-primary text-on-primary hover:bg-brand-pressed text-label-sm font-label-sm px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition-colors" id="cg-signin-btn" onclick="triggerCaregiverSignIn()" type="button">
+<span class="material-symbols-outlined text-[16px]">login</span>
+<span>Sign In</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Access Scope Preview (Reciprocal Contract) -->
+<div class="w-full bg-surface rounded-xl p-space-md mb-space-lg shadow-sm">
+<h3 class="font-headline-sm text-headline-sm text-ink mb-space-xs">What you’ll be able to do</h3>
+<p class="font-body-sm text-body-sm text-ink-muted mb-space-md">
+      Access granted is specific to health management and can be revoked at any time.
+    </p>
+<div class="flex flex-col space-y-space-md">
+<!-- Item 1 -->
+<div class="flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-brand-soft text-primary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-ink">Manage medication schedules</span>
+<span class="font-body-sm text-body-sm text-ink-muted">Add, adjust, or pause dosages and timing instructions with full offline sync.</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-brand-soft text-primary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">checklist_rtl</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-ink">Track daily dose confirmations</span>
+<span class="font-body-sm text-body-sm text-ink-muted">See when doses are recorded as taken, postponed, or missed in real-time.</span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-brand-soft text-primary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">notifications_active</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-ink">Urgent safety alerts</span>
+<span class="font-body-sm text-body-sm text-ink-muted">Receive prompt notifications if critical maintenance doses remain unlogged.</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Security & Privacy Card (Refined Permission & Sync Language) -->
+<div class="w-full bg-surface-muted rounded-xl p-space-md mb-space-xl flex items-start gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-surface flex items-center justify-center text-primary shrink-0 shadow-sm mt-0.5">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-ink">Protected health connection</span>
+<span class="font-body-sm text-body-sm text-ink-muted">Secure device link authenticated by both parties. Local patient medication reminders continue operating independently of internet availability.</span>
+</div>
+</div>
+<!-- ACTION BUTTONS -->
+<div class="flex flex-col gap-space-sm w-full mt-auto">
+<!-- Primary Action: Validates code or QR session. Disabled if unauthenticated or < 6 digits -->
+<button class="w-full min-h-[60px] bg-primary text-on-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-2 opacity-50 cursor-not-allowed transition-all active:bg-brand-pressed shadow-sm" disabled="" id="submit-btn" onclick="handlePairingValidation()" type="button">
+<span id="btn-text">Validate pairing code</span>
+<span class="material-symbols-outlined text-[22px]" id="btn-arrow-icon">arrow_forward</span>
+</button>
+<!-- Secondary CTA -->
+<button class="w-full min-h-[56px] bg-transparent text-ink font-label-md text-label-md rounded-xl flex items-center justify-center hover:bg-surface-muted transition-colors" onclick="history.back()" type="button">
+      I'll do this later
+    </button>
+</div>
+<!-- STEP 2 INTERMEDIATE MODAL: Patient Identity Review & Confirmation -->
+<div class="fixed inset-0 z-50 bg-ink/50 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-4 transition-opacity" id="modal-confirm-patient">
+<div class="w-full max-w-sm bg-surface rounded-2xl p-space-lg shadow-2xl flex flex-col">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="inline-flex items-center gap-1 bg-surface-container px-2.5 py-1 rounded-full text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+      Identity verified
+    </span>
+<button aria-label="Close dialog" class="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted hover:bg-surface-muted" onclick="closeConfirmModal()" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<h3 class="font-headline-md text-headline-md text-ink mb-1">Confirm family connection</h3>
+<p class="font-body-sm text-body-sm text-ink-muted mb-space-md">
+    You're requesting permission to connect with this MedChain user.
+  </p>
+<!-- Verified Patient Card -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-md mb-space-md flex items-center gap-space-md">
+<div class="w-14 h-14 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-headline-md shrink-0 shadow-sm" id="confirm-patient-avatar">
+<span class="material-symbols-outlined text-[28px]" id="confirm-patient-icon">elderly</span>
+<span class="hidden font-headline-md" id="confirm-patient-initials"></span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center gap-1.5">
+<h4 class="font-headline-sm text-headline-sm text-ink truncate" id="confirm-patient-name">Patient Name</h4>
+</div>
+<span class="font-body-sm text-body-sm text-ink-muted font-mono" id="confirm-patient-id-sub">MedChain ID: --</span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+      Valid pairing code
+    </span>
+</div>
+</div>
+<!-- Scope Preview -->
+<div class="w-full bg-surface-muted rounded-xl p-space-sm mb-space-lg flex flex-col gap-1.5">
+<span class="font-label-sm text-label-sm text-ink-muted uppercase tracking-wider">Requested Access</span>
+<div class="flex items-center gap-2 text-ink font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">medication</span>
+<span>Caregiver dashboard &amp; medication schedule</span>
+</div>
+<div class="flex items-center gap-2 text-ink font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">notifications</span>
+<span>Real-time safety alerts &amp; dose logs</span>
+</div>
+</div>
+<!-- Modal Actions -->
+<div class="flex flex-col gap-2 w-full">
+<button class="w-full min-h-[54px] bg-primary text-on-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-2 hover:bg-brand-pressed active:bg-brand-pressed shadow-sm transition-colors" id="confirm-submit-btn" onclick="executeConnectionRequestSubmission()" type="button">
+<span id="confirm-btn-text">Send connection request</span>
+<span class="material-symbols-outlined text-[20px]" id="confirm-btn-icon">arrow_forward</span>
+</button>
+<button class="w-full min-h-[46px] text-ink-muted font-label-md text-label-md flex items-center justify-center hover:text-ink transition-colors" onclick="closeConfirmModal()" type="button">
+      Cancel / Choose different code
+    </button>
+</div>
+</div>
+</div>
+<!-- STEP 3 MODAL: Waiting for Patient Approval & Finalizing Verification -->
+<div class="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-4" id="modal-approval">
+<div class="w-full max-w-sm bg-surface rounded-2xl p-space-lg shadow-xl flex flex-col items-center text-center">
+<div class="relative mb-space-md">
+<div class="w-20 h-20 rounded-full bg-brand-soft flex items-center justify-center text-primary" id="approval-icon-container">
+<span class="material-symbols-outlined text-[36px] animate-pulse" id="approval-center-icon">phonelink_ring</span>
+</div>
+<div class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-secondary text-on-primary flex items-center justify-center shadow-sm" id="approval-sub-badge">
+<span class="material-symbols-outlined text-[14px]" id="approval-sub-icon">hourglass_top</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-1" id="approval-modal-eyebrow">Request sent</span>
+<h3 class="font-headline-md text-headline-md text-ink mb-space-xs" id="approval-modal-title">Waiting for patient approval</h3>
+<p class="font-body-md text-body-md text-ink-muted mb-space-lg" id="approval-modal-desc">
+        A prompt has appeared on their phone asking them to accept your link request.
+      </p>
+<div class="w-full bg-surface-container-low rounded-xl p-space-sm mb-space-lg flex items-center justify-between text-left">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse shrink-0" id="approval-pulse-dot"></span>
+<span class="font-label-sm text-label-sm text-ink-muted truncate" id="approval-status-label">Listening for patient response...</span>
+</div>
+<span class="font-body-sm text-body-sm font-mono text-ink-muted shrink-0 ml-2" id="active-session-code"></span>
+</div>
+<!-- Temporary Connection Notice Banner (Hidden unless retrying/offline) -->
+<div class="hidden w-full bg-secondary-fixed/40 text-ink rounded-lg p-2.5 mb-space-md text-left text-body-sm flex items-start gap-2" id="polling-retry-banner">
+<span class="material-symbols-outlined text-secondary text-[18px] shrink-0 mt-0.5" id="polling-retry-icon">wifi_off</span>
+<span class="flex-1" id="polling-retry-msg">Connection paused. Reconnecting to server...</span>
+</div>
+<!-- Explicit In-Modal Relationship Verification Error Card -->
+<div class="hidden w-full bg-error-container text-on-error-container rounded-xl p-3 mb-space-md text-left flex flex-col gap-2" id="verification-retry-card">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-error text-[20px] shrink-0 mt-0.5">sync_problem</span>
+<div class="flex-1">
+<span class="font-label-sm text-label-sm text-error font-bold block" id="verification-error-title">Relationship verification pending</span>
+<p class="font-body-sm text-body-sm leading-snug mt-0.5" id="verification-error-desc">Approval detected, but verified server access credentials could not be confirmed.</p>
+</div>
+</div>
+<button class="w-full min-h-[44px] bg-primary text-on-primary hover:bg-brand-pressed rounded-lg font-label-md text-label-md flex items-center justify-center gap-1.5 shadow-sm transition-colors mt-1" id="verification-modal-retry-btn" onclick="retryRelationshipVerificationNow()" type="button">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+<span id="verification-modal-retry-text">Retry verification now</span>
+</button>
+</div>
+<div class="flex flex-col w-full gap-2" id="approval-action-buttons">
+<button class="min-h-[48px] bg-surface-muted rounded-xl font-label-md text-label-md text-ink flex items-center justify-center transition-colors hover:bg-surface-container disabled:opacity-50 disabled:cursor-not-allowed" id="resend-btn" onclick="resendExistingRequest()" type="button">
+<span id="resend-btn-text">Resend prompt</span>
+</button>
+<button class="min-h-[48px] text-ink-muted font-label-md text-label-md flex items-center justify-center transition-colors hover:text-ink disabled:opacity-50" id="cancel-btn" onclick="cancelPendingRequest()" type="button">
+<span id="cancel-btn-text">Cancel request</span>
+</button>
+</div>
+</div>
+</div>
+<!-- STEP 4 MODAL: Success! Fully Verified Relationship -->
+<div class="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-4" id="modal-success">
+<div class="w-full max-w-sm bg-surface rounded-2xl p-space-lg shadow-xl flex flex-col items-center text-center">
+<div class="w-20 h-20 rounded-full bg-tertiary-fixed text-tertiary flex items-center justify-center mb-space-md shadow-sm">
+<span class="material-symbols-outlined text-[42px]" style="font-variation-settings: 'FILL' 1;">task_alt</span>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider mb-1">Connection confirmed</span>
+<h3 class="font-headline-md text-headline-md text-ink mb-space-xs">You’re now linked!</h3>
+<p class="font-body-md text-body-md text-ink-muted mb-space-md" id="success-message">
+        Connection established. Medication schedules will sync when both devices are connected.
+      </p>
+<!-- Linked Summary Pill with Server-Confirmed Metadata -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-3 flex flex-col gap-2 mb-space-lg text-left shadow-sm border border-outline/50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline-sm text-headline-sm shrink-0" id="success-patient-avatar">
+<span class="material-symbols-outlined text-[20px]" id="success-patient-icon">person</span>
+<span class="hidden" id="success-patient-initials"></span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-label-md text-label-md text-ink font-bold truncate" id="success-patient-name">Patient Account</span>
+<span class="font-body-sm text-body-sm text-ink-muted font-mono" id="success-relationship-id">Ref: --</span>
+</div>
+</div>
+<!-- Explicit Server-Confirmed Permissions List -->
+<div class="border-t border-surface-muted pt-2 mt-1">
+<span class="font-label-sm text-label-sm text-ink-muted uppercase tracking-wider block mb-1">Confirmed Permissions</span>
+<ul class="text-body-sm text-ink space-y-1" id="success-permissions-list">
+<li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-[16px]">check</span> Read medication schedules</li>
+</ul>
+</div>
+</div>
+<button class="w-full min-h-[56px] bg-primary text-on-primary rounded-xl font-label-lg text-label-lg flex items-center justify-center gap-2 transition-colors active:bg-brand-pressed shadow-sm" onclick="goToDashboard()" type="button">
+<span>View medication schedule</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Backend API Client & Protocol Architecture -->
+<script>
+  /**
+   * Helper to retrieve CSRF token securely from meta tag or cookie
+   */
+  function getCsrfToken() {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (metaTag && metaTag.content) {
+      return metaTag.content;
+    }
+    const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]*)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  /**
+   * MedChain Pairing Service API Client Contract
+   * Strictly communicates with authenticated MedChain endpoints with credentials and CSRF protection.
+   */
+  const MedChainPairingApiClient = {
+    _baseUrl: '/api/v1/pairing',
+
+    _getHeaders(customHeaders = {}) {
+      const headers = {
+        'Content-Type': 'application/json',
+        ...customHeaders
+      };
+      const csrf = getCsrfToken();
+      if (csrf) {
+        headers['X-CSRF-Token'] = csrf;
+      }
+      return headers;
+    },
+
+    async getSessionCaregiver() {
+      try {
+        const resp = await fetch('/api/v1/auth/session', {
+          method: 'GET',
+          credentials: 'include',
+          headers: this._getHeaders()
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.authenticated && data.caregiver && data.caregiver.caregiver_id) {
+            // Verify caregiver authorization
+            if (data.caregiver.authorized_to_pair !== false) {
+              return { ok: true, caregiver: data.caregiver };
+            }
+            return { ok: false, error: 'UNAUTHORIZED_CAREGIVER', message: 'Account is not authorized to pair.' };
+          }
+        }
+      } catch (e) {
+        // Network or service failure
+      }
+      return { ok: false, caregiver: null };
+    },
+
+    async validatePairingCode(pairing_code) {
+      if (!/^\d{6}$/.test(pairing_code)) {
+        return { ok: false, error: 'INVALID', message: 'Pairing code must contain exactly 6 numeric digits.' };
+      }
+      try {
+        const response = await fetch(`${this._baseUrl}/validate-code`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: this._getHeaders(),
+          body: JSON.stringify({ pairing_code })
+        });
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          const code = errData.error || (response.status === 404 ? 'INVALID' : response.status === 410 ? 'EXPIRED' : response.status === 409 ? 'ALREADY_USED' : 'SERVICE_UNAVAILABLE');
+          return { ok: false, error: code, message: errData.message };
+        }
+        const data = await response.json();
+        return {
+          ok: true,
+          pairing_session_id: data.pairing_session_id,
+          patient_id: data.patient_id,
+          patient_display_name: data.patient_display_name,
+          expires_at: data.expires_at
+        };
+      } catch (err) {
+        return { ok: false, error: 'SERVICE_UNAVAILABLE', message: 'Unable to connect to pairing service.' };
+      }
+    },
+
+    async validateQrPayload(qr_payload_string) {
+      let pairing_session_id = null;
+      let pairing_code = null;
+
+      try {
+        if (typeof qr_payload_string === 'string' && (qr_payload_string.startsWith('{') || qr_payload_string.startsWith('['))) {
+          const parsed = JSON.parse(qr_payload_string);
+          pairing_session_id = parsed.pairing_session_id || parsed.session_id || null;
+          pairing_code = parsed.pairing_code || parsed.code || null;
+        } else if (typeof qr_payload_string === 'string' && (qr_payload_string.startsWith('medchain://') || qr_payload_string.startsWith('https://') || qr_payload_string.includes('?'))) {
+          const url = new URL(qr_payload_string.startsWith('medchain://') ? qr_payload_string.replace('medchain://', 'https://protocol.local/') : qr_payload_string);
+          pairing_session_id = url.searchParams.get('session_id') || url.searchParams.get('pairing_session_id') || null;
+          pairing_code = url.searchParams.get('code') || url.searchParams.get('pairing_code') || null;
+        } else if (/^\d{6}$/.test(qr_payload_string)) {
+          pairing_code = qr_payload_string;
+        }
+      } catch (e) {
+        return { ok: false, error: 'INVALID_FORMAT', message: 'Unrecognized QR code format.' };
+      }
+
+      if (!pairing_code && !pairing_session_id) {
+        return { ok: false, error: 'INVALID_FORMAT', message: 'Unrecognized QR code format. Please scan a valid MedChain pairing code.' };
+      }
+
+      try {
+        const response = await fetch(`${this._baseUrl}/validate-qr`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: this._getHeaders(),
+          body: JSON.stringify({
+            qr_payload: qr_payload_string,
+            pairing_session_id,
+            pairing_code
+          })
+        });
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          const code = errData.error || (response.status === 404 ? 'INVALID' : response.status === 410 ? 'EXPIRED' : response.status === 409 ? 'ALREADY_USED' : 'SERVICE_UNAVAILABLE');
+          return { ok: false, error: code, message: errData.message };
+        }
+        const data = await response.json();
+        return {
+          ok: true,
+          pairing_session_id: data.pairing_session_id,
+          pairing_code: data.pairing_code || pairing_code,
+          patient_id: data.patient_id,
+          patient_display_name: data.patient_display_name,
+          expires_at: data.expires_at
+        };
+      } catch (err) {
+        return { ok: false, error: 'SERVICE_UNAVAILABLE', message: 'Unable to reach the pairing service.' };
+      }
+    },
+
+    // Backend-authoritative: caregiver_id derived strictly by backend session/cookie
+    async submitConnectionRequest(pairing_session_id) {
+      try {
+        const response = await fetch(`${this._baseUrl}/requests`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: this._getHeaders(),
+          body: JSON.stringify({
+            pairing_session_id
+          })
+        });
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          return { ok: false, error: errData.error || 'SUBMISSION_FAILED', message: errData.message };
+        }
+        const data = await response.json();
+        return {
+          ok: true,
+          connection_request_id: data.connection_request_id,
+          request_status: data.request_status || 'pending',
+          created_at: data.created_at
+        };
+      } catch (err) {
+        return { ok: false, error: 'SERVICE_UNAVAILABLE', message: 'Network connection failed.' };
+      }
+    },
+
+    async resendConnectionRequest(connection_request_id) {
+      try {
+        const response = await fetch(`${this._baseUrl}/requests/${encodeURIComponent(connection_request_id)}/resend`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: this._getHeaders()
+        });
+        if (response.status === 429) {
+          const errData = await response.json().catch(() => ({}));
+          return { ok: false, error: 'RATE_LIMITED', cooldown_seconds: errData.cooldown_seconds || 30 };
+        }
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          return { ok: false, error: errData.error || 'FAILED', message: errData.message };
+        }
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, error: 'SERVICE_UNAVAILABLE', message: 'Network request error' };
+      }
+    },
+
+    async getRequestStatus(connection_request_id) {
+      try {
+        const response = await fetch(`${this._baseUrl}/requests/${encodeURIComponent(connection_request_id)}/status`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: this._getHeaders()
+        });
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          return { ok: false, error: errData.error || 'STATUS_ERROR', message: errData.message };
+        }
+        const data = await response.json();
+        return {
+          ok: true,
+          connection_request_id: data.connection_request_id,
+          request_status: data.request_status, // 'pending'|'approved'|'declined'|'cancelled'|'expired'|'failed'
+          confirmed_at: data.confirmed_at || null
+        };
+      } catch (err) {
+        return { ok: false, error: 'SERVICE_UNAVAILABLE', message: 'Network request error' };
+      }
+    },
+
+    async cancelConnectionRequest(connection_request_id) {
+      try {
+        const response = await fetch(`${this._baseUrl}/requests/${encodeURIComponent(connection_request_id)}/cancel`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: this._getHeaders()
+        });
+        if (response.ok) {
+          return { ok: true };
+        }
+        const errData = await response.json().catch(() => ({}));
+        return { ok: false, error: errData.error || 'CANCEL_FAILED', message: errData.message || 'Server could not cancel the request.' };
+      } catch (err) {
+        return { ok: false, error: 'SERVICE_UNAVAILABLE', message: 'Network error while attempting cancellation.' };
+      }
+    },
+
+    // Strict relationship verification: NO client fallbacks, timestamps, or fake permissions
+    async getConfirmedRelationship(connection_request_id) {
+      try {
+        const response = await fetch(`${this._baseUrl}/requests/${encodeURIComponent(connection_request_id)}/relationship`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: this._getHeaders()
+        });
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          return { ok: false, error: errData.error || (response.status === 404 ? 'NOT_FOUND' : 'SERVICE_UNAVAILABLE') };
+        }
+        const data = await response.json();
+        
+        // Response MUST contain: valid relationship_id, patient_id, caregiver_id, non-empty permissions, confirmed_at
+        const hasValidPermissions = Array.isArray(data.permissions) 
+          ? data.permissions.length > 0 
+          : (data.permissions && typeof data.permissions === 'object' && Object.keys(data.permissions).length > 0);
+
+        if (!data.relationship_id || !data.patient_id || !data.caregiver_id || !hasValidPermissions || !data.confirmed_at) {
+          return { ok: false, error: 'INCOMPLETE_OR_UNVERIFIED_DATA' };
+        }
+
+        return {
+          ok: true,
+          relationship_id: data.relationship_id,
+          patient_id: data.patient_id,
+          patient_display_name: data.patient_display_name || '',
+          caregiver_id: data.caregiver_id,
+          permissions: data.permissions,
+          confirmed_at: data.confirmed_at
+        };
+      } catch (err) {
+        return { ok: false, error: 'SERVICE_UNAVAILABLE' };
+      }
+    }
+  };
+
+  // State Management
+  const pairingState = {
+    isValidating: false,
+    isSubmitting: false,
+    isPollingInFlight: false,
+    activePairingSessionId: null,
+    activeConnectionRequestId: null,
+    validatedPatientData: null,
+    pendingCode: '',
+    pollingTimeoutId: null,
+    consecutivePollFailures: 0,
+    isPollingActive: false,
+    verificationRetriesRemaining: 3,
+    verificationRetryTimer: null,
+    isVerifyingRelationship: false,
+    resendCooldownTimer: null,
+    resendCooldownSeconds: 0,
+    videoStream: null,
+    videoTrack: null,
+    scanAnimFrameId: null,
+    caregiverAuth: {
+      isAuthenticated: false,
+      caregiver_id: null,
+      name: 'Caregiver Account',
+      role: 'Designated Caregiver',
+      device: 'Personal Device • MedChain SafeSync'
+    }
+  };
+
+  // Authenticated Caregiver Verification from Real Server Session
+  async function checkCaregiverSession() {
+    const sessionRes = await MedChainPairingApiClient.getSessionCaregiver();
+    if (sessionRes.ok && sessionRes.caregiver && sessionRes.caregiver.caregiver_id) {
+      pairingState.caregiverAuth = {
+        isAuthenticated: true,
+        caregiver_id: sessionRes.caregiver.caregiver_id,
+        name: sessionRes.caregiver.name || 'Caregiver Account',
+        role: sessionRes.caregiver.role || 'Designated Caregiver',
+        device: sessionRes.caregiver.device || 'Personal Device • MedChain SafeSync'
+      };
+    } else {
+      pairingState.caregiverAuth = {
+        isAuthenticated: false,
+        caregiver_id: null,
+        name: 'Caregiver Account',
+        role: 'Designated Caregiver',
+        device: 'Personal Device • MedChain SafeSync'
+      };
+    }
+    renderCaregiverProfile();
+    checkCompletion();
+  }
+
+  function renderCaregiverProfile() {
+    const { caregiverAuth } = pairingState;
+
+    const nameEl = document.getElementById('cg-name');
+    const roleEl = document.getElementById('cg-role');
+    const deviceEl = document.getElementById('cg-device');
+    const verifiedBadge = document.getElementById('cg-verified-badge');
+    const statusIndicator = document.getElementById('cg-status-indicator');
+    const disclaimer = document.getElementById('cg-disclaimer-note');
+    const avatarInitialsEl = document.getElementById('cg-avatar-initials');
+    const avatarIconEl = document.getElementById('cg-avatar-icon');
+    const cgAvatar = document.getElementById('cg-avatar');
+    const headerAvatarIcon = document.getElementById('header-avatar-icon');
+    const headerAvatarInitials = document.getElementById('header-avatar-initials');
+    const authBox = document.getElementById('cg-auth-box');
+    const authActionRow = document.getElementById('cg-auth-action-row');
+
+    nameEl.innerText = caregiverAuth.name;
+    roleEl.innerText = caregiverAuth.role;
+    deviceEl.innerText = caregiverAuth.device;
+
+    if (caregiverAuth.isAuthenticated) {
+      verifiedBadge.className = 'font-label-sm text-label-sm text-primary flex items-center gap-1';
+      verifiedBadge.innerHTML = '<span class="material-symbols-outlined text-[16px]">verified_user</span> Verified';
+      statusIndicator.className = 'w-3.5 h-3.5 rounded-full bg-primary';
+      cgAvatar.className = 'w-14 h-14 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm flex items-center justify-center shadow-sm';
+      disclaimer.innerHTML = 'The patient must tap <span class="font-semibold text-ink">"Confirm Connection"</span> on their own device before schedule data is unlocked.';
+      authActionRow.classList.add('hidden');
+      authBox.className = 'mt-space-sm p-space-sm bg-surface-container-low rounded-lg flex flex-col gap-1 border border-outline/30';
+
+      if (caregiverAuth.name && caregiverAuth.name !== 'Caregiver Account') {
+        const inits = caregiverAuth.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        if (inits) {
+          avatarInitialsEl.innerText = inits;
+          avatarInitialsEl.classList.remove('hidden');
+          avatarIconEl.classList.add('hidden');
+          headerAvatarInitials.innerText = inits;
+          headerAvatarInitials.classList.remove('hidden');
+          headerAvatarIcon.classList.add('hidden');
+        }
+      }
+    } else {
+      verifiedBadge.className = 'font-label-sm text-label-sm text-ink-muted flex items-center gap-1';
+      verifiedBadge.innerHTML = '<span class="material-symbols-outlined text-[16px]">lock_clock</span> Unverified';
+      statusIndicator.className = 'w-3.5 h-3.5 rounded-full bg-ink-muted/40';
+      cgAvatar.className = 'w-14 h-14 rounded-full bg-surface-muted text-ink-muted font-headline-sm text-headline-sm flex items-center justify-center shadow-sm';
+      avatarInitialsEl.classList.add('hidden');
+      avatarIconEl.classList.remove('hidden');
+      headerAvatarInitials.classList.add('hidden');
+      headerAvatarIcon.classList.remove('hidden');
+
+      disclaimer.innerHTML = '<span class="text-warning font-bold">Sign-in required:</span> Please sign in to an authenticated caregiver account to connect with family.';
+      authActionRow.classList.remove('hidden');
+      authBox.className = 'mt-space-sm p-space-sm bg-surface-container-low rounded-lg flex flex-col gap-2.5 border border-outline/50';
+    }
+  }
+
+  // Real MedChain Authentication Redirection
+  function triggerCaregiverSignIn() {
+    window.location.href = '/auth/login?redirect=' + encodeURIComponent('/caregiver/connect');
+  }
+
+  // Feedback Banner Helper
+  function showFeedback(type, title, desc, actionText, actionCallback) {
+    const banner = document.getElementById('error-banner');
+    const icon = document.getElementById('banner-icon');
+    const titleEl = document.getElementById('banner-title');
+    const descEl = document.getElementById('banner-desc');
+    const actionBtn = document.getElementById('banner-action-btn');
+
+    banner.className = 'mb-space-lg w-full p-space-md rounded-xl flex items-start gap-space-sm transition-all';
+
+    if (type === 'error') {
+      banner.classList.add('bg-error-container', 'text-on-error-container');
+      icon.className = 'material-symbols-outlined text-error text-[22px] shrink-0 mt-0.5';
+      icon.innerText = 'error_outline';
+      titleEl.className = 'font-label-md text-label-md text-error font-bold';
+      actionBtn.className = 'mt-2 self-start font-label-sm text-label-sm text-error underline';
+    } else if (type === 'warning') {
+      banner.classList.add('bg-secondary-fixed/50', 'text-ink');
+      icon.className = 'material-symbols-outlined text-secondary text-[22px] shrink-0 mt-0.5';
+      icon.innerText = 'warning';
+      titleEl.className = 'font-label-md text-label-md text-secondary font-bold';
+      actionBtn.className = 'mt-2 self-start font-label-sm text-label-sm text-secondary underline';
+    } else {
+      banner.classList.add('bg-surface-muted', 'text-ink');
+      icon.className = 'material-symbols-outlined text-primary text-[22px] shrink-0 mt-0.5';
+      icon.innerText = 'info';
+      titleEl.className = 'font-label-md text-label-md text-ink font-bold';
+      actionBtn.className = 'mt-2 self-start font-label-sm text-label-sm text-primary underline';
+    }
+
+    titleEl.innerText = title;
+    descEl.innerText = desc;
+
+    if (actionText && actionCallback) {
+      actionBtn.innerText = actionText;
+      actionBtn.onclick = actionCallback;
+      actionBtn.classList.remove('hidden');
+    } else {
+      actionBtn.classList.add('hidden');
+    }
+
+    banner.classList.remove('hidden');
+  }
+
+  function hideFeedback() {
+    const banner = document.getElementById('error-banner');
+    if (banner) banner.classList.add('hidden');
+  }
+
+  // Tab Switching
+  function switchMethod(method) {
+    const codeBtn = document.getElementById('tab-code-btn');
+    const qrBtn = document.getElementById('tab-qr-btn');
+    const viewCode = document.getElementById('view-code');
+    const viewQr = document.getElementById('view-qr');
+
+    hideFeedback();
+
+    if (method === 'code') {
+      stopScannerCamera();
+      codeBtn.classList.add('bg-surface', 'text-ink', 'shadow-sm');
+      codeBtn.classList.remove('text-ink-muted');
+      codeBtn.setAttribute('aria-selected', 'true');
+
+      qrBtn.classList.remove('bg-surface', 'text-ink', 'shadow-sm');
+      qrBtn.classList.add('text-ink-muted');
+      qrBtn.setAttribute('aria-selected', 'false');
+
+      viewCode.classList.remove('hidden');
+      viewQr.classList.add('hidden');
+      const firstInput = document.querySelector('.otp-box[data-index="0"]');
+      if (firstInput) firstInput.focus();
+    } else {
+      codeBtn.classList.remove('bg-surface', 'text-ink', 'shadow-sm');
+      codeBtn.classList.add('text-ink-muted');
+      codeBtn.setAttribute('aria-selected', 'false');
+
+      qrBtn.classList.add('bg-surface', 'text-ink', 'shadow-sm');
+      qrBtn.classList.remove('text-ink-muted');
+      qrBtn.setAttribute('aria-selected', 'true');
+
+      viewQr.classList.remove('hidden');
+      viewCode.classList.add('hidden');
+      startScannerCamera();
+    }
+  }
+
+  // 6-Digit OTP Inputs
+  const otpInputs = document.querySelectorAll('.otp-box');
+  const submitBtn = document.getElementById('submit-btn');
+
+  otpInputs.forEach((input, idx) => {
+    input.addEventListener('input', (e) => {
+      const val = e.target.value.replace(/[^0-9]/g, '');
+      e.target.value = val;
+      if (val && idx < otpInputs.length - 1) {
+        otpInputs[idx + 1].focus();
+      }
+      checkCompletion();
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+        otpInputs[idx - 1].focus();
+      }
+    });
+
+    input.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasteData = (e.clipboardData || window.clipboardData).getData('text') || '';
+      processPastedString(pasteData);
+    });
+  });
+
+  function processPastedString(rawStr) {
+    const cleanNumbers = (rawStr || '').replace(/\D/g, '');
+    if (!cleanNumbers) {
+      showFeedback('warning', 'No numeric code found', 'Please ensure the copied text contains the 6-digit code shown on the patient screen.');
+      return;
+    }
+    const sixDigits = cleanNumbers.slice(0, 6);
+    sixDigits.split('').forEach((digit, i) => {
+      if (otpInputs[i]) otpInputs[i].value = digit;
+    });
+
+    if (sixDigits.length === 6) {
+      otpInputs[5].focus();
+      hideFeedback();
+    } else {
+      otpInputs[sixDigits.length].focus();
+      showFeedback('warning', 'Incomplete code', `Pasted ${sixDigits.length} of 6 digits. Please enter the remaining numbers.`);
+    }
+    checkCompletion();
+  }
+
+  async function handleClipboardPaste() {
+    if (!navigator.clipboard || !navigator.clipboard.readText) {
+      showFeedback('warning', 'Clipboard access unavailable', 'Your browser does not permit automated clipboard reading. Please paste or enter the numbers manually.');
+      return;
+    }
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text || text.trim() === '') {
+        showFeedback('warning', 'Clipboard is empty', 'Copy the 6-digit code from the family member\'s screen or enter it directly.');
+        return;
+      }
+      processPastedString(text);
+    } catch (err) {
+      showFeedback('warning', 'Clipboard access declined', 'Please type the 6 digits directly into the input boxes.');
+      const firstEmpty = Array.from(otpInputs).find(i => !i.value) || otpInputs[0];
+      firstEmpty.focus();
+    }
+  }
+
+  function clearInputs() {
+    otpInputs.forEach(i => i.value = '');
+    hideFeedback();
+    checkCompletion();
+    if (otpInputs[0]) otpInputs[0].focus();
+  }
+
+  function checkCompletion() {
+    const fullCode = Array.from(otpInputs).map(i => i.value).join('');
+    const isAuthed = pairingState.caregiverAuth && pairingState.caregiverAuth.isAuthenticated;
+
+    // Disabled when caregiver authentication is missing, invalid, or expired
+    if (fullCode.length === 6 && isAuthed && !pairingState.isValidating) {
+      submitBtn.removeAttribute('disabled');
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      submitBtn.classList.add('hover:bg-brand-pressed');
+    } else {
+      submitBtn.setAttribute('disabled', 'true');
+      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      submitBtn.classList.remove('hover:bg-brand-pressed');
+    }
+  }
+
+  // Camera & QR Scanner
+  async function startScannerCamera() {
+    stopScannerCamera();
+    const video = document.getElementById('qr-video');
+    const overlay = document.getElementById('camera-error-overlay');
+    const reticle = document.getElementById('scanner-reticle');
+    const statusPill = document.getElementById('camera-status-pill');
+    const statusText = document.getElementById('camera-status-text');
+    const statusDot = document.getElementById('camera-status-dot');
+    const torchBtn = document.getElementById('torch-toggle-btn');
+
+    overlay.classList.add('hidden');
+    video.classList.add('hidden');
+    reticle.classList.remove('hidden');
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      displayCameraUnavailable('Camera not supported', 'This browser does not support live video capture. You can upload an image of the QR code below.');
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false
+      });
+      pairingState.videoStream = stream;
+      video.srcObject = stream;
+      video.classList.remove('hidden');
+
+      const tracks = stream.getVideoTracks();
+      if (tracks && tracks.length > 0) {
+        pairingState.videoTrack = tracks[0];
+        const capabilities = typeof pairingState.videoTrack.getCapabilities === 'function' ? pairingState.videoTrack.getCapabilities() : {};
+        if (capabilities.torch) {
+          torchBtn.removeAttribute('disabled');
+          torchBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+        } else {
+          torchBtn.setAttribute('disabled', 'true');
+          torchBtn.classList.add('opacity-40', 'cursor-not-allowed');
+        }
+      }
+
+      await video.play();
+
+      statusPill.className = 'inline-flex items-center gap-1 bg-brand-soft px-2.5 py-1 rounded-full text-primary font-label-sm text-label-sm';
+      statusDot.className = 'w-1.5 h-1.5 rounded-full bg-primary animate-pulse';
+      statusText.innerText = 'Scanning...';
+
+      startVideoFrameAnalysis();
+    } catch (err) {
+      let title = 'Camera access blocked';
+      let msg = 'Please enable camera permissions in your browser or upload a saved photo.';
+      if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        title = 'No camera found';
+        msg = 'No video capture device was detected on your device.';
+      } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        title = 'Camera permission denied';
+        msg = 'Camera access was declined. You can still link devices using the 6-digit code or upload a QR image.';
+      }
+      displayCameraUnavailable(title, msg);
+    }
+  }
+
+  function displayCameraUnavailable(title, msg) {
+    const video = document.getElementById('qr-video');
+    const overlay = document.getElementById('camera-error-overlay');
+    const reticle = document.getElementById('scanner-reticle');
+    const errorTitle = document.getElementById('camera-error-title');
+    const errorMsg = document.getElementById('camera-error-msg');
+    const statusPill = document.getElementById('camera-status-pill');
+    const statusText = document.getElementById('camera-status-text');
+    const statusDot = document.getElementById('camera-status-dot');
+
+    video.classList.add('hidden');
+    reticle.classList.add('hidden');
+    errorTitle.innerText = title;
+    errorMsg.innerText = msg;
+    overlay.classList.remove('hidden');
+
+    statusPill.className = 'inline-flex items-center gap-1 bg-surface-muted px-2.5 py-1 rounded-full text-ink-muted font-label-sm text-label-sm';
+    statusDot.className = 'w-1.5 h-1.5 rounded-full bg-ink-muted/50';
+    statusText.innerText = 'Unavailable';
+  }
+
+  function stopScannerCamera() {
+    if (pairingState.scanAnimFrameId) {
+      cancelAnimationFrame(pairingState.scanAnimFrameId);
+      pairingState.scanAnimFrameId = null;
+    }
+    if (pairingState.videoStream) {
+      pairingState.videoStream.getTracks().forEach(track => track.stop());
+      pairingState.videoStream = null;
+      pairingState.videoTrack = null;
+    }
+    const video = document.getElementById('qr-video');
+    if (video) video.srcObject = null;
+  }
+
+  async function toggleTorch(btn) {
+    if (!pairingState.videoTrack) return;
+    try {
+      const currentTorch = btn.getAttribute('data-active') === 'true';
+      await pairingState.videoTrack.applyConstraints({
+        advanced: [{ torch: !currentTorch }]
+      });
+      const icon = btn.querySelector('.material-symbols-outlined');
+      if (!currentTorch) {
+        btn.setAttribute('data-active', 'true');
+        btn.classList.add('bg-secondary-container', 'text-ink');
+        icon.innerText = 'flash_off';
+      } else {
+        btn.setAttribute('data-active', 'false');
+        btn.classList.remove('bg-secondary-container', 'text-ink');
+        icon.innerText = 'flash_on';
+      }
+    } catch(e) {
+      console.warn('Torch toggle not supported:', e);
+    }
+  }
+
+  function startVideoFrameAnalysis() {
+    if (pairingState.scanAnimFrameId) {
+      cancelAnimationFrame(pairingState.scanAnimFrameId);
+      pairingState.scanAnimFrameId = null;
+    }
+
+    const video = document.getElementById('qr-video');
+    const canvas = document.getElementById('qr-canvas');
+    if (!video || !canvas) return;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+    function analyzeFrame() {
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        let decodedContent = null;
+        if (typeof jsQR !== 'undefined') {
+          const qrCode = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: 'dontInvert'
+          });
+          if (qrCode && qrCode.data) {
+            decodedContent = qrCode.data;
+          }
+        }
+
+        if (decodedContent) {
+          processDecodedQRData(decodedContent);
+          return;
+        }
+      }
+      pairingState.scanAnimFrameId = requestAnimationFrame(analyzeFrame);
+    }
+
+    pairingState.scanAnimFrameId = requestAnimationFrame(analyzeFrame);
+  }
+
+  async function processDecodedQRData(qrText) {
+    stopScannerCamera();
+    switchMethod('code');
+
+    if (!pairingState.caregiverAuth.isAuthenticated) {
+      showFeedback('warning', 'Sign-in required', 'Please sign in to an authenticated caregiver account before scanning or validating pairing sessions.');
+      return;
+    }
+
+    const btnText = document.getElementById('btn-text');
+    const btnIcon = document.getElementById('btn-arrow-icon');
+    submitBtn.setAttribute('disabled', 'true');
+    btnText.innerHTML = '<span class="inline-block animate-spin mr-2">◌</span> Verifying QR code...';
+    btnIcon.classList.add('hidden');
+    hideFeedback();
+
+    const result = await MedChainPairingApiClient.validateQrPayload(qrText);
+    if (!result.ok) {
+      resetSubmitBtn();
+      if (result.error === 'INVALID_FORMAT') {
+        showFeedback('warning', 'Unrecognized QR code format', 'Please scan a valid MedChain pairing QR code displayed on the patient’s device.');
+      } else if (result.error === 'EXPIRED') {
+        showFeedback('error', 'Pairing code expired', 'This QR code session has expired. Please ask your family member to generate a fresh QR code.');
+      } else if (result.error === 'ALREADY_USED') {
+        showFeedback('warning', 'Code already used', 'This QR code has already been paired with an account. Please generate a new code.');
+      } else if (result.error === 'SERVICE_UNAVAILABLE') {
+        showFeedback('error', 'Pairing service unavailable', 'Unable to reach the secure pairing service. Please check your connection and try again.', 'Try again', () => processDecodedQRData(qrText));
+      } else {
+        showFeedback('error', 'Pairing code invalid', 'This pairing code could not be verified. Please check the code with your family member.');
+      }
+      return;
+    }
+
+    // Populate validated code in UI inputs
+    if (result.pairing_code && /^\d{6}$/.test(result.pairing_code)) {
+      result.pairing_code.split('').forEach((d, idx) => {
+        if (otpInputs[idx]) otpInputs[idx].value = d;
+      });
+      checkCompletion();
+    }
+
+    resetSubmitBtn();
+    displayPatientIdentityConfirmation(result);
+  }
+
+  function handleQRFileUpload(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+      img.onload = function() {
+        const canvas = document.getElementById('qr-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        let decoded = null;
+        if (typeof jsQR !== 'undefined') {
+          const qr = jsQR(imageData.data, imageData.width, imageData.height);
+          if (qr && qr.data) decoded = qr.data;
+        }
+
+        if (decoded) {
+          processDecodedQRData(decoded);
+        } else {
+          showFeedback('warning', 'Could not read QR code', 'No readable MedChain QR code was detected in the chosen picture. Please try another image or enter the 6-digit code.');
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  // STEP 1: Code / Session Validation (Prior to Confirmation)
+  async function handlePairingValidation() {
+    if (pairingState.isValidating) return;
+
+    if (!pairingState.caregiverAuth || !pairingState.caregiverAuth.isAuthenticated) {
+      showFeedback('warning', 'Sign-in required', 'Please sign in to your caregiver account to continue.');
+      return;
+    }
+
+    const code = Array.from(otpInputs).map(i => i.value).join('');
+    if (code.length !== 6) return;
+
+    pairingState.isValidating = true;
+    pairingState.pendingCode = code;
+
+    const btnText = document.getElementById('btn-text');
+    const btnIcon = document.getElementById('btn-arrow-icon');
+    submitBtn.setAttribute('disabled', 'true');
+    btnText.innerHTML = '<span class="inline-block animate-spin mr-2">◌</span> Validating code...';
+    btnIcon.classList.add('hidden');
+    hideFeedback();
+
+    try {
+      const validation = await MedChainPairingApiClient.validatePairingCode(code);
+
+      if (!validation.ok) {
+        resetSubmitBtn();
+        if (validation.error === 'EXPIRED') {
+          showFeedback('error', 'Pairing code expired', 'This 6-digit code has expired for security. Please ask your family member to generate a fresh code.');
+        } else if (validation.error === 'ALREADY_USED') {
+          showFeedback('warning', 'Code already used', 'This code has already been paired. Please generate a new code on their device.');
+        } else if (validation.error === 'SERVICE_UNAVAILABLE') {
+          showFeedback('error', 'Pairing service unavailable', 'Unable to reach the secure pairing service. Please check your network connection.', 'Retry', handlePairingValidation);
+        } else {
+          showFeedback('error', 'Pairing code invalid', 'This pairing code could not be verified. Please check the code with your family member.');
+        }
+        return;
+      }
+
+      resetSubmitBtn();
+      displayPatientIdentityConfirmation(validation);
+
+    } catch (err) {
+      resetSubmitBtn();
+      showFeedback('error', 'Pairing service unavailable', 'An unexpected error occurred while communicating with the pairing service.');
+    } finally {
+      pairingState.isValidating = false;
+    }
+  }
+
+  // STEP 2: Intermediate Patient Identity Review Screen
+  function displayPatientIdentityConfirmation(validatedData) {
+    pairingState.activePairingSessionId = validatedData.pairing_session_id;
+    pairingState.validatedPatientData = {
+      patient_id: validatedData.patient_id,
+      patient_display_name: validatedData.patient_display_name || 'Patient Account',
+      code: validatedData.pairing_code || pairingState.pendingCode
+    };
+
+    const modal = document.getElementById('modal-confirm-patient');
+    const nameEl = document.getElementById('confirm-patient-name');
+    const idSubEl = document.getElementById('confirm-patient-id-sub');
+    const initialsEl = document.getElementById('confirm-patient-initials');
+    const iconEl = document.getElementById('confirm-patient-icon');
+
+    const displayName = validatedData.patient_display_name || 'Verified Patient';
+    nameEl.innerText = displayName;
+    idSubEl.innerText = validatedData.patient_id ? `MedChain ID: ${validatedData.patient_id}` : 'MedChain ID: Verified User';
+
+    if (displayName && displayName !== 'Patient Account' && displayName !== 'Verified Patient') {
+      const inits = displayName.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
+      if (inits) {
+        initialsEl.innerText = inits;
+        initialsEl.classList.remove('hidden');
+        iconEl.classList.add('hidden');
+      } else {
+        initialsEl.classList.add('hidden');
+        iconEl.classList.remove('hidden');
+      }
+    } else {
+      initialsEl.classList.add('hidden');
+      iconEl.classList.remove('hidden');
+    }
+
+    modal.classList.remove('hidden');
+  }
+
+  function closeConfirmModal() {
+    document.getElementById('modal-confirm-patient').classList.add('hidden');
+  }
+
+  // STEP 3: Explicit Dispatch of Connection Request (Backend derives caregiver identity)
+  async function executeConnectionRequestSubmission() {
+    if (pairingState.isSubmitting) return;
+
+    if (!pairingState.caregiverAuth || !pairingState.caregiverAuth.isAuthenticated) {
+      closeConfirmModal();
+      showFeedback('warning', 'Authentication required', 'Please sign in to send requests.');
+      return;
+    }
+
+    pairingState.isSubmitting = true;
+    const confirmBtn = document.getElementById('confirm-submit-btn');
+    const confirmBtnText = document.getElementById('confirm-btn-text');
+    const confirmBtnIcon = document.getElementById('confirm-btn-icon');
+
+    confirmBtn.setAttribute('disabled', 'true');
+    confirmBtnText.innerHTML = '<span class="inline-block animate-spin mr-2">◌</span> Sending request...';
+    confirmBtnIcon.classList.add('hidden');
+
+    const sessionId = pairingState.activePairingSessionId;
+
+    // Backend derives caregiver_id strictly from session token/cookie
+    const reqResult = await MedChainPairingApiClient.submitConnectionRequest(sessionId);
+
+    pairingState.isSubmitting = false;
+    confirmBtn.removeAttribute('disabled');
+    confirmBtnText.innerText = 'Send connection request';
+    confirmBtnIcon.classList.remove('hidden');
+
+    if (!reqResult.ok) {
+      closeConfirmModal();
+      showFeedback('error', 'Request could not be sent', reqResult.message || 'Unable to submit the connection request to the patient device.', 'Try again', executeConnectionRequestSubmission);
+      return;
+    }
+
+    pairingState.activeConnectionRequestId = reqResult.connection_request_id;
+    closeConfirmModal();
+
+    showApprovalModal(
+      pairingState.validatedPatientData ? pairingState.validatedPatientData.patient_display_name : 'Family Member',
+      pairingState.validatedPatientData ? pairingState.validatedPatientData.code : ''
+    );
+
+    startStatusPolling(reqResult.connection_request_id);
+  }
+
+  function resetSubmitBtn() {
+    pairingState.isValidating = false;
+    const btnText = document.getElementById('btn-text');
+    const btnIcon = document.getElementById('btn-arrow-icon');
+    btnText.innerText = 'Validate pairing code';
+    btnIcon.classList.remove('hidden');
+    checkCompletion();
+  }
+
+  function showApprovalModal(patientName, code) {
+    const modalApproval = document.getElementById('modal-approval');
+    const titleEl = document.getElementById('approval-modal-title');
+    const eyebrowEl = document.getElementById('approval-modal-eyebrow');
+    const descEl = document.getElementById('approval-modal-desc');
+    const codeEl = document.getElementById('active-session-code');
+    const retryBanner = document.getElementById('polling-retry-banner');
+    const verifyCard = document.getElementById('verification-retry-card');
+    const actionButtons = document.getElementById('approval-action-buttons');
+    const pulseDot = document.getElementById('approval-pulse-dot');
+    const statusLabel = document.getElementById('approval-status-label');
+
+    eyebrowEl.innerText = 'Request sent';
+    titleEl.innerText = patientName ? `Waiting for ${patientName}` : 'Waiting for patient approval';
+    descEl.innerHTML = `A prompt has appeared on <span class="font-semibold text-ink">${patientName || "your family member's phone"}</span> asking them to confirm your link request.`;
+    codeEl.innerText = code ? `Code: ${code}` : '';
+    statusLabel.innerText = 'Listening for patient response...';
+    pulseDot.className = 'w-2 h-2 rounded-full bg-secondary animate-pulse shrink-0';
+
+    retryBanner.classList.add('hidden');
+    verifyCard.classList.add('hidden');
+    actionButtons.classList.remove('hidden');
+
+    modalApproval.classList.remove('hidden');
+    resetSubmitBtn();
+  }
+
+  // STEP 4: Single-loop Polling with Concurrency Guards, Exponential Backoff & Resilience
+  function startStatusPolling(connectionRequestId) {
+    stopStatusPolling();
+    pairingState.isPollingActive = true;
+    pairingState.isPollingInFlight = false;
+    pairingState.consecutivePollFailures = 0;
+
+    pollLoop(connectionRequestId);
+  }
+
+  async function pollLoop(connectionRequestId) {
+    if (!pairingState.isPollingActive) return;
+    if (pairingState.isPollingInFlight) return;
+
+    // Check offline state
+    if (typeof navigator.onLine === 'boolean' && !navigator.onLine) {
+      pairingState.consecutivePollFailures++;
+      showPollingInterruption('Device is offline. Reconnecting once online...');
+      scheduleNextPoll(connectionRequestId, 4000);
+      return;
+    }
+
+    pairingState.isPollingInFlight = true;
+
+    try {
+      const statusRes = await MedChainPairingApiClient.getRequestStatus(connectionRequestId);
+
+      if (!pairingState.isPollingActive) {
+        pairingState.isPollingInFlight = false;
+        return;
+      }
+
+      if (!statusRes.ok) {
+        pairingState.consecutivePollFailures++;
+        const backoffMs = Math.min(2000 * Math.pow(1.5, pairingState.consecutivePollFailures - 1), 10000);
+        showPollingInterruption('Reconnecting to server...');
+        pairingState.isPollingInFlight = false;
+        scheduleNextPoll(connectionRequestId, backoffMs);
+        return;
+      }
+
+      // Connection healthy
+      pairingState.consecutivePollFailures = 0;
+      hidePollingInterruption();
+
+      const status = statusRes.request_status;
+
+      // Terminal status transitions: terminate polling cleanly
+      if (status === 'approved') {
+        stopStatusPolling();
+        pairingState.isPollingInFlight = false;
+        await initiateRelationshipVerification(connectionRequestId);
+        return;
+      } else if (status === 'declined') {
+        stopStatusPolling();
+        document.getElementById('modal-approval').classList.add('hidden');
+        showFeedback('warning', 'Connection declined', 'The connection request was declined on your family member’s device.');
+        pairingState.isPollingInFlight = false;
+        return;
+      } else if (status === 'expired') {
+        stopStatusPolling();
+        document.getElementById('modal-approval').classList.add('hidden');
+        showFeedback('error', 'Request expired', 'The connection request timed out before being approved. Please request a new code.');
+        pairingState.isPollingInFlight = false;
+        return;
+      } else if (status === 'cancelled') {
+        stopStatusPolling();
+        document.getElementById('modal-approval').classList.add('hidden');
+        showFeedback('info', 'Request cancelled', 'The pending request has been cancelled.');
+        pairingState.isPollingInFlight = false;
+        return;
+      } else if (status === 'failed') {
+        stopStatusPolling();
+        document.getElementById('modal-approval').classList.add('hidden');
+        showFeedback('error', 'Connection failed', 'The connection request could not be completed.');
+        pairingState.isPollingInFlight = false;
+        return;
+      }
+
+      // Pending state: continue normal cadence
+      pairingState.isPollingInFlight = false;
+      scheduleNextPoll(connectionRequestId, 2500);
+
+    } catch (err) {
+      pairingState.consecutivePollFailures++;
+      showPollingInterruption('Reconnecting to server...');
+      pairingState.isPollingInFlight = false;
+      scheduleNextPoll(connectionRequestId, 3500);
+    }
+  }
+
+  function scheduleNextPoll(connectionRequestId, delayMs) {
+    if (!pairingState.isPollingActive) return;
+    if (pairingState.pollingTimeoutId) {
+      clearTimeout(pairingState.pollingTimeoutId);
+    }
+    pairingState.pollingTimeoutId = setTimeout(() => {
+      pollLoop(connectionRequestId);
+    }, delayMs);
+  }
+
+  function stopStatusPolling() {
+    pairingState.isPollingActive = false;
+    if (pairingState.pollingTimeoutId) {
+      clearTimeout(pairingState.pollingTimeoutId);
+      pairingState.pollingTimeoutId = null;
+    }
+    pairingState.isPollingInFlight = false;
+  }
+
+  function showPollingInterruption(message) {
+    const retryBanner = document.getElementById('polling-retry-banner');
+    const retryMsg = document.getElementById('polling-retry-msg');
+    if (retryBanner && retryMsg) {
+      retryBanner.classList.remove('hidden');
+      retryMsg.innerText = message || 'Reconnecting to server...';
+    }
+  }
+
+  function hidePollingInterruption() {
+    const retryBanner = document.getElementById('polling-retry-banner');
+    if (retryBanner) retryBanner.classList.add('hidden');
+  }
+
+  // STEP 5: Relationship Verification with In-Modal Verification State & Exponential Auto-Retries
+  async function initiateRelationshipVerification(connectionRequestId) {
+    pairingState.verificationRetriesRemaining = 3;
+    await executeRelationshipVerificationAttempt(connectionRequestId);
+  }
+
+  async function executeRelationshipVerificationAttempt(connectionRequestId) {
+    pairingState.isVerifyingRelationship = true;
+
+    const modalApproval = document.getElementById('modal-approval');
+    const titleEl = document.getElementById('approval-modal-title');
+    const eyebrowEl = document.getElementById('approval-modal-eyebrow');
+    const descEl = document.getElementById('approval-modal-desc');
+    const statusLabel = document.getElementById('approval-status-label');
+    const pulseDot = document.getElementById('approval-pulse-dot');
+    const verifyCard = document.getElementById('verification-retry-card');
+    const verifyBtn = document.getElementById('verification-modal-retry-btn');
+    const verifyBtnText = document.getElementById('verification-modal-retry-text');
+    const errorTitle = document.getElementById('verification-error-title');
+    const errorDesc = document.getElementById('verification-error-desc');
+    const actionButtons = document.getElementById('approval-action-buttons');
+
+    // Keep caregiver in verification state inside the modal
+    modalApproval.classList.remove('hidden');
+    eyebrowEl.innerText = 'Patient approved';
+    titleEl.innerText = 'Finalizing secure connection';
+    descEl.innerText = 'Validating server relationship records and reciprocal cryptographic access.';
+    statusLabel.innerText = 'Verifying confirmed relationship...';
+    pulseDot.className = 'w-2 h-2 rounded-full bg-primary animate-ping shrink-0';
+    verifyCard.classList.add('hidden');
+    actionButtons.classList.add('hidden'); // Cancel/Resend not appropriate once approved
+
+    const relRes = await MedChainPairingApiClient.getConfirmedRelationship(connectionRequestId);
+
+    // Validate that returned patient_id and caregiver_id match session invariants
+    const expectedPatientId = pairingState.validatedPatientData ? pairingState.validatedPatientData.patient_id : null;
+    const expectedCaregiverId = pairingState.caregiverAuth ? pairingState.caregiverAuth.caregiver_id : null;
+
+    const isValidMatch = relRes.ok && 
+      (!expectedPatientId || relRes.patient_id === expectedPatientId) &&
+      (!expectedCaregiverId || relRes.caregiver_id === expectedCaregiverId);
+
+    if (isValidMatch) {
+      // Verified completely! Transition to final success modal
+      pairingState.isVerifyingRelationship = false;
+      displayVerifiedRelationshipSuccess(relRes);
+      return;
+    }
+
+    // Verification failed or pending
+    if (pairingState.verificationRetriesRemaining > 0) {
+      const attemptNum = 4 - pairingState.verificationRetriesRemaining;
+      const backoffSec = attemptNum === 1 ? 2 : 4;
+      pairingState.verificationRetriesRemaining--;
+
+      statusLabel.innerText = `Finalizing access credentials... (Retry in ${backoffSec}s)`;
+      pulseDot.className = 'w-2 h-2 rounded-full bg-secondary animate-pulse shrink-0';
+
+      if (pairingState.verificationRetryTimer) clearTimeout(pairingState.verificationRetryTimer);
+      pairingState.verificationRetryTimer = setTimeout(() => {
+        executeRelationshipVerificationAttempt(connectionRequestId);
+      }, backoffSec * 1000);
+      return;
+    }
+
+    // Auto-retries exhausted: Present prominent, accessible Retry button directly inside the visible modal
+    pairingState.isVerifyingRelationship = false;
+    statusLabel.innerText = 'Verification pending confirmation';
+    pulseDot.className = 'w-2 h-2 rounded-full bg-warning shrink-0';
+
+    errorTitle.innerText = 'Relationship verification pending';
+    errorDesc.innerText = !relRes.ok
+      ? 'Patient approved your link, but the secure relationship confirmation could not be finalized. Please tap retry.'
+      : 'Security mismatch: Returned relationship identity credentials do not match this session.';
+
+    verifyBtn.removeAttribute('disabled');
+    verifyBtnText.innerText = 'Retry verification now';
+    verifyCard.classList.remove('hidden');
+  }
+
+  function retryRelationshipVerificationNow() {
+    if (!pairingState.activeConnectionRequestId) return;
+    const verifyBtn = document.getElementById('verification-modal-retry-btn');
+    const verifyBtnText = document.getElementById('verification-modal-retry-text');
+
+    verifyBtn.setAttribute('disabled', 'true');
+    verifyBtnText.innerHTML = '<span class="inline-block animate-spin mr-1">◌</span> Checking records...';
+
+    pairingState.verificationRetriesRemaining = 1; // single controlled manual attempt
+    executeRelationshipVerificationAttempt(pairingState.activeConnectionRequestId);
+  }
+
+  function displayVerifiedRelationshipSuccess(relationshipData) {
+    document.getElementById('modal-approval').classList.add('hidden');
+
+    const successModal = document.getElementById('modal-success');
+    const nameEl = document.getElementById('success-patient-name');
+    const initialsEl = document.getElementById('success-patient-initials');
+    const iconEl = document.getElementById('success-patient-icon');
+    const relIdEl = document.getElementById('success-relationship-id');
+    const permissionsList = document.getElementById('success-permissions-list');
+
+    const patientName = relationshipData.patient_display_name || (pairingState.validatedPatientData && pairingState.validatedPatientData.patient_display_name) || 'Patient Account';
+    nameEl.innerText = patientName;
+    relIdEl.innerText = `Ref: ${relationshipData.relationship_id}`;
+
+    if (patientName && patientName !== 'Patient Account') {
+      const parts = patientName.split(' ');
+      const inits = parts.map(p => p[0]).join('').substring(0, 2).toUpperCase();
+      if (inits) {
+        initialsEl.innerText = inits;
+        initialsEl.classList.remove('hidden');
+        iconEl.classList.add('hidden');
+      }
+    }
+
+    // Display explicit server-confirmed permissions strictly from backend response
+    permissionsList.innerHTML = '';
+    const perms = Array.isArray(relationshipData.permissions)
+      ? relationshipData.permissions
+      : Object.keys(relationshipData.permissions).filter(k => relationshipData.permissions[k]);
+
+    perms.forEach(perm => {
+      const li = document.createElement('li');
+      li.className = 'flex items-center gap-1.5';
+      const label = perm === 'read_schedules' ? 'Read medication schedules' :
+                    perm === 'log_confirmations' ? 'Monitor daily adherence' :
+                    perm === 'safety_alerts' ? 'Receive critical missed-dose alerts' :
+                    perm === 'manage_medications' ? 'Adjust medication dosages & schedules' :
+                    String(perm).replace(/_/g, ' ');
+      li.innerHTML = `<span class="material-symbols-outlined text-primary text-[16px]">check</span> <span>${label}</span>`;
+      permissionsList.appendChild(li);
+    });
+
+    successModal.classList.remove('hidden');
+  }
+
+  // STEP 6: Resend and Cancellation Handling
+  async function resendExistingRequest() {
+    if (!pairingState.activeConnectionRequestId) return;
+    if (pairingState.resendCooldownSeconds > 0) return;
+
+    const resendBtn = document.getElementById('resend-btn');
+    const resendBtnText = document.getElementById('resend-btn-text');
+    const statusLabel = document.getElementById('approval-status-label');
+
+    resendBtn.setAttribute('disabled', 'true');
+    resendBtnText.innerText = 'Resending...';
+
+    const resendRes = await MedChainPairingApiClient.resendConnectionRequest(pairingState.activeConnectionRequestId);
+
+    if (resendRes.ok) {
+      statusLabel.innerText = 'Prompt resent to patient screen';
+      startResendCooldown(30);
+      setTimeout(() => {
+        statusLabel.innerText = 'Listening for patient response...';
+      }, 3000);
+    } else if (resendRes.error === 'RATE_LIMITED') {
+      startResendCooldown(resendRes.cooldown_seconds || 30);
+      statusLabel.innerText = 'Please wait before resending again';
+    } else {
+      resendBtn.removeAttribute('disabled');
+      resendBtnText.innerText = 'Resend prompt';
+      statusLabel.innerText = 'Resend failed. Still listening...';
+    }
+  }
+
+  function startResendCooldown(seconds) {
+    pairingState.resendCooldownSeconds = seconds;
+    const resendBtn = document.getElementById('resend-btn');
+    const resendBtnText = document.getElementById('resend-btn-text');
+    resendBtn.setAttribute('disabled', 'true');
+
+    if (pairingState.resendCooldownTimer) clearInterval(pairingState.resendCooldownTimer);
+
+    pairingState.resendCooldownTimer = setInterval(() => {
+      pairingState.resendCooldownSeconds--;
+      if (pairingState.resendCooldownSeconds <= 0) {
+        clearInterval(pairingState.resendCooldownTimer);
+        pairingState.resendCooldownTimer = null;
+        resendBtn.removeAttribute('disabled');
+        resendBtnText.innerText = 'Resend prompt';
+      } else {
+        resendBtnText.innerText = `Resend in ${pairingState.resendCooldownSeconds}s`;
+      }
+    }, 1000);
+  }
+
+  async function cancelPendingRequest() {
+    if (!pairingState.activeConnectionRequestId) {
+      document.getElementById('modal-approval').classList.add('hidden');
+      return;
+    }
+
+    const cancelBtn = document.getElementById('cancel-btn');
+    const cancelBtnText = document.getElementById('cancel-btn-text');
+    cancelBtn.setAttribute('disabled', 'true');
+    cancelBtnText.innerText = 'Cancelling...';
+
+    const cancelRes = await MedChainPairingApiClient.cancelConnectionRequest(pairingState.activeConnectionRequestId);
+
+    cancelBtn.removeAttribute('disabled');
+    cancelBtnText.innerText = 'Cancel request';
+
+    if (cancelRes.ok) {
+      stopStatusPolling();
+      pairingState.activeConnectionRequestId = null;
+      document.getElementById('modal-approval').classList.add('hidden');
+      showFeedback('info', 'Request cancelled', 'The connection request has been withdrawn.');
+    } else {
+      showFeedback('error', 'Cancellation failed', cancelRes.message || 'Could not cancel on the server. Still waiting for patient response.');
+    }
+  }
+
+  function goToDashboard() {
+    window.location.href = '/caregiver/family';
+  }
+
+  // Network Connectivity Lifecycle Listeners
+  window.addEventListener('online', () => {
+    hidePollingInterruption();
+    if (pairingState.activeConnectionRequestId && pairingState.isPollingActive) {
+      pollLoop(pairingState.activeConnectionRequestId);
+    } else if (pairingState.activeConnectionRequestId && pairingState.isVerifyingRelationship) {
+      executeRelationshipVerificationAttempt(pairingState.activeConnectionRequestId);
+    }
+  });
+
+  window.addEventListener('offline', () => {
+    if (pairingState.activeConnectionRequestId) {
+      showPollingInterruption('Device is offline. Reconnecting once online...');
+    }
+  });
+
+  // Lifecycle Initialization & Clean Teardown
+  window.addEventListener('DOMContentLoaded', () => {
+    checkCaregiverSession();
+  });
+
+  window.addEventListener('beforeunload', () => {
+    stopScannerCamera();
+    stopStatusPolling();
+    if (pairingState.verificationRetryTimer) {
+      clearTimeout(pairingState.verificationRetryTimer);
+    }
+    if (pairingState.resendCooldownTimer) {
+      clearInterval(pairingState.resendCooldownTimer);
+    }
+  });
+</script></main></body></html>

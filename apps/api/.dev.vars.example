@@ -1,0 +1,8 @@
+# Copy to .dev.vars for `wrangler dev`. Never commit real values.
+JWT_SECRET=change-me-to-a-long-random-string-at-least-32-chars
+PAIRING_PEPPER=change-me-another-long-random-string
+# Optional: Firebase service account JSON on ONE line. Unset = push disabled (no-op dispatcher).
+# FCM_SERVICE_ACCOUNT_JSON={"project_id":"...","client_email":"...","private_key":"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"}
+# Optional: comma-separated browser origins for CORS (mobile needs none).
+# ALLOWED_ORIGINS=http://localhost:8081
+ENVIRONMENT=development

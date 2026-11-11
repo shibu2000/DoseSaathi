@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400&amp;family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@100..900&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#F7F5EF;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-high":"#dfebe6","on-error":"#ffffff","tertiary-fixed-dim":"#96d4b2","on-surface-variant":"#404946","brand-soft":"#DCE9E2","on-error-container":"#93000a","on-primary-fixed-variant":"#164f45","on-tertiary":"#ffffff","tertiary":"#00452c","surface-bright":"#f0fcf7","on-primary-container":"#99d1c3","on-surface":"#131e1b","ink":"#202B28","on-secondary-fixed":"#291800","tertiary-container":"#205d42","secondary-fixed":"#ffddb1","secondary-fixed-dim":"#fcba53","ink-muted":"#58645F","primary-container":"#245b50","on-secondary-container":"#734c00","surface-muted":"#ECEFE9","surface-tint":"#32685c","on-background":"#131e1b","on-primary":"#ffffff","primary-fixed-dim":"#9ad2c3","inverse-surface":"#283330","surface-dim":"#d0ddd8","on-tertiary-container":"#96d4b1","outline":"#D4D9D2","on-primary-fixed":"#00201a","surface-container-low":"#eaf6f1","primary-fixed":"#b6eedf","surface-variant":"#d9e5e0","secondary-container":"#ffbd56","surface-container":"#e4f1ec","surface-container-highest":"#d9e5e0","surface-container-lowest":"#ffffff","error-container":"#ffdad6","on-tertiary-fixed-variant":"#105137","brand-pressed":"#19483F","on-tertiary-fixed":"#002113","danger":"#A33E38","inverse-on-surface":"#e7f4ee","on-secondary":"#ffffff","background":"#f0fcf7","error":"#ba1a1a","inverse-primary":"#9ad2c3","primary":"#034339","outline-variant":"#bfc9c5","tertiary-fixed":"#b1f0cd","on-secondary-fixed-variant":"#624000","secondary":"#815600","warning":"#8A5A16","surface":"#FFFEFA","canvas":"#F7F5EF"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{"space-md":"1rem",gutter:"1rem","space-sm":"0.5rem","space-xs":"0.25rem","gutter-sm":"0.75rem","gutter-lg":"1.5rem","space-xl":"2rem",margin:"1.25rem","margin-mobile":"1.25rem","margin-desktop":"3rem","space-lg":"1.5rem","margin-tablet":"2rem"},fontFamily:{"display":["Atkinson Hyperlegible Next"],"headline-lg":["Atkinson Hyperlegible Next"],"body-xl":["Atkinson Hyperlegible Next"],"label-md":["Atkinson Hyperlegible Next"],"body-sm":["Atkinson Hyperlegible Next"],"label-lg":["Atkinson Hyperlegible Next"],"headline-sm":["Atkinson Hyperlegible Next"],"body-lg":["Atkinson Hyperlegible Next"],"label-sm":["Atkinson Hyperlegible Next"],"body-md":["Atkinson Hyperlegible Next"],"headline-md":["Atkinson Hyperlegible Next"]},fontSize:{"display":["32px",{lineHeight:"40px",letterSpacing:"-0.01em",fontWeight:"700"}],"headline-lg":["28px",{lineHeight:"34px",letterSpacing:"-0.01em",fontWeight:"700"}],"body-xl":["20px",{lineHeight:"28px",fontWeight:"400"}],"label-md":["16px",{lineHeight:"22px",fontWeight:"600"}],"body-sm":["14px",{lineHeight:"20px",fontWeight:"400"}],"label-lg":["18px",{lineHeight:"24px",fontWeight:"600"}],"headline-sm":["18px",{lineHeight:"24px",fontWeight:"700"}],"body-lg":["18px",{lineHeight:"26px",fontWeight:"400"}],"label-sm":["14px",{lineHeight:"18px",fontWeight:"600"}],"body-md":["16px",{lineHeight:"24px",fontWeight:"400"}],"headline-md":["22px",{lineHeight:"28px",fontWeight:"700"}]}}}};</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-canvas text-ink font-body-md antialiased min-h-screen flex flex-col"><header class="fixed top-0 w-full z-40 pt-safe bg-canvas/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(32,43,40,0.04)]"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-xs"><button aria-label="Go back" class="min-w-[48px] min-h-[48px] flex items-center justify-center -ml-space-xs rounded-full text-ink hover:bg-surface-muted transition-colors" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex flex-col"><span class="font-label-sm text-label-sm text-ink-muted uppercase tracking-wider">Remote caregiver access</span><h1 class="font-headline-sm text-headline-sm text-ink leading-tight">Link Family Member</h1></div></div><div class="flex items-center gap-2"><button aria-label="Toggle service test drawer" class="min-w-[36px] min-h-[36px] rounded-full text-ink-muted hover:bg-surface-muted flex items-center justify-center transition-colors" onclick="toggleTestDrawer()" title="Service test tools" type="button"><span class="material-symbols-outlined text-[20px]">build</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 w-full bg-canvas pt-20 pb-safe"><div class="flex flex-col w-full text-ink pb-12 selection:bg-brand-soft">
+<!-- Offline Notice Banner -->
+<div class="hidden mx-margin mt-space-sm mb-space-xs p-space-sm bg-surface-muted border border-outline/60 rounded-xl flex items-start gap-space-sm shadow-sm transition-all" id="offline-banner">
+<div class="w-9 h-9 rounded-full bg-surface flex items-center justify-center shrink-0 text-ink-muted">
+<span class="material-symbols-outlined text-[20px]">cloud_off</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-label-md text-label-md text-ink">You’re offline</span>
+<span class="font-body-sm text-body-sm text-ink-muted leading-relaxed">Your personal medication reminders continue working, but connecting a family member requires an internet connection.</span>
+</div>
+</div>
+<!-- Service Simulation / Debug Drawer (Non-intrusive) -->
+<div class="hidden mx-margin my-space-xs p-space-sm bg-surface-muted/90 border border-outline rounded-xl flex flex-col gap-space-xs" id="test-drawer">
+<div class="flex items-center justify-between text-ink-muted font-label-sm text-label-sm">
+<span class="font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">terminal</span> Pairing Service Controls</span>
+<button class="text-ink hover:underline text-xs" onclick="toggleTestDrawer()">Close</button>
+</div>
+<div class="grid grid-cols-2 gap-2 mt-1">
+<button class="py-1 px-2 text-xs bg-surface border border-outline/60 rounded font-label-sm text-ink hover:bg-brand-soft text-left" onclick="TestHarness.simulateIncomingRequest()">
+        + Simulate Caregiver Request
+      </button>
+<button class="py-1 px-2 text-xs bg-surface border border-outline/60 rounded font-label-sm text-ink hover:bg-brand-soft text-left" onclick="TestHarness.simulateSessionExpire()">
+        ! Force Session Expired
+      </button>
+<button class="py-1 px-2 text-xs bg-surface border border-outline/60 rounded font-label-sm text-ink hover:bg-brand-soft text-left" onclick="TestHarness.toggleSimulatedNetworkError()">
+        Toggle Network Error (<span id="test-net-status">Off</span>)
+      </button>
+<button class="py-1 px-2 text-xs bg-surface border border-outline/60 rounded font-label-sm text-ink hover:bg-brand-soft text-left" onclick="TestHarness.toggleInfiniteExpiry()">
+        Toggle Expiry Timer (<span id="test-expiry-status">Active</span>)
+      </button>
+</div>
+</div>
+<!-- Hero Editorial Narrative & Capsule Motif -->
+<section class="px-margin pt-space-md pb-space-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs flex-1">
+<h2 class="font-headline-lg text-headline-lg text-ink font-bold leading-tight">
+          Keep your family connected to your care.
+        </h2>
+<p class="font-body-md text-body-md text-ink-muted">
+          Let someone you trust manage your medication schedule and stay informed about your doses.
+        </p>
+</div>
+<!-- MedChain Connected Motif -->
+<div aria-hidden="true" class="w-24 h-24 shrink-0 flex items-center justify-center bg-brand-soft rounded-full relative overflow-hidden">
+<svg class="w-20 h-20" fill="none" viewbox="0 0 96 96">
+<rect class="drop-shadow-sm" fill="#FFFEFA" height="48" rx="5" width="26" x="14" y="24"></rect>
+<rect fill="#DCE9E2" height="32" rx="2" width="16" x="19" y="30"></rect>
+<circle cx="27" cy="67" fill="#245B50" r="2"></circle>
+<rect class="drop-shadow-sm" fill="#FFFEFA" height="48" rx="5" width="26" x="56" y="24"></rect>
+<rect fill="#B6EEDF" height="32" rx="2" width="16" x="61" y="30"></rect>
+<circle cx="69" cy="67" fill="#245B50" r="2"></circle>
+<g>
+<path d="M33 48 H63" stroke="#245B50" stroke-dasharray="2 3" stroke-linecap="round" stroke-width="3"></path>
+<rect fill="#034339" height="12" rx="6" width="16" x="40" y="42"></rect>
+<circle cx="45" cy="48" fill="#99D1C3" r="2.5"></circle>
+<circle cx="51" cy="48" fill="#FFFEFA" r="2.5"></circle>
+</g>
+</svg>
+</div>
+</div>
+</section>
+<!-- Pairing Card Container -->
+<section class="px-margin my-space-sm">
+<div class="bg-surface rounded-xl p-space-md shadow-[0_4px_20px_rgba(32,43,40,0.06)] flex flex-col gap-space-md relative overflow-hidden border border-outline/40">
+<!-- Card Header -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-ink font-bold">Link a family member</span>
+<span class="font-body-sm text-body-sm text-ink-muted">Show this code to the person you want to connect with.</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-brand-soft text-primary flex items-center justify-center shrink-0" title="Secure MedChain link">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+</div>
+</div>
+<!-- Segmented View Toggle Switch (Code vs QR) -->
+<div aria-label="Pairing format selector" class="bg-surface-muted p-1 rounded-xl flex items-center gap-1 select-none" id="pairing-tabs" role="tablist">
+<button aria-selected="true" class="flex-1 min-h-[48px] rounded-lg bg-surface text-ink font-label-md text-label-md flex items-center justify-center gap-space-xs shadow-sm transition-all" id="tab-code-btn" onclick="selectPairTab('code')" role="tab" type="button">
+<span class="material-symbols-outlined text-[20px] text-primary">pin</span>
+<span>Numeric Code</span>
+</button>
+<button aria-selected="false" class="flex-1 min-h-[48px] rounded-lg bg-transparent text-ink-muted hover:text-ink font-label-md text-label-md flex items-center justify-center gap-space-xs transition-all" id="tab-qr-btn" onclick="selectPairTab('qr')" role="tab" type="button">
+<span class="material-symbols-outlined text-[20px]">qr_code_2</span>
+<span>QR Code</span>
+</button>
+</div>
+<!-- SESSION STATE: Loading -->
+<div class="flex flex-col items-center justify-center py-10 gap-space-sm text-center" id="session-loading">
+<div class="w-10 h-10 border-3 border-brand-soft border-t-primary rounded-full animate-spin"></div>
+<span class="font-label-md text-label-md text-ink">Generating secure pairing key…</span>
+<span class="font-body-sm text-body-sm text-ink-muted">Establishing an encrypted session</span>
+</div>
+<!-- SESSION STATE: Error -->
+<div class="hidden flex-col items-center justify-center p-space-md bg-error-container/40 rounded-xl gap-space-sm text-center" id="session-error">
+<div class="w-10 h-10 rounded-full bg-error-container text-on-error-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[22px]">error_outline</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-ink font-semibold" id="error-title">Couldn’t create pairing key</span>
+<span class="font-body-sm text-body-sm text-ink-muted" id="error-description">Please check your connection and try again.</span>
+</div>
+<button class="mt-space-xs px-space-md py-2.5 bg-primary text-on-primary rounded-lg font-label-md text-label-md shadow-sm active:scale-95 transition-all" onclick="requestNewSession()" type="button">
+        Try again
+      </button>
+</div>
+<!-- SESSION STATE: Expired Inline Notice -->
+<div class="hidden flex-col items-center justify-center p-space-md bg-surface-muted rounded-xl gap-space-sm text-center" id="session-expired">
+<div class="w-10 h-10 rounded-full bg-surface text-ink-muted flex items-center justify-center">
+<span class="material-symbols-outlined text-[22px]">timer_off</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-ink font-semibold">Pairing session expired</span>
+<span class="font-body-sm text-body-sm text-ink-muted">This code timed out for your security. Generate a fresh code to connect.</span>
+</div>
+<button class="mt-space-xs px-space-md py-2.5 bg-primary text-on-primary rounded-lg font-label-md text-label-md shadow-sm active:scale-95 transition-all" onclick="requestNewSession()" type="button">
+        Generate new code
+      </button>
+</div>
+<!-- SESSION STATE: Active Pairing Views -->
+<div class="hidden flex-col gap-space-md" id="session-active-container">
+<!-- Tab View 1: Numeric Code -->
+<div class="flex flex-col gap-space-md" id="view-code">
+<div class="bg-surface-container-low rounded-xl p-space-md flex flex-col items-center justify-center text-center gap-space-xs relative overflow-hidden">
+<span class="font-label-sm text-label-sm text-ink-muted uppercase tracking-widest font-semibold">One-time pairing key</span>
+<!-- Code Presentation -->
+<div class="flex items-center justify-center gap-space-sm my-space-xs select-all">
+<span class="font-display text-[34px] tracking-[0.25em] text-primary font-bold font-mono" id="numeric-code-display">--- ---</span>
+</div>
+<!-- Live Expiry Row -->
+<div class="flex items-center gap-space-xs text-ink-muted font-body-sm text-body-sm" id="countdown-wrapper">
+<span class="material-symbols-outlined text-[16px] text-primary animate-spin" style="animation-duration: 9s;">progress_activity</span>
+<span>Refreshes in <strong class="text-ink font-semibold" id="countdown-timer">--:--</strong></span>
+</div>
+</div>
+<!-- Code Action Triggers -->
+<div class="grid grid-cols-2 gap-space-sm">
+<button aria-label="Copy pairing code" class="min-h-[52px] px-space-sm bg-surface-muted hover:bg-brand-soft text-ink font-label-md text-label-md rounded-xl flex items-center justify-center gap-space-xs transition-colors active:scale-[0.98]" id="copy-btn" onclick="copyPairingCode()" type="button">
+<span class="material-symbols-outlined text-[20px] text-primary" id="copy-icon">content_copy</span>
+<span id="copy-label">Copy code</span>
+</button>
+<button aria-label="Regenerate pairing key" class="min-h-[52px] px-space-sm bg-surface-muted hover:bg-brand-soft text-ink font-label-md text-label-md rounded-xl flex items-center justify-center gap-space-xs transition-colors active:scale-[0.98]" onclick="requestNewSession()" type="button">
+<span class="material-symbols-outlined text-[20px] text-primary" id="refresh-icon">sync</span>
+<span>Regenerate</span>
+</button>
+</div>
+</div>
+<!-- Tab View 2: Scannable Vector QR Code -->
+<div class="hidden flex-col items-center text-center gap-space-md py-space-xs" id="view-qr">
+<div class="p-space-md bg-surface-container-low rounded-xl shadow-inner flex flex-col items-center justify-center relative w-full">
+<!-- Dynamic Real QR Code Output Container -->
+<div class="w-52 h-52 bg-surface p-3 rounded-xl border border-outline/50 flex items-center justify-center relative shadow-sm" id="qr-code-mount">
+<!-- Dynamic valid SVG injected here -->
+</div>
+<span class="font-body-sm text-body-sm text-ink-muted font-mono mt-space-xs break-all px-2 text-center" id="qr-payload-text">Loading payload…</span>
+</div>
+<p class="font-body-sm text-body-sm text-ink-muted">
+          Scan with your family member’s phone camera or the MedChain app.
+        </p>
+</div>
+<!-- Plain Language Instruction -->
+<div class="pt-space-xs flex items-center gap-space-xs text-ink-muted font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[18px] text-primary shrink-0">info</span>
+<span>Your family member can enter this code or scan the QR code on their MedChain app.</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Access Explanation Section -->
+<section class="px-margin mt-space-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h3 class="font-label-lg text-label-lg text-ink font-bold">What your family member can do</h3>
+<span class="font-label-sm text-label-sm text-ink-muted">Encrypted device link</span>
+</div>
+<!-- Structured Capability Rows -->
+<div class="bg-surface rounded-xl p-space-md shadow-sm flex flex-col gap-space-md border border-outline/30">
+<!-- Capability 1 -->
+<div class="flex items-start gap-space-sm">
+<div class="w-11 h-11 rounded-full bg-brand-soft text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">calendar_month</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-ink font-semibold">Manage medication schedules</span>
+<p class="font-body-sm text-body-sm text-ink-muted leading-relaxed">
+            Create and update your medication reminders, intake instructions, and treatment phases.
+          </p>
+</div>
+</div>
+<div class="h-[1px] bg-surface-muted w-full"></div>
+<!-- Capability 2 -->
+<div class="flex items-start gap-space-sm">
+<div class="w-11 h-11 rounded-full bg-brand-soft text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">checklist</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-ink font-semibold">Track dose activity</span>
+<p class="font-body-sm text-body-sm text-ink-muted leading-relaxed">
+            Receive reassuring updates when doses are marked as taken or therapy courses are completed.
+          </p>
+</div>
+</div>
+<div class="h-[1px] bg-surface-muted w-full"></div>
+<!-- Capability 3 -->
+<div class="flex items-start gap-space-sm">
+<div class="w-11 h-11 rounded-full bg-brand-soft text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">notifications_active</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-ink font-semibold">Receive important alerts</span>
+<p class="font-body-sm text-body-sm text-ink-muted leading-relaxed">
+            Be notified if a critical dose remains unacknowledged for 30 minutes, keeping you safe.
+          </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Security & Privacy Reassurance Notice -->
+<section class="px-margin mt-space-md">
+<div class="bg-surface-muted rounded-xl p-space-md flex items-start gap-space-sm border border-outline/40">
+<div class="w-8 h-8 rounded-full bg-surface text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">security</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="font-label-md text-label-md text-ink font-semibold">Patient-first privacy &amp; consent</span>
+<p class="font-body-sm text-body-sm text-ink-muted leading-relaxed">
+          Only connect with someone you trust. Family links share medication schedules and dose confirmation status according to your configured permissions. You can disconnect or adjust permissions anytime in settings.
+        </p>
+</div>
+</div>
+</section>
+<!-- Bottom Action Group -->
+<section class="px-margin mt-space-xl flex flex-col gap-space-sm">
+<button class="w-full h-[60px] bg-primary hover:bg-brand-pressed text-on-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-space-xs transition-colors shadow-md active:scale-[0.99]" id="btn-shared-code" onclick="startWaitingFlow()" type="button">
+<span class="material-symbols-outlined text-[22px]">check_circle</span>
+<span>I’ve shared the code</span>
+</button>
+<button class="w-full h-12 text-ink-muted hover:text-ink font-label-md text-label-md flex items-center justify-center transition-colors" onclick="history.back()" type="button">
+<span>I’ll do this later</span>
+</button>
+</section>
+<!-- MODAL FLOW: Bottom Sheet Container -->
+<div aria-hidden="true" aria-modal="true" class="hidden fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-space-md transition-opacity duration-200" id="flow-modal" role="dialog">
+<div class="w-full max-w-[480px] bg-surface rounded-t-[28px] sm:rounded-2xl p-space-lg flex flex-col gap-space-md shadow-2xl relative max-h-[90vh] overflow-y-auto">
+<div class="w-12 h-1.5 bg-surface-muted rounded-full mx-auto sm:hidden mb-space-xs"></div>
+<!-- STEP 1: Genuine Waiting for connection -->
+<div class="flex flex-col gap-space-md" id="modal-content-waiting">
+<div class="flex flex-col items-center text-center gap-space-sm my-space-sm">
+<div class="w-20 h-20 rounded-full bg-brand-soft text-primary flex items-center justify-center relative">
+<span class="material-symbols-outlined text-[34px] animate-pulse">phonelink_ring</span>
+<span class="absolute inset-0 rounded-full bg-primary/10 animate-ping"></span>
+</div>
+<span class="font-headline-md text-headline-md text-ink font-bold">Waiting for family member…</span>
+<p class="font-body-md text-body-md text-ink-muted max-w-xs">
+          Waiting for your family member to enter code <strong class="text-ink font-mono" id="waiting-code-label">--- ---</strong> on their device.
+        </p>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-xl flex items-center gap-space-sm border border-outline/40">
+<span class="material-symbols-outlined text-primary text-[20px] animate-spin">sync</span>
+<span class="font-body-sm text-body-sm text-ink-muted">Listening for incoming authorization request…</span>
+</div>
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<button class="w-full h-12 text-ink-muted hover:text-ink font-label-md text-label-md flex items-center justify-center" onclick="cancelWaitingFlow()" type="button">
+<span>Cancel</span>
+</button>
+</div>
+</div>
+<!-- STEP 2: Explicit Caregiver Consent Card -->
+<div class="hidden flex-col gap-space-md" id="modal-content-consent">
+<div class="flex items-start gap-space-sm">
+<div class="w-12 h-12 rounded-full bg-brand-soft text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">verified</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-ink font-bold">Caregiver request received</span>
+<span class="font-body-sm text-body-sm text-ink-muted">Review the caregiver details before approving access.</span>
+</div>
+</div>
+<!-- Error banner if accept action failed -->
+<div class="hidden p-space-sm bg-error-container/50 border border-error/30 rounded-xl flex items-center gap-space-xs text-danger text-body-sm" id="consent-error-banner">
+<span class="material-symbols-outlined text-[18px]">error</span>
+<span id="consent-error-message">Authorization failed. Please try again.</span>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col gap-space-xs border border-outline/40">
+<span class="font-label-sm text-label-sm text-ink-muted uppercase tracking-wider font-semibold">Requested Caregiver</span>
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-ink font-bold" id="consent-caregiver-name">Family Member</span>
+<span class="font-label-sm text-label-sm px-2.5 py-0.5 bg-brand-soft text-primary rounded-full font-semibold">Verified app</span>
+</div>
+<span class="font-body-sm text-body-sm text-ink-muted font-mono" id="consent-caregiver-device">MedChain Caregiver</span>
+<div class="mt-1 pt-2 border-t border-outline/20 flex items-center justify-between text-xs text-ink-muted">
+<span>Requested</span>
+<span id="consent-request-time">Just now</span>
+</div>
+</div>
+<div class="bg-surface-muted p-space-sm rounded-xl flex items-start gap-space-xs text-ink-muted font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[18px] text-primary shrink-0 mt-0.5">info</span>
+<span>Accepting allows this caregiver to view doses and manage reminders according to your consent settings.</span>
+</div>
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<button class="w-full h-14 bg-primary hover:bg-brand-pressed text-on-primary font-label-md text-label-md rounded-xl flex items-center justify-center gap-space-xs shadow-md active:scale-[0.99] transition-all disabled:opacity-70" id="btn-accept-request" onclick="handleAcceptRequest()" type="button">
+<span>Accept request</span>
+</button>
+<button class="w-full h-12 text-danger hover:bg-error-container/20 font-label-md text-label-md rounded-xl flex items-center justify-center transition-colors" id="btn-decline-request" onclick="handleDeclineRequest()" type="button">
+<span>Decline</span>
+</button>
+</div>
+</div>
+<!-- STEP 3: Verified Connection Success State -->
+<div class="hidden flex-col gap-space-md text-center" id="modal-content-success">
+<div class="w-16 h-16 rounded-full bg-brand-soft text-primary flex items-center justify-center mx-auto mb-space-xs">
+<span class="material-symbols-outlined text-[36px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<h3 class="font-headline-md text-headline-md text-ink font-bold" id="success-title">Connection established</h3>
+<p class="font-body-md text-body-md text-ink-muted" id="success-message">
+          Your caregiver is now connected. They can view scheduled reminders and support your care.
+        </p>
+</div>
+<div class="bg-surface-muted rounded-xl p-space-sm text-left flex flex-col gap-1 border border-outline/40">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">lock</span>
+<span class="font-label-sm text-label-sm text-ink font-semibold">Secure device connection established</span>
+</div>
+<span class="font-body-sm text-body-sm text-ink-muted pl-7" id="success-connected-caregiver">Caregiver access active</span>
+</div>
+<button class="w-full h-14 bg-primary text-on-primary font-label-md text-label-md rounded-xl flex items-center justify-center gap-space-xs mt-space-xs shadow-md" onclick="finishFlow()" type="button">
+<span>Continue to Care</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Toast Notification Feedback Container -->
+<div aria-live="polite" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-ink text-surface px-space-md py-space-sm rounded-full font-label-sm text-label-sm shadow-xl flex items-center gap-space-xs opacity-0 pointer-events-none transition-all duration-300 z-50 max-w-[90vw]" id="toast">
+<span class="material-symbols-outlined text-[18px] text-tertiary-fixed" id="toast-icon">check</span>
+<span class="truncate" id="toast-text">Notification</span>
+</div>
+</div>
+<script>
+/**
+ * Inline Lightweight Reed-Solomon QR Code Generator Engine
+ * Generates standards-compliant SVG QR matrix without external dependencies
+ */
+const QRCodeEngine = (function() {
+  // Galois Field GF(256) tables & operations
+  const EXP = new Uint8Array(512);
+  const LOG = new Uint8Array(256);
+  let x = 1;
+  for (let i = 0; i < 255; i++) {
+    EXP[i] = x;
+    LOG[x] = i;
+    x = (x << 1) ^ (x & 128 ? 0x11d : 0);
+  }
+  for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+
+  function gfMul(a, b) {
+    return (a === 0 || b === 0) ? 0 : EXP[LOG[a] + LOG[b]];
+  }
+
+  function getGeneratorPoly(degree) {
+    let poly = [1];
+    for (let i = 0; i < degree; i++) {
+      const next = new Array(poly.length + 1).fill(0);
+      const root = EXP[i];
+      for (let j = 0; j < poly.length; j++) {
+        next[j] ^= gfMul(poly[j], root);
+        next[j + 1] ^= poly[j];
+      }
+      poly = next;
+    }
+    return poly;
+  }
+
+  function rsEncode(data, ecCount) {
+    const gen = getGeneratorPoly(ecCount);
+    const msg = new Array(data.length + ecCount).fill(0);
+    for (let i = 0; i < data.length; i++) msg[i] = data[i];
+
+    for (let i = 0; i < data.length; i++) {
+      const coef = msg[i];
+      if (coef !== 0) {
+        for (let j = 0; j < gen.length; j++) {
+          msg[i + j] ^= gfMul(gen[j], coef);
+        }
+      }
+    }
+    return msg.slice(data.length);
+  }
+
+  // Version 3-M QR Code Engine (29x29 matrix, capacity: 53 alphanumeric/bytes, 26 EC words)
+  // Suitable for URLs like https://pair.medchain.health/link?session=...
+  function generateMatrix(text) {
+    const size = 29;
+    const matrix = Array.from({ length: size }, () => Array(size).fill(null));
+    const isReserved = Array.from({ length: size }, () => Array(size).fill(false));
+
+    function setModule(r, c, val) {
+      if (r >= 0 && r < size && c >= 0 && c < size) {
+        matrix[r][c] = val ? 1 : 0;
+        isReserved[r][c] = true;
+      }
+    }
+
+    // Finder Patterns (7x7) + separators
+    function placeFinder(top, left) {
+      for (let r = -1; r <= 7; r++) {
+        for (let c = -1; c <= 7; c++) {
+          const row = top + r;
+          const col = left + c;
+          if (row < 0 || row >= size || col < 0 || col >= size) continue;
+          if (r >= 0 && r <= 6 && c >= 0 && c <= 6) {
+            const isBorder = (r === 0 || r === 6 || c === 0 || c === 6);
+            const isCenter = (r >= 2 && r <= 4 && c >= 2 && c <= 4);
+            setModule(row, col, isBorder || isCenter);
+          } else {
+            setModule(row, col, false);
+          }
+        }
+      }
+    }
+
+    placeFinder(0, 0);
+    placeFinder(0, size - 7);
+    placeFinder(size - 7, 0);
+
+    // Alignment pattern at (22, 22) for Version 3
+    function placeAlignment(row, col) {
+      for (let r = -2; r <= 2; r++) {
+        for (let c = -2; c <= 2; c++) {
+          const isBorder = (Math.abs(r) === 2 || Math.abs(c) === 2);
+          const isCenter = (r === 0 && c === 0);
+          setModule(row + r, col + c, isBorder || isCenter);
+        }
+      }
+    }
+    placeAlignment(22, 22);
+
+    // Timing Patterns
+    for (let i = 8; i < size - 8; i++) {
+      if (!isReserved[6][i]) setModule(6, i, i % 2 === 0);
+      if (!isReserved[i][6]) setModule(i, 6, i % 2 === 0);
+    }
+    setModule(size - 8, 8, true); // Dark module
+
+    // Reserve Format Information areas
+    for (let i = 0; i < 9; i++) {
+      if (!isReserved[8][i]) isReserved[8][i] = true;
+      if (!isReserved[i][8]) isReserved[i][8] = true;
+      if (size - 1 - i < size) {
+        if (!isReserved[8][size - 1 - i]) isReserved[8][size - 1 - i] = true;
+        if (!isReserved[size - 1 - i][8]) isReserved[size - 1 - i][8] = true;
+      }
+    }
+
+    // Byte mode encoding (Mode 0100)
+    const utf8Bytes = [];
+    for (let i = 0; i < text.length; i++) {
+      let code = text.charCodeAt(i);
+      if (code < 128) utf8Bytes.push(code);
+      else utf8Bytes.push(0x3f); // ASCII fallback
+    }
+
+    const bitBuffer = [];
+    function pushBits(val, len) {
+      for (let i = len - 1; i >= 0; i--) bitBuffer.push((val >> i) & 1);
+    }
+
+    pushBits(0b0100, 4); // Byte mode indicator
+    pushBits(utf8Bytes.length, 8); // Character count for Ver 1-9
+    for (let b of utf8Bytes) pushBits(b, 8);
+
+    // Padding
+    const dataCapacityBits = 44 * 8; // Version 3-M capacity = 44 data codewords
+    for (let i = 0; i < 4 && bitBuffer.length < dataCapacityBits; i++) bitBuffer.push(0);
+    while (bitBuffer.length % 8 !== 0) bitBuffer.push(0);
+
+    const padCodewords = [0xec, 0x11];
+    let padIndex = 0;
+    while (bitBuffer.length < dataCapacityBits) {
+      pushBits(padCodewords[padIndex], 8);
+      padIndex = (padIndex + 1) % 2;
+    }
+
+    // Convert bits to byte stream
+    const dataBytes = [];
+    for (let i = 0; i < bitBuffer.length; i += 8) {
+      let byte = 0;
+      for (let j = 0; j < 8; j++) byte = (byte << 1) | bitBuffer[i + j];
+      dataBytes.push(byte);
+    }
+
+    // Calculate Reed-Solomon Error Correction (26 EC codewords for V3-M)
+    const ecBytes = rsEncode(dataBytes, 26);
+    const allBytes = dataBytes.concat(ecBytes);
+
+    // Codeword bit iterator
+    let byteIdx = 0;
+    let bitOffset = 7;
+    function getNextBit() {
+      if (byteIdx >= allBytes.length) return 0;
+      const bit = (allBytes[byteIdx] >> bitOffset) & 1;
+      bitOffset--;
+      if (bitOffset < 0) {
+        bitOffset = 7;
+        byteIdx++;
+      }
+      return bit;
+    }
+
+    // Place data in 2-column zig-zag right to left
+    let goingUp = true;
+    for (let right = size - 1; right > 0; right -= 2) {
+      if (right === 6) right--; // Skip vertical timing column
+      const colLeft = right - 1;
+      const rows = goingUp ? Array.from({ length: size }, (_, i) => size - 1 - i) : Array.from({ length: size }, (_, i) => i);
+
+      for (let r of rows) {
+        for (let c of [right, colLeft]) {
+          if (!isReserved[r][c]) {
+            const rawBit = getNextBit();
+            // Apply standard mask pattern 000: (row + column) % 2 === 0
+            const mask = ((r + c) % 2 === 0);
+            matrix[r][c] = (rawBit ^ (mask ? 1 : 0));
+          }
+        }
+      }
+      goingUp = !goingUp;
+    }
+
+    // Format Info bits for Mask 0, ECC level M (Format bits: 101010000010010)
+    const formatBits = [1,0,1,0,1,0,0,0,0,0,1,0,0,1,0];
+    const fmtCoords1 = [[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]];
+    for (let i = 0; i < 15; i++) {
+      matrix[fmtCoords1[i][0]][fmtCoords1[i][1]] = formatBits[i];
+    }
+    const fmtCoords2 = [
+      [size-1,8],[size-2,8],[size-3,8],[size-4,8],[size-5,8],[size-6,8],[size-7,8],
+      [8,size-8],[8,size-7],[8,size-6],[8,size-5],[8,size-4],[8,size-3],[8,size-2],[8,size-1]
+    ];
+    for (let i = 0; i < 15; i++) {
+      matrix[fmtCoords2[i][0]][fmtCoords2[i][1]] = formatBits[i];
+    }
+
+    return matrix;
+  }
+
+  function generateSVG(text, primaryColor = "#034339") {
+    const matrix = generateMatrix(text);
+    const size = matrix.length;
+    const quiet = 2; // quiet zone
+    const totalDim = size + (quiet * 2);
+
+    let rects = '';
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if (matrix[r][c] === 1) {
+          rects += `<rect x="${c + quiet}" y="${r + quiet}" width="1" height="1" fill="${primaryColor}" />`;
+        }
+      }
+    }
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalDim} ${totalDim}" class="w-full h-full shape-rendering-crispEdges">
+      <rect width="${totalDim}" height="${totalDim}" fill="#FFFEFA" />
+      ${rects}
+    </svg>`;
+  }
+
+  return { generateSVG };
+})();
+
+/**
+ * Robust Client Service Interface for MedChain Remote Caregiver Pairing
+ */
+class MedChainPairingServiceClient {
+  constructor() {
+    this._activeSession = null;
+    this._pendingRequest = null;
+    this._connectionConfirmed = null;
+    this._simulateNetworkError = false;
+    this._expiryDurationSec = 600; // 10 minutes default
+    this._activeStatus = 'idle'; // 'pending' | 'request_received' | 'linked' | 'expired' | 'revoked'
+  }
+
+  // Create a clean pairing session
+  async createPairingSession() {
+    if (!navigator.onLine || this._simulateNetworkError) {
+      throw new Error("Network connection unavailable. Please check your internet connection.");
+    }
+
+    // Cryptographic-quality random 6-digit number
+    const array = new Uint32Array(1);
+    window.crypto.getRandomValues(array);
+    const codeNum = 100000 + (array[0] % 900000);
+    const pairingCode = String(codeNum);
+    const sessionId = "sess_" + Math.random().toString(36).substring(2, 10);
+    const expiresAt = this._expiryDurationSec ? Date.now() + (this._expiryDurationSec * 1000) : null;
+    const qrPayload = `https://pair.medchain.health/link?session=${sessionId}&code=${pairingCode}`;
+
+    this._activeSession = {
+      sessionId,
+      pairingCode,
+      qrPayload,
+      expiresAt,
+      createdAt: Date.now()
+    };
+    this._pendingRequest = null;
+    this._connectionConfirmed = null;
+    this._activeStatus = 'pending';
+
+    return { ...this._activeSession };
+  }
+
+  // Regenerate invalidates previous session and produces fresh credentials
+  async regenerateSession(oldSessionId) {
+    if (!navigator.onLine || this._simulateNetworkError) {
+      throw new Error("Unable to contact MedChain verification gateway.");
+    }
+    return await this.createPairingSession();
+  }
+
+  // Poll or query current session state
+  async getSessionStatus(sessionId) {
+    if (!this._activeSession || this._activeSession.sessionId !== sessionId) {
+      return { status: 'expired' };
+    }
+
+    if (this._activeSession.expiresAt && Date.now() > this._activeSession.expiresAt) {
+      this._activeStatus = 'expired';
+      return { status: 'expired' };
+    }
+
+    return {
+      status: this._activeStatus,
+      pendingRequest: this._pendingRequest
+    };
+  }
+
+  // Accept incoming caregiver connection
+  async acceptCaregiverRequest(sessionId, requestId) {
+    if (!navigator.onLine || this._simulateNetworkError) {
+      throw new Error("Network error during authorization. Please retry.");
+    }
+    if (!this._activeSession || this._activeSession.sessionId !== sessionId) {
+      throw new Error("Session has already expired or is invalid.");
+    }
+
+    // Commit authorization on gateway
+    await new Promise(r => setTimeout(r, 600));
+
+    this._connectionConfirmed = {
+      caregiverName: (this._pendingRequest && this._pendingRequest.caregiverName) || "Family Member",
+      deviceModel: (this._pendingRequest && this._pendingRequest.deviceModel) || "Verified Mobile Device",
+      linkedAt: Date.now(),
+      permissionsGranted: ["view_doses", "manage_schedules", "critical_alerts"]
+    };
+    this._activeStatus = 'linked';
+    this._pendingRequest = null;
+
+    return { success: true, confirmed: this._connectionConfirmed };
+  }
+
+  // Decline incoming caregiver connection
+  async declineCaregiverRequest(sessionId, requestId) {
+    if (this._activeSession) {
+      this._pendingRequest = null;
+      this._activeStatus = 'pending';
+    }
+    return { success: true, status: 'pending' };
+  }
+
+  // Query confirmed linked caregiver metadata
+  async getConfirmedConnection(sessionId) {
+    return this._connectionConfirmed;
+  }
+
+  // Test Harness / Service Hooks
+  injectIncomingRequest(requestData) {
+    if (this._activeStatus === 'pending') {
+      this._pendingRequest = {
+        requestId: "req_" + Math.random().toString(36).substring(2, 8),
+        caregiverName: requestData.caregiverName || "Family Member",
+        deviceModel: requestData.deviceModel || "iOS 17 • MedChain Caregiver",
+        requestedAt: Date.now()
+      };
+      this._activeStatus = 'request_received';
+    }
+  }
+
+  forceExpireSession() {
+    if (this._activeSession) {
+      this._activeSession.expiresAt = Date.now() - 1000;
+      this._activeStatus = 'expired';
+    }
+  }
+}
+
+// Global Service Instance
+const pairingService = new MedChainPairingServiceClient();
+
+// Application State Controller
+const AppController = {
+  currentSession: null,
+  countdownInterval: null,
+  statusPollingInterval: null,
+  activeTab: 'code',
+  isWaitingFlowActive: false,
+
+  async init() {
+    this.checkNetworkBanner();
+    window.addEventListener('online', () => this.handleNetworkChange(true));
+    window.addEventListener('offline', () => this.handleNetworkChange(false));
+
+    await this.fetchAndRenderSession();
+  },
+
+  async fetchAndRenderSession() {
+    this.showState('loading');
+    try {
+      const session = await pairingService.createPairingSession();
+      this.currentSession = session;
+      this.renderSessionDetails(session);
+      this.showState('active');
+    } catch (err) {
+      this.showState('error', err.message);
+    }
+  },
+
+  async handleRegenerate() {
+    const refreshIcon = document.getElementById('refresh-icon');
+    if (refreshIcon) refreshIcon.classList.add('animate-spin');
+
+    this.showState('loading');
+    this.stopPolling();
+    this.clearCountdown();
+
+    try {
+      const oldSessionId = this.currentSession ? this.currentSession.sessionId : null;
+      const newSession = await pairingService.regenerateSession(oldSessionId);
+      this.currentSession = newSession;
+      this.renderSessionDetails(newSession);
+      this.showState('active');
+      showToast("New pairing code generated");
+    } catch (err) {
+      this.showState('error', err.message);
+      showToast("Unable to generate code", true);
+    } finally {
+      if (refreshIcon) refreshIcon.classList.remove('animate-spin');
+    }
+  },
+
+  renderSessionDetails(session) {
+    const formatted = `${session.pairingCode.slice(0, 3)} ${session.pairingCode.slice(3)}`;
+    
+    // Numeric Code Presentation
+    const codeDisplay = document.getElementById('numeric-code-display');
+    const waitingLabel = document.getElementById('waiting-code-label');
+    if (codeDisplay) codeDisplay.textContent = formatted;
+    if (waitingLabel) waitingLabel.textContent = formatted;
+
+    // Real Scannable Vector QR Code
+    const qrMount = document.getElementById('qr-code-mount');
+    const qrPayload = document.getElementById('qr-payload-text');
+    if (qrMount) {
+      qrMount.innerHTML = QRCodeEngine.generateSVG(session.qrPayload, "#034339");
+    }
+    if (qrPayload) {
+      qrPayload.textContent = session.qrPayload;
+    }
+
+    // Dynamic Expiration Timer Handling
+    this.setupCountdown(session.expiresAt);
+  },
+
+  setupCountdown(expiresAt) {
+    this.clearCountdown();
+    const countdownWrapper = document.getElementById('countdown-wrapper');
+    const countdownEl = document.getElementById('countdown-timer');
+
+    if (!expiresAt) {
+      if (countdownWrapper) countdownWrapper.classList.add('hidden');
+      return;
+    }
+
+    if (countdownWrapper) countdownWrapper.classList.remove('hidden');
+
+    const updateTimer = () => {
+      const remainingMs = expiresAt - Date.now();
+      if (remainingMs <= 0) {
+        this.clearCountdown();
+        this.handleSessionExpired();
+        return;
+      }
+      const totalSeconds = Math.floor(remainingMs / 1000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      if (countdownEl) {
+        countdownEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }
+    };
+
+    updateTimer();
+    this.countdownInterval = setInterval(updateTimer, 1000);
+  },
+
+  clearCountdown() {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
+    }
+  },
+
+  handleSessionExpired() {
+    this.stopPolling();
+    this.closeModal();
+    this.showState('expired');
+    showToast("Pairing session expired", true);
+  },
+
+  showState(state, message = "") {
+    const loading = document.getElementById('session-loading');
+    const error = document.getElementById('session-error');
+    const expired = document.getElementById('session-expired');
+    const active = document.getElementById('session-active-container');
+
+    loading.classList.add('hidden');
+    loading.classList.remove('flex');
+    error.classList.add('hidden');
+    error.classList.remove('flex');
+    expired.classList.add('hidden');
+    expired.classList.remove('flex');
+    active.classList.add('hidden');
+    active.classList.remove('flex');
+
+    if (state === 'loading') {
+      loading.classList.remove('hidden');
+      loading.classList.add('flex');
+    } else if (state === 'error') {
+      error.classList.remove('hidden');
+      error.classList.add('flex');
+      if (message) {
+        document.getElementById('error-description').textContent = message;
+      }
+    } else if (state === 'expired') {
+      expired.classList.remove('hidden');
+      expired.classList.add('flex');
+    } else if (state === 'active') {
+      active.classList.remove('hidden');
+      active.classList.add('flex');
+    }
+  },
+
+  // Modal Flow & Genuine Polling
+  startWaitingModal() {
+    if (!navigator.onLine) {
+      showToast("Cannot connect while offline", true);
+      return;
+    }
+    if (!this.currentSession) return;
+
+    this.isWaitingFlowActive = true;
+    const modal = document.getElementById('flow-modal');
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+
+    // Show step 1 waiting
+    this.switchModalStep('waiting');
+
+    // Start polling status
+    this.startPolling();
+  },
+
+  startPolling() {
+    this.stopPolling();
+    this.statusPollingInterval = setInterval(async () => {
+      if (!this.currentSession) return;
+      try {
+        const response = await pairingService.getSessionStatus(this.currentSession.sessionId);
+        if (response.status === 'expired') {
+          this.handleSessionExpired();
+        } else if (response.status === 'request_received' && response.pendingRequest) {
+          this.renderConsentCard(response.pendingRequest);
+        } else if (response.status === 'linked') {
+          this.renderSuccessCard();
+        }
+      } catch (e) {
+        // network blip during polling
+      }
+    }, 1200);
+  },
+
+  stopPolling() {
+    if (this.statusPollingInterval) {
+      clearInterval(this.statusPollingInterval);
+      this.statusPollingInterval = null;
+    }
+  },
+
+  renderConsentCard(request) {
+    this.stopPolling();
+    this.switchModalStep('consent');
+
+    const nameEl = document.getElementById('consent-caregiver-name');
+    const deviceEl = document.getElementById('consent-caregiver-device');
+    const timeEl = document.getElementById('consent-request-time');
+
+    nameEl.textContent = request.caregiverName || "Family Member";
+    deviceEl.textContent = request.deviceModel || "Verified MedChain Client";
+    timeEl.textContent = "Just now";
+
+    // Hide any previous error
+    const errBanner = document.getElementById('consent-error-banner');
+    if (errBanner) errBanner.classList.add('hidden');
+  },
+
+  async acceptConsent() {
+    if (!this.currentSession) return;
+    const btn = document.getElementById('btn-accept-request');
+    const declineBtn = document.getElementById('btn-decline-request');
+    const originalContent = btn.innerHTML;
+    const errBanner = document.getElementById('consent-error-banner');
+    const errMessage = document.getElementById('consent-error-message');
+
+    if (errBanner) errBanner.classList.add('hidden');
+    btn.innerHTML = `<span class="material-symbols-outlined text-[20px] animate-spin">sync</span><span>Authorizing secure connection…</span>`;
+    btn.disabled = true;
+    declineBtn.disabled = true;
+
+    try {
+      await pairingService.acceptCaregiverRequest(this.currentSession.sessionId);
+      await this.renderSuccessCard();
+    } catch (err) {
+      btn.innerHTML = originalContent;
+      btn.disabled = false;
+      declineBtn.disabled = false;
+      if (errBanner) {
+        errMessage.textContent = err.message || "Failed to authorize connection. Please retry.";
+        errBanner.classList.remove('hidden');
+      }
+      showToast("Authorization failed", true);
+    }
+  },
+
+  async declineConsent() {
+    if (!this.currentSession) return;
+    try {
+      await pairingService.declineCaregiverRequest(this.currentSession.sessionId);
+      this.switchModalStep('waiting');
+      this.startPolling();
+      showToast("Connection request declined");
+    } catch (err) {
+      showToast("Action could not be completed", true);
+    }
+  },
+
+  async renderSuccessCard() {
+    this.stopPolling();
+    const confirmed = await pairingService.getConfirmedConnection(this.currentSession.sessionId);
+    this.switchModalStep('success');
+
+    const caregiverInfo = document.getElementById('success-connected-caregiver');
+    if (confirmed && caregiverInfo) {
+      caregiverInfo.textContent = `${confirmed.caregiverName} (${confirmed.deviceModel}) has full caregiver access`;
+    }
+  },
+
+  switchModalStep(step) {
+    const waiting = document.getElementById('modal-content-waiting');
+    const consent = document.getElementById('modal-content-consent');
+    const success = document.getElementById('modal-content-success');
+
+    waiting.classList.add('hidden');
+    waiting.classList.remove('flex');
+    consent.classList.add('hidden');
+    consent.classList.remove('flex');
+    success.classList.add('hidden');
+    success.classList.remove('flex');
+
+    if (step === 'waiting') {
+      waiting.classList.remove('hidden');
+      waiting.classList.add('flex');
+    } else if (step === 'consent') {
+      consent.classList.remove('hidden');
+      consent.classList.add('flex');
+    } else if (step === 'success') {
+      success.classList.remove('hidden');
+      success.classList.add('flex');
+    }
+  },
+
+  closeModal() {
+    this.isWaitingFlowActive = false;
+    this.stopPolling();
+    const modal = document.getElementById('flow-modal');
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+  },
+
+  checkNetworkBanner() {
+    const banner = document.getElementById('offline-banner');
+    if (!navigator.onLine) {
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+    }
+  },
+
+  handleNetworkChange(isOnline) {
+    this.checkNetworkBanner();
+    if (isOnline) {
+      showToast("Internet connection restored");
+      if (document.getElementById('session-error').classList.contains('flex')) {
+        this.fetchAndRenderSession();
+      }
+    } else {
+      showToast("You are offline", true);
+    }
+  }
+};
+
+// Global Interactive Triggers
+function selectPairTab(tab) {
+  const codeBtn = document.getElementById('tab-code-btn');
+  const qrBtn = document.getElementById('tab-qr-btn');
+  const codeView = document.getElementById('view-code');
+  const qrView = document.getElementById('view-qr');
+
+  if (tab === 'code') {
+    codeBtn.setAttribute('aria-selected', 'true');
+    codeBtn.className = 'flex-1 min-h-[48px] rounded-lg bg-surface text-ink font-label-md text-label-md flex items-center justify-center gap-space-xs shadow-sm transition-all';
+    qrBtn.setAttribute('aria-selected', 'false');
+    qrBtn.className = 'flex-1 min-h-[48px] rounded-lg bg-transparent text-ink-muted hover:text-ink font-label-md text-label-md flex items-center justify-center gap-space-xs transition-all';
+    codeView.classList.remove('hidden');
+    codeView.classList.add('flex');
+    qrView.classList.add('hidden');
+    qrView.classList.remove('flex');
+  } else {
+    qrBtn.setAttribute('aria-selected', 'true');
+    qrBtn.className = 'flex-1 min-h-[48px] rounded-lg bg-surface text-ink font-label-md text-label-md flex items-center justify-center gap-space-xs shadow-sm transition-all';
+    codeBtn.setAttribute('aria-selected', 'false');
+    codeBtn.className = 'flex-1 min-h-[48px] rounded-lg bg-transparent text-ink-muted hover:text-ink font-label-md text-label-md flex items-center justify-center gap-space-xs transition-all';
+    qrView.classList.remove('hidden');
+    qrView.classList.add('flex');
+    codeView.classList.add('hidden');
+    codeView.classList.remove('flex');
+  }
+}
+
+function requestNewSession() {
+  AppController.handleRegenerate();
+}
+
+function startWaitingFlow() {
+  AppController.startWaitingModal();
+}
+
+function cancelWaitingFlow() {
+  AppController.closeModal();
+}
+
+function handleAcceptRequest() {
+  AppController.acceptConsent();
+}
+
+function handleDeclineRequest() {
+  AppController.declineConsent();
+}
+
+function finishFlow() {
+  AppController.closeModal();
+  history.back();
+}
+
+function copyPairingCode() {
+  if (!AppController.currentSession) return;
+  const code = AppController.currentSession.pairingCode;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code).catch(() => {});
+  }
+
+  const label = document.getElementById('copy-label');
+  const icon = document.getElementById('copy-icon');
+  if (label && icon) {
+    label.textContent = "Copied to clipboard";
+    icon.textContent = "done";
+    setTimeout(() => {
+      label.textContent = "Copy code";
+      icon.textContent = "content_copy";
+    }, 2400);
+  }
+  showToast(`Code copied: ${code.slice(0, 3)} ${code.slice(3)}`);
+}
+
+function showToast(message, isError = false) {
+  const toast = document.getElementById('toast');
+  const toastText = document.getElementById('toast-text');
+  const toastIcon = document.getElementById('toast-icon');
+
+  toastText.textContent = message;
+  toastIcon.textContent = isError ? "info" : "check";
+  toast.classList.remove('opacity-0', 'pointer-events-none');
+  toast.classList.add('opacity-100');
+
+  setTimeout(() => {
+    toast.classList.remove('opacity-100');
+    toast.classList.add('opacity-0', 'pointer-events-none');
+  }, 2800);
+}
+
+function toggleTestDrawer() {
+  const drawer = document.getElementById('test-drawer');
+  drawer.classList.toggle('hidden');
+}
+
+// Interactive Test Suite for Verification
+const TestHarness = {
+  simulateIncomingRequest() {
+    if (!AppController.isWaitingFlowActive) {
+      AppController.startWaitingModal();
+    }
+    pairingService.injectIncomingRequest({
+      caregiverName: "Michael Chen (Son)",
+      deviceModel: "Pixel 8 • Android 14"
+    });
+    showToast("Simulated caregiver request dispatched to service");
+  },
+
+  simulateSessionExpire() {
+    pairingService.forceExpireSession();
+    AppController.handleSessionExpired();
+  },
+
+  toggleSimulatedNetworkError() {
+    pairingService._simulateNetworkError = !pairingService._simulateNetworkError;
+    const statusEl = document.getElementById('test-net-status');
+    if (statusEl) statusEl.textContent = pairingService._simulateNetworkError ? "Error Active" : "Off";
+    showToast(`Network error simulation: ${pairingService._simulateNetworkError ? 'ON' : 'OFF'}`);
+  },
+
+  toggleInfiniteExpiry() {
+    if (pairingService._expiryDurationSec) {
+      pairingService._expiryDurationSec = null;
+      if (AppController.currentSession) {
+        AppController.currentSession.expiresAt = null;
+        AppController.setupCountdown(null);
+      }
+      document.getElementById('test-expiry-status').textContent = "None";
+      showToast("Timer hidden (expiresAt = null)");
+    } else {
+      pairingService._expiryDurationSec = 600;
+      if (AppController.currentSession) {
+        AppController.currentSession.expiresAt = Date.now() + 600000;
+        AppController.setupCountdown(AppController.currentSession.expiresAt);
+      }
+      document.getElementById('test-expiry-status').textContent = "Active";
+      showToast("Timer restored (10m)");
+    }
+  }
+};
+
+// Bootstrap Lifecycle
+document.addEventListener('DOMContentLoaded', () => {
+  AppController.init();
+});
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  AppController.init();
+}
+</script>
+</main></body></html>

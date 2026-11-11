@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>MedChain — Splash</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "canvas": "#F7F5EF",
+            "ink": "#202B28",
+            "ink-muted": "#58645F",
+            "primary": "#034339",
+            "primary-container": "#245B50",
+            "brand-teal": "#245B50"
+          },
+          fontFamily: {
+            sans: ['"Atkinson Hyperlegible Next"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      font-family: 'Atkinson Hyperlegible Next', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background-color: #F7F5EF;
+    }
+    @supports (-webkit-touch-callout: none) {
+      .min-h-screen-safe {
+        min-height: -webkit-fill-available;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#F7F5EF] text-[#202B28] min-h-screen min-h-screen-safe w-full flex flex-col justify-center items-center select-none overflow-hidden px-8 py-12 relative pt-[env(safe-area-inset-top,44px)] pb-[env(safe-area-inset-bottom,34px)]">
+<!-- Centered Vertical Lockup -->
+<main class="w-full max-w-[320px] flex flex-col items-center justify-center text-center mx-auto my-auto">
+<!-- Brand Logo: Vertical capsule with chain link motif -->
+<div aria-label="MedChain Logo" class="mb-7 flex items-center justify-center">
+<svg class="w-[44px] h-[80px]" fill="none" height="82" viewbox="0 0 46 82" width="46" xmlns="http://www.w3.org/2000/svg">
+<!-- Top capsule / link loop -->
+<path d="M7 36V20C7 11.1634 14.1634 4 23 4C31.8366 4 39 11.1634 39 20V36" stroke="#245B50" stroke-linecap="round" stroke-width="7"></path>
+<!-- Bottom capsule / link loop -->
+<path d="M39 46V62C39 70.8366 31.8366 78 23 78C14.1634 78 7 70.8366 7 62V46" stroke="#245B50" stroke-linecap="round" stroke-width="7"></path>
+<!-- Interlocking horizontal connector bridge -->
+<path d="M4 41H42" stroke="#245B50" stroke-linecap="round" stroke-width="7"></path>
+<!-- Subtle chain-link core connection nodes matching canvas -->
+<circle cx="14" cy="41" fill="#F7F5EF" r="3.2"></circle>
+<circle cx="32" cy="41" fill="#F7F5EF" r="3.2"></circle>
+</svg>
+</div>
+<!-- Wordmark -->
+<h1 class="text-[32px] font-bold text-[#202B28] leading-[1.2] tracking-[-0.02em] mb-2.5">
+      MedChain
+    </h1>
+<!-- Tagline -->
+<p class="text-[16px] text-[#58645F] font-normal leading-[1.4] tracking-normal">
+      Medication care, in sync.
+    </p>
+</main>
+<!-- iOS Safe Area Home Bar Spacer Clearance -->
+<div aria-hidden="true" class="h-[env(safe-area-inset-bottom,0px)] w-full pointer-events-none"></div>
+</body></html>

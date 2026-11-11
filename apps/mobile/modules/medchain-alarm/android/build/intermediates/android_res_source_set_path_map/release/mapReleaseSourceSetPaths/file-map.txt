@@ -1,0 +1,9 @@
+expo.modules.medchainalarm.medchain-alarm-pngs-0 /Users/shibudhara11/Developer/medchain/apps/mobile/modules/medchain-alarm/android/build/generated/res/pngs/release
+expo.modules.medchainalarm.medchain-alarm-updated_navigation_xml-1 /Users/shibudhara11/Developer/medchain/apps/mobile/modules/medchain-alarm/android/build/generated/updated_navigation_xml/release
+expo.modules.medchainalarm.medchain-alarm-mergeReleaseResources-2 /Users/shibudhara11/Developer/medchain/apps/mobile/modules/medchain-alarm/android/build/intermediates/incremental/release/mergeReleaseResources/merged.dir
+expo.modules.medchainalarm.medchain-alarm-mergeReleaseResources-3 /Users/shibudhara11/Developer/medchain/apps/mobile/modules/medchain-alarm/android/build/intermediates/incremental/release/mergeReleaseResources/stripped.dir
+expo.modules.medchainalarm.medchain-alarm-release-4 /Users/shibudhara11/Developer/medchain/apps/mobile/modules/medchain-alarm/android/build/intermediates/merged_res/release/mergeReleaseResources
+expo.modules.medchainalarm.medchain-alarm-release-5 /Users/shibudhara11/Developer/medchain/apps/mobile/modules/medchain-alarm/android/build/intermediates/packaged_res/release/packageReleaseResources
+expo.modules.medchainalarm.medchain-alarm-main-6 /Users/shibudhara11/Developer/medchain/apps/mobile/modules/medchain-alarm/android/src/main/res
+expo.modules.medchainalarm.medchain-alarm-release-7 /Users/shibudhara11/Developer/medchain/apps/mobile/modules/medchain-alarm/android/src/release/res
+gradleHome-0 /Users/shibudhara11/.gradle
