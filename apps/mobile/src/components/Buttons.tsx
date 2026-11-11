@@ -173,13 +173,11 @@ const styles = StyleSheet.create({
     marginVertical: Spacing.sm,
   },
   primaryText: {
-    flexShrink: 1,
     textAlign: 'center',
     textAlignVertical: 'center',
     includeFontPadding: false,
     ...Typography.labelLarge,
     color: Colors.white,
-    fontWeight: '600',
   },
   secondaryButton: {
     backgroundColor: Colors.surface,
@@ -194,13 +192,11 @@ const styles = StyleSheet.create({
     marginVertical: Spacing.sm,
   },
   secondaryText: {
-    flexShrink: 1,
     textAlign: 'center',
     textAlignVertical: 'center',
     includeFontPadding: false,
     ...Typography.labelLarge,
     color: Colors.brand,
-    fontWeight: '600',
   },
   destructiveButton: {
     backgroundColor: 'transparent',
@@ -215,13 +211,11 @@ const styles = StyleSheet.create({
     marginVertical: Spacing.sm,
   },
   destructiveText: {
-    flexShrink: 1,
     textAlign: 'center',
     textAlignVertical: 'center',
     includeFontPadding: false,
     ...Typography.labelMedium,
     color: Colors.danger,
-    fontWeight: '600',
   },
   disabledButton: {
     opacity: 0.5,

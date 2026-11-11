@@ -84,11 +84,11 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.sm + 2,
-    paddingVertical: 3,
+    paddingHorizontal: Spacing.sm + 4,
+    paddingVertical: 4,
     borderRadius: Radii.full,
     alignSelf: 'flex-start',
-    maxWidth: '100%',
+    flexShrink: 0,
   },
   iconContainer: {
     marginRight: 4,
@@ -100,7 +100,6 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.labelSmall,
-    fontWeight: '600',
     fontSize: 12,
     lineHeight: 16,
     includeFontPadding: false,

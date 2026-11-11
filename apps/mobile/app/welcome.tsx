@@ -203,11 +203,9 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   primaryActionText: {
-    flexShrink: 1,
     textAlign: 'center',
     ...Typography.labelLarge,
     color: Colors.white,
-    fontWeight: '600',
   },
   secondaryActionBtn: {
     minHeight: 52,
@@ -221,11 +219,9 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   secondaryActionText: {
-    flexShrink: 1,
     textAlign: 'center',
     ...Typography.labelLarge,
     color: Colors.ink,
-    fontWeight: '600',
   },
   footer: {
     alignItems: 'center',

@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.lg,
-    paddingBottom: Spacing.huge,
+    paddingBottom: 96,
   },
   greetingSection: {
     flexDirection: 'row',
@@ -543,11 +543,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.brandPressed,
   },
   primaryActionButtonText: {
-    flexShrink: 1,
     textAlign: 'center',
     ...Typography.labelLarge,
     color: Colors.white,
-    fontWeight: '600',
     fontSize: 18,
     lineHeight: 24,
   },

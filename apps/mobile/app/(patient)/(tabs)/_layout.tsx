@@ -16,7 +16,7 @@ function PatientTabHeader({ title, iconName, isCommunityIcon = false }: PatientT
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.headerContainer, { paddingTop: insets.top }]}>
+    <View style={[styles.headerContainer, { paddingTop: Math.max(insets.top, 24) }]}>
       <View style={styles.headerBar}>
         <View style={styles.headerBrand}>
           {isCommunityIcon ? (

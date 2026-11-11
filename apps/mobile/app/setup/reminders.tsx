@@ -7,15 +7,17 @@ import {
   AppState,
   Alert,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AppScreen } from '@/components/AppScreen';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
 import { useApp } from '@/state/AppContext';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 
 export default function ReminderSetupScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const {
     setOnboarded,
     notificationPermission,
@@ -153,24 +155,30 @@ export default function ReminderSetupScreen() {
   const isAlarmGranted = exactAlarmPermission === 'granted';
 
   return (
-    <AppScreen scrollable={true}>
-      <View style={styles.container}>
-        {/* Header Bar */}
-        <View style={styles.headerBar}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-          >
-            <Ionicons name="arrow-back" size={24} color={Colors.ink} />
-          </TouchableOpacity>
-          <View style={styles.headerCenter}>
-            <Text style={styles.headerTitle}>Reminder setup</Text>
-            <Text style={styles.headerStep}>Last step</Text>
-          </View>
-          <View style={styles.headerSpacer} />
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
+      {/* Pinned Top Header Bar */}
+      <View style={styles.headerBar}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
+          <Ionicons name="arrow-back" size={24} color={Colors.ink} />
+        </TouchableOpacity>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>Reminder setup</Text>
+          <Text style={styles.headerStep}>Last step</Text>
         </View>
+        <View style={styles.headerSpacer} />
+      </View>
+
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
 
         {/* Narrative Headline */}
         <View style={styles.titleSection}>
@@ -400,21 +408,31 @@ export default function ReminderSetupScreen() {
             <Text style={styles.laterText}>Set up later</Text>
           </TouchableOpacity>
         </View>
-      </View>
-    </AppScreen>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    paddingVertical: Spacing.sm,
+    backgroundColor: Colors.canvas,
   },
   headerBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.xl,
+    height: 52,
+    backgroundColor: Colors.canvas,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.huge * 2,
   },
   backButton: {
     width: 48,
@@ -513,42 +531,48 @@ const styles = StyleSheet.create({
   },
   enabledBadge: {
     backgroundColor: Colors.brandSoft,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
     borderRadius: Radii.full,
+    alignSelf: 'flex-start',
+    flexShrink: 0,
   },
   enabledBadgeText: {
     ...Typography.labelSmall,
     fontSize: 12,
     lineHeight: 16,
     color: Colors.brand,
-    fontWeight: '600',
+    includeFontPadding: false,
   },
   notConfiguredBadge: {
     backgroundColor: Colors.surfaceMuted,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
     borderRadius: Radii.full,
+    alignSelf: 'flex-start',
+    flexShrink: 0,
   },
   notConfiguredText: {
     ...Typography.labelSmall,
     fontSize: 12,
     lineHeight: 16,
     color: Colors.warning,
-    fontWeight: '600',
+    includeFontPadding: false,
   },
   neutralBadge: {
     backgroundColor: Colors.surfaceMuted,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
     borderRadius: Radii.full,
+    alignSelf: 'flex-start',
+    flexShrink: 0,
   },
   neutralBadgeText: {
     ...Typography.labelSmall,
     fontSize: 12,
     lineHeight: 16,
     color: Colors.inkMuted,
-    fontWeight: '600',
+    includeFontPadding: false,
   },
   actionBtn: {
     alignSelf: 'flex-start',
@@ -656,11 +680,9 @@ const styles = StyleSheet.create({
     borderRadius: Radii.sm,
   },
   testActionText: {
-    flexShrink: 1,
     textAlign: 'center',
     ...Typography.labelMedium,
     color: Colors.brand,
-    fontWeight: '600',
   },
   previewAlarmBtn: {
     flexDirection: 'row',
@@ -676,11 +698,9 @@ const styles = StyleSheet.create({
     borderRadius: Radii.sm,
   },
   previewAlarmText: {
-    flexShrink: 1,
     textAlign: 'center',
     ...Typography.labelMedium,
     color: Colors.ink,
-    fontWeight: '600',
   },
   testSuccessBanner: {
     flexDirection: 'row',

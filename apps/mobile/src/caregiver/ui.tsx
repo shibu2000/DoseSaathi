@@ -177,7 +177,7 @@ export function CommandStatusCard({
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Colors.canvas },
-  scrollContent: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.md, paddingBottom: Spacing.xxxl },
+  scrollContent: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: Spacing.xxxl },
   notice: {
     flexDirection: 'row',
     gap: Spacing.md,

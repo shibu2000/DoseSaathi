@@ -140,7 +140,7 @@ export default function OnboardingSwiperScreen(props?: { initialIndex?: number }
               <View style={styles.rowBetween}>
                 <View style={styles.rowAlign}>
                   <MaterialIcons name="alarm" size={15} color={Colors.brand} />
-                  <Text style={styles.alarmTimeText}>Reminder set for 09:45 AM</Text>
+                  <Text style={styles.alarmTimeText}>Reminder: 09:45 AM</Text>
                 </View>
                 <View style={styles.autoDelayedBadge}>
                   <Text style={styles.autoDelayedText}>Auto-delayed</Text>
@@ -572,14 +572,13 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   rowBetween: {
-    flexWrap: 'wrap',
-    gap: 4,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 6,
   },
   rowAlign: {
-    flexShrink: 1,
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
@@ -593,7 +592,6 @@ const styles = StyleSheet.create({
   takenTimeText: {
     ...Typography.labelSmall,
     color: Colors.success,
-    fontWeight: '600',
     fontSize: 12,
   },
   scheduledTimeText: {
@@ -604,20 +602,19 @@ const styles = StyleSheet.create({
   alarmTimeText: {
     ...Typography.labelSmall,
     color: Colors.ink,
-    fontWeight: '600',
     fontSize: 12,
   },
   autoDelayedBadge: {
     backgroundColor: Colors.brandSoft,
-    paddingHorizontal: 6,
-    paddingVertical: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
     borderRadius: 4,
+    flexShrink: 0,
   },
   autoDelayedText: {
     ...Typography.labelSmall,
     fontSize: 12,
     color: Colors.brand,
-    fontWeight: '600',
   },
   calcDetailText: {
     ...Typography.bodySmall,
@@ -700,11 +697,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   medRow: {
-    flexWrap: 'wrap',
-    gap: 4,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 6,
   },
   syncMedName: {
     ...Typography.labelLarge,
@@ -715,6 +711,7 @@ const styles = StyleSheet.create({
     ...Typography.bodySmall,
     color: Colors.inkMuted,
     fontSize: 12,
+    flexShrink: 0,
   },
   connectorContainer: {
     alignItems: 'center',
@@ -769,26 +766,25 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   queuedRow: {
-    flexWrap: 'wrap',
-    gap: 4,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: Colors.surfaceMuted,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: 5,
     borderRadius: Radii.sm,
+    gap: 6,
   },
   queuedMedName: {
     ...Typography.bodySmall,
     color: Colors.ink,
     fontSize: 12,
-    fontWeight: '500',
   },
   queuedMedDetail: {
     ...Typography.bodySmall,
     color: Colors.inkMuted,
     fontSize: 12,
+    flexShrink: 0,
   },
   familySyncCard: {
     gap: Spacing.sm,
@@ -862,7 +858,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.sm,
     gap: Spacing.md,
-    borderTopColor: 'Colors.outline',
+    borderTopColor: Colors.outline,
     borderTopWidth: 1,
   },
   paginationDots: {
@@ -882,6 +878,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.brand,
   },
   nextButton: {
+    width: '100%',
     minHeight: 56,
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.lg,
@@ -899,6 +896,5 @@ const styles = StyleSheet.create({
     ...Typography.labelLarge,
     textAlign: 'center',
     color: Colors.white,
-    fontWeight: '600',
   },
 });

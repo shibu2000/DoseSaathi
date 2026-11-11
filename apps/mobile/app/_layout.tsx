@@ -6,6 +6,13 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider, useApp } from '@/state/AppContext';
 import { StatusBar } from 'expo-status-bar';
 import { Colors } from '@/theme/tokens';
+import {
+  useFonts,
+  AtkinsonHyperlegibleNext_400Regular,
+  AtkinsonHyperlegibleNext_500Medium,
+  AtkinsonHyperlegibleNext_600SemiBold,
+  AtkinsonHyperlegibleNext_700Bold,
+} from '@expo-google-fonts/atkinson-hyperlegible-next';
 import { setupNotificationInfrastructure } from '@/services/permission-service';
 // Defines the push-doorbell task at module scope so the OS can start it in the background
 import { registerBackgroundSync } from '@/sync/background-sync';
@@ -134,6 +141,19 @@ export function ErrorBoundary({ retry }: { error: Error; retry: () => void }) {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    AtkinsonHyperlegibleNext_400Regular,
+    AtkinsonHyperlegibleNext_500Medium,
+    AtkinsonHyperlegibleNext_600SemiBold,
+    AtkinsonHyperlegibleNext_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, backgroundColor: Colors.canvas }} />
+    );
+  }
+
   return (
     <SafeAreaProvider>
       <AppProvider>
