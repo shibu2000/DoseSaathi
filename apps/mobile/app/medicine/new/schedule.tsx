@@ -321,94 +321,126 @@ export default function Step2ReminderScheduleScreen() {
               </View>
             )}
 
-            <View style={styles.row}>
-              <View style={styles.halfCol}>
-                <Text style={styles.fieldLabel}>First time (tap to select)</Text>
-                <TouchableOpacity
-                  style={styles.timeSelectTrigger}
-                  onPress={() => setTimePickerTarget('fixed1')}
-                  activeOpacity={0.8}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Select first time, currently ${formatTime12h(fixedTime1)}`}
-                >
-                  <View style={styles.timeSelectInner}>
-                    <MaterialIcons name="schedule" size={20} color={Colors.primary} />
-                    <Text style={styles.timeSelectValue}>{formatTime12h(fixedTime1) || '08:00 AM'}</Text>
-                  </View>
-                  <Ionicons name="chevron-down" size={16} color={Colors.inkMuted} />
-                </TouchableOpacity>
-              </View>
+            {/* First time field */}
+            <View style={styles.timeStackBlock}>
+              <Text style={styles.fieldLabel}>First dose time (required)</Text>
+              <TouchableOpacity
+                style={styles.timeSelectTriggerStacked}
+                onPress={() => setTimePickerTarget('fixed1')}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel={`Select first time, currently ${formatTime12h(fixedTime1)}`}
+              >
+                <View style={styles.timeSelectInner}>
+                  <MaterialIcons name="schedule" size={22} color={Colors.primary} />
+                  <Text style={styles.timeSelectValueStacked}>
+                    {formatTime12h(fixedTime1) || '08:00 AM'}
+                  </Text>
+                </View>
+                <View style={styles.timeSelectAction}>
+                  <Text style={styles.timeSelectActionText}>Change</Text>
+                  <Ionicons name="chevron-down" size={16} color={Colors.primary} />
+                </View>
+              </TouchableOpacity>
+            </View>
 
-              <View style={styles.halfCol}>
-                <Text style={styles.fieldLabel}>Second time (optional)</Text>
-                <TouchableOpacity
-                  style={styles.timeSelectTrigger}
-                  onPress={() => setTimePickerTarget('fixed2')}
-                  activeOpacity={0.8}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Select second time, currently ${fixedTime2 ? formatTime12h(fixedTime2) : 'None'}`}
-                >
-                  <View style={styles.timeSelectInner}>
-                    <MaterialIcons
-                      name="schedule"
-                      size={20}
-                      color={fixedTime2 ? Colors.primary : Colors.inkMuted}
-                    />
-                    <Text
-                      style={[
-                        styles.timeSelectValue,
-                        !fixedTime2 && styles.timeSelectPlaceholder,
-                      ]}
-                      numberOfLines={1}
-                    >
-                      {fixedTime2 ? formatTime12h(fixedTime2) : 'Add 2nd time'}
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-down" size={16} color={Colors.inkMuted} />
-                </TouchableOpacity>
+            {/* Second time field */}
+            <View style={styles.timeStackBlock}>
+              <View style={styles.timeStackHeader}>
+                <Text style={styles.fieldLabel}>Second dose time (optional)</Text>
                 {fixedTime2 ? (
                   <TouchableOpacity
-                    style={styles.clearTimeButton}
                     onPress={() => setFixedTime2('')}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     accessibilityRole="button"
-                    accessibilityLabel="Clear second dose time"
+                    accessibilityLabel="Remove second dose time"
                   >
-                    <Text style={styles.clearTimeText}>✕ Once daily only</Text>
+                    <Text style={styles.removeSecondTimeText}>Remove (once daily only)</Text>
                   </TouchableOpacity>
                 ) : null}
               </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.timeSelectTriggerStacked,
+                  !fixedTime2 && styles.timeSelectTriggerEmpty,
+                ]}
+                onPress={() => setTimePickerTarget('fixed2')}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  fixedTime2
+                    ? `Select second time, currently ${formatTime12h(fixedTime2)}`
+                    : 'Add second dose time'
+                }
+              >
+                <View style={styles.timeSelectInner}>
+                  <MaterialIcons
+                    name={fixedTime2 ? 'schedule' : 'add-circle-outline'}
+                    size={22}
+                    color={fixedTime2 ? Colors.primary : Colors.inkMuted}
+                  />
+                  <Text
+                    style={[
+                      styles.timeSelectValueStacked,
+                      !fixedTime2 && styles.timeSelectPlaceholderStacked,
+                    ]}
+                  >
+                    {fixedTime2 ? formatTime12h(fixedTime2) : 'Tap to add a second dose time'}
+                  </Text>
+                </View>
+                <View style={styles.timeSelectAction}>
+                  <Text
+                    style={
+                      fixedTime2
+                        ? styles.timeSelectActionText
+                        : styles.timeSelectAddText
+                    }
+                  >
+                    {fixedTime2 ? 'Change' : '+ Add'}
+                  </Text>
+                  <Ionicons
+                    name="chevron-down"
+                    size={16}
+                    color={fixedTime2 ? Colors.primary : Colors.inkMuted}
+                  />
+                </View>
+              </TouchableOpacity>
             </View>
           </View>
         )}
 
         {scheduleType === 'INTERVAL' && (
           <View style={styles.optionsBlock}>
-            <View style={styles.row}>
-              <View style={styles.halfCol}>
-                <FormField
-                  label="Hours between doses"
-                  placeholder="6"
-                  keyboardType="numeric"
-                  value={intervalHours}
-                  onChangeText={setIntervalHours}
-                />
-              </View>
-              <View style={styles.halfCol}>
-                <Text style={styles.fieldLabel}>First dose time</Text>
-                <TouchableOpacity
-                  style={styles.timeSelectTrigger}
-                  onPress={() => setTimePickerTarget('interval')}
-                  activeOpacity={0.8}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Select first interval dose time, currently ${formatTime12h(intervalFirstTime)}`}
-                >
-                  <View style={styles.timeSelectInner}>
-                    <MaterialIcons name="schedule" size={20} color={Colors.primary} />
-                    <Text style={styles.timeSelectValue}>{formatTime12h(intervalFirstTime) || '08:00 AM'}</Text>
-                  </View>
-                  <Ionicons name="chevron-down" size={16} color={Colors.inkMuted} />
-                </TouchableOpacity>
-              </View>
+            <View style={styles.timeStackBlock}>
+              <FormField
+                label="Hours between doses"
+                placeholder="6"
+                keyboardType="numeric"
+                value={intervalHours}
+                onChangeText={setIntervalHours}
+              />
+            </View>
+            <View style={styles.timeStackBlock}>
+              <Text style={styles.fieldLabel}>First dose time</Text>
+              <TouchableOpacity
+                style={styles.timeSelectTriggerStacked}
+                onPress={() => setTimePickerTarget('interval')}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel={`Select first interval dose time, currently ${formatTime12h(intervalFirstTime)}`}
+              >
+                <View style={styles.timeSelectInner}>
+                  <MaterialIcons name="schedule" size={22} color={Colors.primary} />
+                  <Text style={styles.timeSelectValueStacked}>
+                    {formatTime12h(intervalFirstTime) || '08:00 AM'}
+                  </Text>
+                </View>
+                <View style={styles.timeSelectAction}>
+                  <Text style={styles.timeSelectActionText}>Change</Text>
+                  <Ionicons name="chevron-down" size={16} color={Colors.primary} />
+                </View>
+              </TouchableOpacity>
             </View>
             <Text style={styles.helperText}>
               Reminders every {intervalHours || 6} hours, starting at {intervalFirstTime || '08:00'}.
@@ -487,20 +519,23 @@ export default function Step2ReminderScheduleScreen() {
             </View>
 
             {fallbackPolicy === 'USE_FALLBACK_TIME' && (
-              <View style={{ marginTop: Spacing.sm }}>
-                <Text style={styles.fieldLabel}>Reminder time (tap to select)</Text>
+              <View style={styles.timeStackBlock}>
+                <Text style={styles.fieldLabel}>Fallback reminder time</Text>
                 <TouchableOpacity
-                  style={styles.timeSelectTrigger}
+                  style={styles.timeSelectTriggerStacked}
                   onPress={() => setTimePickerTarget('fallback')}
                   activeOpacity={0.8}
                   accessibilityRole="button"
                   accessibilityLabel={`Select fallback reminder time, currently ${formatTime12h(fallbackTime)}`}
                 >
                   <View style={styles.timeSelectInner}>
-                    <MaterialIcons name="schedule" size={20} color={Colors.primary} />
-                    <Text style={styles.timeSelectValue}>{formatTime12h(fallbackTime) || '12:00 PM'}</Text>
+                    <MaterialIcons name="schedule" size={22} color={Colors.primary} />
+                    <Text style={styles.timeSelectValueStacked}>{formatTime12h(fallbackTime) || '12:00 PM'}</Text>
                   </View>
-                  <Ionicons name="chevron-down" size={16} color={Colors.inkMuted} />
+                  <View style={styles.timeSelectAction}>
+                    <Text style={styles.timeSelectActionText}>Change</Text>
+                    <Ionicons name="chevron-down" size={16} color={Colors.primary} />
+                  </View>
                 </TouchableOpacity>
               </View>
             )}
@@ -735,6 +770,64 @@ const styles = StyleSheet.create({
     ...Typography.labelMedium,
     color: Colors.ink,
     marginBottom: Spacing.xs,
+  },
+  timeStackBlock: {
+    marginBottom: Spacing.md,
+  },
+  timeStackHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.xs,
+  },
+  removeSecondTimeText: {
+    ...Typography.bodySmall,
+    color: Colors.inkMuted,
+    fontSize: 13,
+    textDecorationLine: 'underline',
+  },
+  timeSelectTriggerStacked: {
+    height: 56,
+    minHeight: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.surface,
+    borderWidth: 1.5,
+    borderColor: Colors.outline,
+    borderRadius: Radii.card,
+    paddingHorizontal: Spacing.lg,
+  },
+  timeSelectTriggerEmpty: {
+    borderColor: Colors.outline,
+    backgroundColor: Colors.surfaceMuted,
+    borderStyle: 'dashed',
+  },
+  timeSelectValueStacked: {
+    ...Typography.bodyLarge,
+    color: Colors.primary,
+    fontWeight: '700',
+    fontSize: 17,
+  },
+  timeSelectPlaceholderStacked: {
+    color: Colors.inkMuted,
+    fontWeight: '500',
+    fontSize: 15,
+  },
+  timeSelectAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  timeSelectActionText: {
+    ...Typography.labelSmall,
+    color: Colors.primary,
+    fontWeight: '700',
+  },
+  timeSelectAddText: {
+    ...Typography.labelSmall,
+    color: Colors.inkMuted,
+    fontWeight: '600',
   },
   timeSelectTrigger: {
     height: 52,

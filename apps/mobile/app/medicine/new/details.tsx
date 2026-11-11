@@ -10,7 +10,7 @@ import { useWizardSession } from '@/caregiver/wizard-session';
 import { CheckingScreen, FormScreen, Notice } from '@/caregiver/ui';
 import { DEFAULT_WIZARD_DRAFT, type WizardDraft } from '@/database';
 import { Ionicons } from '@expo/vector-icons';
-import { DoseQuantityModal, DoseUnitModal } from '@/components/DosePickerModal';
+import { DoseUnitModal, COMMON_UNITS } from '@/components/DosePickerModal';
 
 export default function Step1MedicineDetailsScreen() {
   const router = useRouter();
@@ -28,7 +28,6 @@ export default function Step1MedicineDetailsScreen() {
   const [lowStockThreshold, setLowStockThreshold] = useState('5');
   const [error, setError] = useState('');
   const [qtyError, setQtyError] = useState('');
-  const [showQtyModal, setShowQtyModal] = useState(false);
   const [showUnitModal, setShowUnitModal] = useState(false);
 
   useEffect(() => {
@@ -139,33 +138,39 @@ export default function Step1MedicineDetailsScreen() {
 
         <View style={styles.row}>
           <View style={styles.halfCol}>
-            <Text style={styles.inputLabel}>Dose quantity (dropdown)</Text>
-            <TouchableOpacity
-              style={[styles.dropdownTrigger, qtyError ? styles.dropdownTriggerError : null]}
-              onPress={() => setShowQtyModal(true)}
-              activeOpacity={0.8}
-              accessibilityRole="button"
-              accessibilityLabel={`Select dose quantity, currently ${doseQuantity}`}
-            >
-              <Text style={styles.dropdownValue}>{doseQuantity}</Text>
-              <Ionicons name="chevron-down" size={18} color={Colors.inkMuted} />
-            </TouchableOpacity>
-            {qtyError ? <Text style={styles.errorText}>{qtyError}</Text> : null}
+            <FormField
+              label="Dose quantity"
+              placeholder="e.g. 1, 2, 10"
+              keyboardType="decimal-pad"
+              value={doseQuantity}
+              onChangeText={(v) => {
+                setDoseQuantity(v);
+                if (qtyError) setQtyError('');
+              }}
+              error={qtyError}
+            />
           </View>
           <View style={styles.halfCol}>
-            <Text style={styles.inputLabel}>Unit or form (dropdown)</Text>
-            <TouchableOpacity
-              style={styles.dropdownTrigger}
-              onPress={() => setShowUnitModal(true)}
-              activeOpacity={0.8}
-              accessibilityRole="button"
-              accessibilityLabel={`Select medicine form, currently ${doseUnit}`}
-            >
-              <Text style={styles.dropdownValue} numberOfLines={1}>{doseUnit}</Text>
-              <Ionicons name="chevron-down" size={18} color={Colors.inkMuted} />
-            </TouchableOpacity>
+            <View style={styles.unitContainer}>
+              <Text style={styles.inputLabel}>Unit or form</Text>
+              <TouchableOpacity
+                style={styles.dropdownTrigger}
+                onPress={() => setShowUnitModal(true)}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel={`Select medicine form, currently ${doseUnit}`}
+              >
+                <Text style={styles.dropdownValue} numberOfLines={1}>
+                  {COMMON_UNITS.find((u) => u.value.toLowerCase() === doseUnit.toLowerCase())?.label || doseUnit}
+                </Text>
+                <Ionicons name="chevron-down" size={18} color={Colors.inkMuted} />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
+        <Text style={styles.doseHelperText}>
+          e.g. 1 tablet, 2 capsules, or 10 drops with water per intake
+        </Text>
 
         <FormField
           label="Instructions (optional)"
@@ -230,17 +235,7 @@ export default function Step1MedicineDetailsScreen() {
         />
       </View>
 
-      {/* Dose Quantity & Unit Selection Modals */}
-      <DoseQuantityModal
-        visible={showQtyModal}
-        selectedQuantity={doseQuantity}
-        onSelect={(q) => {
-          setDoseQuantity(q);
-          if (qtyError) setQtyError('');
-        }}
-        onClose={() => setShowQtyModal(false)}
-      />
-
+      {/* Dose Unit Selection Modal */}
       <DoseUnitModal
         visible={showUnitModal}
         selectedUnit={doseUnit}
@@ -305,17 +300,20 @@ const styles = StyleSheet.create({
     color: Colors.ink,
     marginBottom: Spacing.xs,
   },
+  unitContainer: {
+    marginVertical: Spacing.sm,
+  },
   dropdownTrigger: {
-    height: 52,
+    height: 56,
+    minHeight: 56,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: Colors.surface,
     borderWidth: 1.5,
     borderColor: Colors.outline,
-    borderRadius: Radii.md,
-    paddingHorizontal: Spacing.md,
-    marginBottom: Spacing.md,
+    borderRadius: Radii.card,
+    paddingHorizontal: Spacing.lg,
   },
   dropdownTriggerError: {
     borderColor: Colors.danger,
@@ -325,6 +323,12 @@ const styles = StyleSheet.create({
     color: Colors.ink,
     fontWeight: '600',
     flex: 1,
+  },
+  doseHelperText: {
+    ...Typography.bodySmall,
+    color: Colors.inkMuted,
+    marginTop: -Spacing.xs,
+    marginBottom: Spacing.sm,
   },
   errorText: {
     ...Typography.bodySmall,

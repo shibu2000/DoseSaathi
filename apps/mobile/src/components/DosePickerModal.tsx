@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Pressable,
+  TextInput,
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Colors, Radii, Spacing, Typography } from '../theme/tokens';
@@ -14,8 +15,8 @@ import { Colors, Radii, Spacing, Typography } from '../theme/tokens';
 export const COMMON_UNITS = [
   { value: 'tablet', label: 'Tablet (Pill)', icon: 'medication' },
   { value: 'capsule', label: 'Capsule', icon: 'medication-liquid' },
+  { value: 'drops', label: 'Drops (Water / Oral / Eye)', icon: 'opacity' },
   { value: 'mL', label: 'mL (Liquid / Syrup)', icon: 'local-drink' },
-  { value: 'drops', label: 'Drops (Eye / Ear)', icon: 'opacity' },
   { value: 'puff', label: 'Puff (Inhaler)', icon: 'air' },
   { value: 'injection', label: 'Injection (Insulin)', icon: 'healing' },
   { value: 'patch', label: 'Patch', icon: 'layers' },
@@ -91,18 +92,28 @@ export function DoseUnitModal({
   onSelect,
   onClose,
 }: DoseUnitModalProps) {
+  const [customUnit, setCustomUnit] = useState('');
+
+  const handleApplyCustom = () => {
+    if (customUnit.trim()) {
+      onSelect(customUnit.trim());
+      setCustomUnit('');
+      onClose();
+    }
+  };
+
   return (
     <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
         <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
           <View style={styles.header}>
-            <Text style={styles.title}>Select unit or form</Text>
+            <Text style={styles.title}>Select medicine form / unit</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
               <Ionicons name="close" size={22} color={Colors.inkMuted} />
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.sub}>Choose medicine form from dropdown</Text>
+          <Text style={styles.sub}>Choose medicine form or enter a custom unit below</Text>
 
           <ScrollView style={styles.unitsList} showsVerticalScrollIndicator={false}>
             {COMMON_UNITS.map((u) => {
@@ -134,6 +145,28 @@ export function DoseUnitModal({
               );
             })}
           </ScrollView>
+
+          {/* Custom Unit Input */}
+          <View style={styles.customUnitContainer}>
+            <TextInput
+              style={styles.customUnitInput}
+              placeholder="Or enter custom unit (e.g. drops with water)"
+              placeholderTextColor={Colors.inkMuted}
+              value={customUnit}
+              onChangeText={setCustomUnit}
+              onSubmitEditing={handleApplyCustom}
+              returnKeyType="done"
+            />
+            {customUnit.trim().length > 0 && (
+              <TouchableOpacity
+                style={styles.customApplyBtn}
+                onPress={handleApplyCustom}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.customApplyBtnText}>Set</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </Pressable>
       </Pressable>
     </Modal>
@@ -153,7 +186,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.xl,
     paddingBottom: Spacing.xxl,
-    maxHeight: '80%',
+    maxHeight: '85%',
   },
   header: {
     flexDirection: 'row',
@@ -207,7 +240,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   unitsList: {
-    maxHeight: 360,
+    maxHeight: 300,
   },
   unitRow: {
     flexDirection: 'row',
@@ -237,6 +270,39 @@ const styles = StyleSheet.create({
   },
   unitLabelSelected: {
     color: Colors.primary,
+    fontWeight: '700',
+  },
+  customUnitContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.outline,
+  },
+  customUnitInput: {
+    flex: 1,
+    height: 48,
+    borderRadius: Radii.md,
+    borderWidth: 1.5,
+    borderColor: Colors.outline,
+    paddingHorizontal: Spacing.md,
+    fontSize: 15,
+    color: Colors.ink,
+    backgroundColor: Colors.surfaceMuted,
+  },
+  customApplyBtn: {
+    height: 48,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Radii.md,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  customApplyBtnText: {
+    ...Typography.labelMedium,
+    color: Colors.white,
     fontWeight: '700',
   },
 });
