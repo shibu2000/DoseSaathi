@@ -5,17 +5,17 @@
       "developmentClient": true,
       "distribution": "internal",
       "android": { "buildType": "apk" },
-      "env": { "EXPO_PUBLIC_API_URL": "https://dosesaathi.docnear.workers.dev" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://dosesaathi.sdx-craft.workers.dev" }
     },
     "preview": {
       "distribution": "internal",
       "android": { "buildType": "apk" },
-      "env": { "EXPO_PUBLIC_API_URL": "https://dosesaathi.docnear.workers.dev" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://dosesaathi.sdx-craft.workers.dev" }
     },
     "production": {
       "autoIncrement": true,
       "android": { "buildType": "app-bundle" },
-      "env": { "EXPO_PUBLIC_API_URL": "https://dosesaathi.docnear.workers.dev" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://dosesaathi.sdx-craft.workers.dev" }
     }
   },
   "submit": { "production": {} }

@@ -1,6 +1,0 @@
-[
-    {
-        "merged": "expo.modules.medchainalarm.medchain-alarm-release-11:/drawable-v21/notification_action_background.xml",
-        "source": "expo.modules.medchainalarm.medchain-alarm-core-1.17.0-3:/drawable-v21/notification_action_background.xml"
-    }
-]
