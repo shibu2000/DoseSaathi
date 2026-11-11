@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "medchain-api",
+  "name": "dosesaathi",
   "main": "src/index.ts",
   "compatibility_date": "2026-11-08",
   "compatibility_flags": ["nodejs_compat"],
