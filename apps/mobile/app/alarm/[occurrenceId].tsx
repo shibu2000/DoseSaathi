@@ -175,29 +175,20 @@ export default function MedicationAlarmScreen() {
     setActionError(null);
     if (isTestPreview) {
       setTakenAtTimeStr(formatTime(new Date()));
-      setAlarmState('TAKEN');
+      closeScreen();
       return;
     }
     setHandling(true);
     try {
-      const res = await recordDoseTaken(activeMed.id, occurrenceId);
+      await recordDoseTaken(activeMed.id, occurrenceId);
       try {
         Vibration.cancel();
       } catch {}
-      setTakenAtTimeStr(formatTime(new Date()));
-      await reloadMed(activeMed.id);
-      setFollowUpNames(res.activatedMedicationNames ?? []);
-      if (res.courseCompleted && res.transitionEventId) {
-        setTransitionEventId(res.transitionEventId);
-        setUndoActive(true);
-        setAlarmState('COURSE_COMPLETED');
-      } else {
-        setAlarmState('TAKEN');
-      }
+      MedchainAlarm?.dismiss(occurrenceId).catch(() => {});
+      closeScreen();
     } catch (err) {
       // Never show success for something that was not saved
       setActionError('We could not save this dose. Please try again.');
-    } finally {
       setHandling(false);
     }
   };
@@ -206,7 +197,7 @@ export default function MedicationAlarmScreen() {
     if (handling) return;
     setActionError(null);
     if (isTestPreview) {
-      setAlarmState('SNOOZED');
+      closeScreen();
       return;
     }
     setHandling(true);
@@ -215,12 +206,10 @@ export default function MedicationAlarmScreen() {
       try {
         Vibration.cancel();
       } catch {}
-      const fresh = db ? await db.occurrences.getById(occurrenceId) : null;
-      if (fresh?.snoozedUntil) setSnoozedUntilStr(formatTime(new Date(fresh.snoozedUntil)));
-      setAlarmState('SNOOZED');
+      MedchainAlarm?.dismiss(occurrenceId).catch(() => {});
+      closeScreen();
     } catch (err) {
       setActionError('We could not set the reminder. Please try again.');
-    } finally {
       setHandling(false);
     }
   };
@@ -263,7 +252,7 @@ export default function MedicationAlarmScreen() {
     setShowSkipModal(false);
     setActionError(null);
     if (isTestPreview) {
-      setAlarmState('SKIPPED');
+      closeScreen();
       return;
     }
     setHandling(true);
@@ -272,10 +261,10 @@ export default function MedicationAlarmScreen() {
       try {
         Vibration.cancel();
       } catch {}
-      setAlarmState('SKIPPED');
+      MedchainAlarm?.dismiss(occurrenceId).catch(() => {});
+      closeScreen();
     } catch (err) {
       setActionError('We could not save this change. Please try again.');
-    } finally {
       setHandling(false);
     }
   };

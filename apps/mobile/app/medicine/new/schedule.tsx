@@ -11,6 +11,9 @@ import { useWizardSession } from '@/caregiver/wizard-session';
 import { CheckingScreen, FormScreen, Notice } from '@/caregiver/ui';
 import { DEFAULT_WIZARD_DRAFT, type WizardDraft } from '@/database';
 import type { ScheduleType, RecurrenceType } from '@medchain/contracts';
+import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { TimePickerModal } from '@/components/TimePickerModal';
+import { formatTime12h } from '@/utils/schedule-formatter';
 
 /** Accepts "8:00", "08:00", "8.30"; returns "HH:mm" or null. */
 function normalizeTime(raw: string): string | null {
@@ -51,6 +54,7 @@ export default function Step2ReminderScheduleScreen() {
   const [fallbackTime, setFallbackTime] = useState('12:00');
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 4, 5, 6, 7]);
   const [error, setError] = useState('');
+  const [timePickerTarget, setTimePickerTarget] = useState<'fixed1' | 'fixed2' | 'interval' | 'fallback' | null>(null);
 
   const weekdays = [
     { num: 1, label: 'Mon' },
@@ -319,24 +323,59 @@ export default function Step2ReminderScheduleScreen() {
 
             <View style={styles.row}>
               <View style={styles.halfCol}>
-                <FormField
-                  label="First time (24-hour)"
-                  placeholder="08:00"
-                  maxLength={5}
-                  helper="For example 08:00"
-                  value={fixedTime1}
-                  onChangeText={setFixedTime1}
-                />
+                <Text style={styles.fieldLabel}>First time (tap to select)</Text>
+                <TouchableOpacity
+                  style={styles.timeSelectTrigger}
+                  onPress={() => setTimePickerTarget('fixed1')}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Select first time, currently ${formatTime12h(fixedTime1)}`}
+                >
+                  <View style={styles.timeSelectInner}>
+                    <MaterialIcons name="schedule" size={20} color={Colors.primary} />
+                    <Text style={styles.timeSelectValue}>{formatTime12h(fixedTime1) || '08:00 AM'}</Text>
+                  </View>
+                  <Ionicons name="chevron-down" size={16} color={Colors.inkMuted} />
+                </TouchableOpacity>
               </View>
+
               <View style={styles.halfCol}>
-                <FormField
-                  label="Second time (optional)"
-                  placeholder="20:00"
-                  maxLength={5}
-                  helper="For example 20:00"
-                  value={fixedTime2}
-                  onChangeText={setFixedTime2}
-                />
+                <Text style={styles.fieldLabel}>Second time (optional)</Text>
+                <TouchableOpacity
+                  style={styles.timeSelectTrigger}
+                  onPress={() => setTimePickerTarget('fixed2')}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Select second time, currently ${fixedTime2 ? formatTime12h(fixedTime2) : 'None'}`}
+                >
+                  <View style={styles.timeSelectInner}>
+                    <MaterialIcons
+                      name="schedule"
+                      size={20}
+                      color={fixedTime2 ? Colors.primary : Colors.inkMuted}
+                    />
+                    <Text
+                      style={[
+                        styles.timeSelectValue,
+                        !fixedTime2 && styles.timeSelectPlaceholder,
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {fixedTime2 ? formatTime12h(fixedTime2) : 'Add 2nd time'}
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-down" size={16} color={Colors.inkMuted} />
+                </TouchableOpacity>
+                {fixedTime2 ? (
+                  <TouchableOpacity
+                    style={styles.clearTimeButton}
+                    onPress={() => setFixedTime2('')}
+                    accessibilityRole="button"
+                    accessibilityLabel="Clear second dose time"
+                  >
+                    <Text style={styles.clearTimeText}>✕ Once daily only</Text>
+                  </TouchableOpacity>
+                ) : null}
               </View>
             </View>
           </View>
@@ -355,13 +394,20 @@ export default function Step2ReminderScheduleScreen() {
                 />
               </View>
               <View style={styles.halfCol}>
-                <FormField
-                  label="First dose time (24-hour)"
-                  placeholder="08:00"
-                  maxLength={5}
-                  value={intervalFirstTime}
-                  onChangeText={setIntervalFirstTime}
-                />
+                <Text style={styles.fieldLabel}>First dose time</Text>
+                <TouchableOpacity
+                  style={styles.timeSelectTrigger}
+                  onPress={() => setTimePickerTarget('interval')}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Select first interval dose time, currently ${formatTime12h(intervalFirstTime)}`}
+                >
+                  <View style={styles.timeSelectInner}>
+                    <MaterialIcons name="schedule" size={20} color={Colors.primary} />
+                    <Text style={styles.timeSelectValue}>{formatTime12h(intervalFirstTime) || '08:00 AM'}</Text>
+                  </View>
+                  <Ionicons name="chevron-down" size={16} color={Colors.inkMuted} />
+                </TouchableOpacity>
               </View>
             </View>
             <Text style={styles.helperText}>
@@ -441,13 +487,22 @@ export default function Step2ReminderScheduleScreen() {
             </View>
 
             {fallbackPolicy === 'USE_FALLBACK_TIME' && (
-              <FormField
-                label="Reminder time (24-hour)"
-                placeholder="12:00"
-                maxLength={5}
-                value={fallbackTime}
-                onChangeText={setFallbackTime}
-              />
+              <View style={{ marginTop: Spacing.sm }}>
+                <Text style={styles.fieldLabel}>Reminder time (tap to select)</Text>
+                <TouchableOpacity
+                  style={styles.timeSelectTrigger}
+                  onPress={() => setTimePickerTarget('fallback')}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Select fallback reminder time, currently ${formatTime12h(fallbackTime)}`}
+                >
+                  <View style={styles.timeSelectInner}>
+                    <MaterialIcons name="schedule" size={20} color={Colors.primary} />
+                    <Text style={styles.timeSelectValue}>{formatTime12h(fallbackTime) || '12:00 PM'}</Text>
+                  </View>
+                  <Ionicons name="chevron-down" size={16} color={Colors.inkMuted} />
+                </TouchableOpacity>
+              </View>
             )}
           </View>
         )}
@@ -469,6 +524,39 @@ export default function Step2ReminderScheduleScreen() {
           onPress={handleBack}
         />
       </View>
+
+      {/* Interactive Time Picker Panel Modal */}
+      <TimePickerModal
+        visible={timePickerTarget !== null}
+        title={
+          timePickerTarget === 'fixed1'
+            ? 'Select First Dose Time'
+            : timePickerTarget === 'fixed2'
+            ? 'Select Second Dose Time'
+            : timePickerTarget === 'interval'
+            ? 'Select First Dose Time'
+            : 'Select Fallback Reminder Time'
+        }
+        initialTime={
+          timePickerTarget === 'fixed1'
+            ? fixedTime1
+            : timePickerTarget === 'fixed2'
+            ? fixedTime2 || '20:00'
+            : timePickerTarget === 'interval'
+            ? intervalFirstTime
+            : fallbackTime
+        }
+        onConfirm={(hhmm) => {
+          if (timePickerTarget === 'fixed1') setFixedTime1(hhmm);
+          else if (timePickerTarget === 'fixed2') setFixedTime2(hhmm);
+          else if (timePickerTarget === 'interval') setIntervalFirstTime(hhmm);
+          else if (timePickerTarget === 'fallback') setFallbackTime(hhmm);
+          setTimePickerTarget(null);
+        }}
+        onClose={() => setTimePickerTarget(null)}
+        onClear={timePickerTarget === 'fixed2' ? () => setFixedTime2('') : undefined}
+        clearLabel="Clear (Once daily only)"
+      />
     </FormScreen>
   );
 }
@@ -642,5 +730,48 @@ const styles = StyleSheet.create({
   footer: {
     gap: Spacing.xs,
     marginBottom: Spacing.xl,
+  },
+  fieldLabel: {
+    ...Typography.labelMedium,
+    color: Colors.ink,
+    marginBottom: Spacing.xs,
+  },
+  timeSelectTrigger: {
+    height: 52,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.surface,
+    borderWidth: 1.5,
+    borderColor: Colors.outline,
+    borderRadius: Radii.md,
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.xs,
+  },
+  timeSelectInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    flex: 1,
+  },
+  timeSelectValue: {
+    ...Typography.bodyLarge,
+    color: Colors.primary,
+    fontWeight: '700',
+  },
+  timeSelectPlaceholder: {
+    color: Colors.inkMuted,
+    fontWeight: '400',
+  },
+  clearTimeButton: {
+    alignSelf: 'flex-start',
+    paddingVertical: 3,
+    paddingHorizontal: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+  clearTimeText: {
+    ...Typography.bodySmall,
+    color: Colors.inkMuted,
+    fontSize: 12,
   },
 });

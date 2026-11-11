@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { FormField } from '@/components/FormField';
@@ -9,6 +9,8 @@ import { PatientContextBar } from '@/components/PatientContextBar';
 import { useWizardSession } from '@/caregiver/wizard-session';
 import { CheckingScreen, FormScreen, Notice } from '@/caregiver/ui';
 import { DEFAULT_WIZARD_DRAFT, type WizardDraft } from '@/database';
+import { Ionicons } from '@expo/vector-icons';
+import { DoseQuantityModal, DoseUnitModal } from '@/components/DosePickerModal';
 
 export default function Step1MedicineDetailsScreen() {
   const router = useRouter();
@@ -26,6 +28,8 @@ export default function Step1MedicineDetailsScreen() {
   const [lowStockThreshold, setLowStockThreshold] = useState('5');
   const [error, setError] = useState('');
   const [qtyError, setQtyError] = useState('');
+  const [showQtyModal, setShowQtyModal] = useState(false);
+  const [showUnitModal, setShowUnitModal] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -135,24 +139,31 @@ export default function Step1MedicineDetailsScreen() {
 
         <View style={styles.row}>
           <View style={styles.halfCol}>
-            <FormField
-              label="Dose per intake"
-              keyboardType="decimal-pad"
-              value={doseQuantity}
-              onChangeText={(v) => {
-                setDoseQuantity(v);
-                if (qtyError) setQtyError('');
-              }}
-              error={qtyError}
-            />
+            <Text style={styles.inputLabel}>Dose quantity (dropdown)</Text>
+            <TouchableOpacity
+              style={[styles.dropdownTrigger, qtyError ? styles.dropdownTriggerError : null]}
+              onPress={() => setShowQtyModal(true)}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={`Select dose quantity, currently ${doseQuantity}`}
+            >
+              <Text style={styles.dropdownValue}>{doseQuantity}</Text>
+              <Ionicons name="chevron-down" size={18} color={Colors.inkMuted} />
+            </TouchableOpacity>
+            {qtyError ? <Text style={styles.errorText}>{qtyError}</Text> : null}
           </View>
           <View style={styles.halfCol}>
-            <FormField
-              label="Unit or form"
-              placeholder="e.g. tablet"
-              value={doseUnit}
-              onChangeText={setDoseUnit}
-            />
+            <Text style={styles.inputLabel}>Unit or form (dropdown)</Text>
+            <TouchableOpacity
+              style={styles.dropdownTrigger}
+              onPress={() => setShowUnitModal(true)}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={`Select medicine form, currently ${doseUnit}`}
+            >
+              <Text style={styles.dropdownValue} numberOfLines={1}>{doseUnit}</Text>
+              <Ionicons name="chevron-down" size={18} color={Colors.inkMuted} />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -218,6 +229,24 @@ export default function Step1MedicineDetailsScreen() {
           onPress={() => router.back()}
         />
       </View>
+
+      {/* Dose Quantity & Unit Selection Modals */}
+      <DoseQuantityModal
+        visible={showQtyModal}
+        selectedQuantity={doseQuantity}
+        onSelect={(q) => {
+          setDoseQuantity(q);
+          if (qtyError) setQtyError('');
+        }}
+        onClose={() => setShowQtyModal(false)}
+      />
+
+      <DoseUnitModal
+        visible={showUnitModal}
+        selectedUnit={doseUnit}
+        onSelect={(u) => setDoseUnit(u)}
+        onClose={() => setShowUnitModal(false)}
+      />
     </FormScreen>
   );
 }
@@ -270,5 +299,37 @@ const styles = StyleSheet.create({
   footer: {
     gap: Spacing.xs,
     marginBottom: Spacing.xl,
+  },
+  inputLabel: {
+    ...Typography.labelMedium,
+    color: Colors.ink,
+    marginBottom: Spacing.xs,
+  },
+  dropdownTrigger: {
+    height: 52,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.surface,
+    borderWidth: 1.5,
+    borderColor: Colors.outline,
+    borderRadius: Radii.md,
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  dropdownTriggerError: {
+    borderColor: Colors.danger,
+  },
+  dropdownValue: {
+    ...Typography.bodyLarge,
+    color: Colors.ink,
+    fontWeight: '600',
+    flex: 1,
+  },
+  errorText: {
+    ...Typography.bodySmall,
+    color: Colors.danger,
+    marginTop: -Spacing.xs,
+    marginBottom: Spacing.xs,
   },
 });
