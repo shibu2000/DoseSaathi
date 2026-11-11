@@ -15,6 +15,7 @@ import { MaterialCommunityIcons, MaterialIcons, Ionicons } from '@expo/vector-ic
 import { Colors, Radii, Spacing, Typography } from '@/theme/tokens';
 import { useApp } from '@/state/AppContext';
 import { DoseCard } from '@/components/DoseCard';
+import { UpcomingCountdownCard, formatCountdown } from '@/components/UpcomingCountdownCard';
 import { MedchainAlarm } from '../../../modules/medchain-alarm/src';
 
 export default function PatientTodayScreen() {
@@ -54,9 +55,9 @@ export default function PatientTodayScreen() {
     until: number;
   } | null>(null);
 
-  // Keep "Due now" / "Upcoming" labels honest as time passes
+  // Keep "Due now" / "Upcoming" countdown honest with a live ticker
   useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 30000);
+    const t = setInterval(() => setNow(Date.now()), 10000);
     return () => clearInterval(t);
   }, []);
 
@@ -166,11 +167,16 @@ export default function PatientTodayScreen() {
   };
   const statusFor = (occ: (typeof todayOccurrences)[number]): { label: string; variant: any } => {
     if (occ.state === 'UNCONFIRMED') return { label: 'Not confirmed yet', variant: 'unconfirmed' };
-    if (occ.snoozedUntil && new Date(occ.snoozedUntil).getTime() > now) {
-      return { label: `Reminder at ${hhmm(occ.snoozedUntil)}`, variant: 'snoozed' };
-    }
     const effective = new Date(occ.snoozedUntil || occ.scheduledAtUtc).getTime();
-    return effective <= now ? { label: 'Due now', variant: 'due' } : { label: 'Upcoming', variant: 'queued' };
+    const isSnoozed = Boolean(occ.snoozedUntil && effective > now);
+    const cd = formatCountdown(effective, now, isSnoozed);
+    if (cd.isDue) {
+      return { label: cd.badgeText, variant: 'due' };
+    }
+    if (isSnoozed) {
+      return { label: cd.badgeText, variant: 'snoozed' };
+    }
+    return { label: cd.badgeText, variant: 'queued' };
   };
 
   const heroOccurrence = dueOccurrences[0];
@@ -289,22 +295,31 @@ export default function PatientTodayScreen() {
             </View>
           ) : (
             <View style={styles.dosesContainer}>
-              {/* Up Next / Due Now */}
+              {/* Up Next / Upcoming Dose Countdown Widget */}
               {heroOccurrence && (
                 <View style={styles.subSection}>
                   <Text style={styles.subSectionTitle}>Up next</Text>
-                  <DoseCard
-                    timeStr={heroOccurrence.scheduledLocalTime}
-                    medicationName={heroOccurrence.medication.name}
-                    dosageText={`${heroOccurrence.medication.dosageText} • ${heroOccurrence.medication.doseQuantity} ${heroOccurrence.medication.doseUnit}`}
-                    instructions={heroOccurrence.medication.instructions}
-                    statusLabel={statusFor(heroOccurrence).label}
-                    statusVariant={statusFor(heroOccurrence).variant}
-                    isTaken={false}
+                  <UpcomingCountdownCard
+                    occurrence={heroOccurrence}
                     onTake={() => handleTake(heroOccurrence.medicationId, heroOccurrence.id)}
                     onSnooze={() => handleSnooze(heroOccurrence.medicationId, heroOccurrence.id)}
                     onSkip={() => handleOpenAlarm(heroOccurrence.id)}
                   />
+                </View>
+              )}
+
+              {/* All completed celebratory banner if all today's doses are done */}
+              {!heroOccurrence && finishedOccurrences.length > 0 && (
+                <View style={styles.completedAllBanner}>
+                  <View style={styles.completedAllEmblem}>
+                    <MaterialIcons name="task-alt" size={26} color={Colors.success} />
+                  </View>
+                  <View style={styles.completedAllContent}>
+                    <Text style={styles.completedAllTitle}>All doses complete for today!</Text>
+                    <Text style={styles.completedAllSubtitle}>
+                      Great job staying consistent with your daily medications.
+                    </Text>
+                  </View>
                 </View>
               )}
 
@@ -619,6 +634,46 @@ const styles = StyleSheet.create({
     color: Colors.inkMuted,
     fontSize: 13,
     lineHeight: 18,
+    marginTop: 2,
+  },
+  completedAllBanner: {
+    width: '100%',
+    backgroundColor: '#E6FFFA',
+    borderRadius: Radii.card,
+    padding: Spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(47, 107, 79, 0.2)',
+    marginBottom: Spacing.md,
+  },
+  completedAllEmblem: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.success,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  completedAllContent: {
+    flex: 1,
+  },
+  completedAllTitle: {
+    ...Typography.labelMedium,
+    color: Colors.success,
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  completedAllSubtitle: {
+    ...Typography.bodySmall,
+    color: Colors.inkMuted,
+    fontSize: 13,
     marginTop: 2,
   },
 });

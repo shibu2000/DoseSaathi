@@ -22,6 +22,7 @@ import {
   openAppSettings as openSystemSettings,
   scheduleTestAlarm as schedTestAlarm,
 } from '@/services/permission-service';
+import { MedchainAlarm } from '../../modules/medchain-alarm/src';
 
 export type AppMode = 'personal' | 'caregiver';
 
@@ -291,8 +292,12 @@ export function AppProvider({
 
   const refreshMedications = useCallback(async () => {
     if (!db) return;
-    const meds = await db.medications.getAll();
+    const [meds, scheds] = await Promise.all([
+      db.medications.getAll(),
+      db.schedules.getAll(),
+    ]);
     setMedications(meds);
+    setSchedules(scheds);
   }, [db]);
 
   const refreshTodayOccurrences = useCallback(async () => {
@@ -311,6 +316,27 @@ export function AppProvider({
       await refreshTodayOccurrences();
     }
   }, [db, refreshMedications, refreshTodayOccurrences]);
+
+  // Keep native Android home screen widget updated with the next upcoming medicine & countdown
+  useEffect(() => {
+    if (!MedchainAlarm) return;
+    const due = todayOccurrences.filter((o) => o.state !== 'TAKEN' && o.state !== 'SKIPPED');
+    const nextOcc = due[0];
+    if (nextOcc) {
+      const triggerTime = new Date(nextOcc.snoozedUntil || nextOcc.scheduledAtUtc).getTime();
+      MedchainAlarm.updateWidgetData({
+        hasUpcoming: true,
+        medicationName: nextOcc.medication.name,
+        dosageText: `${nextOcc.medication.dosageText} • ${nextOcc.medication.doseQuantity} ${nextOcc.medication.doseUnit}`,
+        scheduledTimeStr: nextOcc.scheduledLocalTime,
+        triggerAtMillis: triggerTime,
+        occurrenceId: nextOcc.id,
+        state: nextOcc.snoozedUntil ? 'SNOOZED' : 'UPCOMING',
+      }).catch(() => {});
+    } else {
+      MedchainAlarm.updateWidgetData({ hasUpcoming: false }).catch(() => {});
+    }
+  }, [todayOccurrences]);
 
   // Initial SQLite Setup & Seed
   useEffect(() => {
@@ -339,7 +365,10 @@ export function AppProvider({
         if (!isCancelled) setOnboardedState(savedOnboarded);
 
         // Query initial data
-        const meds = await activeDb.medications.getAll();
+        const [meds, scheds] = await Promise.all([
+          activeDb.medications.getAll(),
+          activeDb.schedules.getAll(),
+        ]);
         const today = localDateInZone(new Date(), deviceTimeZone());
         await activeDb.materializeOccurrences(today, today);
         const occs = await activeDb.getOccurrencesWithMedication(today);
@@ -350,6 +379,7 @@ export function AppProvider({
         if (!isCancelled) {
           setScheduler(schedService);
           setMedications(meds);
+          setSchedules(scheds);
           setTodayOccurrences(occs);
           setIsReady(true);
         }

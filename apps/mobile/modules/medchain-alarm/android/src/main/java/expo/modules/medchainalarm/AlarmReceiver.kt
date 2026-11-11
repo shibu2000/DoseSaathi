@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.PowerManager
+import expo.modules.medchainalarm.widget.UpcomingDoseWidgetProvider
 
 class AlarmReceiver : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent) {
@@ -22,6 +23,7 @@ class AlarmReceiver : BroadcastReceiver() {
     } finally {
       // The alarm has fired; the app re-plans the next ones when it next reconciles
       AlarmStore.remove(context, id)
+      UpcomingDoseWidgetProvider.updateAll(context)
       if (wl.isHeld) wl.release()
     }
   }

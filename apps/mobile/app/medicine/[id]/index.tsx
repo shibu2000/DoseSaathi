@@ -21,6 +21,7 @@ import { invalidatePlanCache } from '@/caregiver/wizard-session';
 import { planMedicationToDraft } from '@/sync/plan-applier';
 import { generateUUID } from '@/utils/uuid';
 import { DestructiveButton } from '@/components/Buttons';
+import { formatSchedule } from '@/utils/schedule-formatter';
 
 function PersonalMedicineDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -58,6 +59,11 @@ function PersonalMedicineDetails() {
   }
 
   const isLowStock = med.trackStock && med.currentStock <= med.lowStockThreshold;
+
+  const parentMedName = parentDeps[0]
+    ? medications.find((m) => m.id === parentDeps[0].parentMedicationId)?.name
+    : undefined;
+  const scheduleSummary = formatSchedule(schedule, med.instructions, parentMedName);
 
   let statusVariant: StatusVariant = 'taken';
   let statusText = 'Active';
@@ -149,6 +155,21 @@ function PersonalMedicineDetails() {
           <View style={styles.row}>
             <Text style={styles.label}>Status</Text>
             <StatusTag label={statusText} variant={statusVariant} />
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Schedule & Timing</Text>
+            <View style={styles.timingValueContainer}>
+              {scheduleSummary.timesLabel ? (
+                <View style={styles.timeTag}>
+                  <MaterialIcons name="schedule" size={14} color={Colors.primary} />
+                  <Text style={styles.timeTagText}>{scheduleSummary.timesLabel}</Text>
+                </View>
+              ) : null}
+              <Text style={styles.value}>{scheduleSummary.frequencyLabel}</Text>
+            </View>
           </View>
 
           <View style={styles.divider} />
@@ -522,5 +543,26 @@ const styles = StyleSheet.create({
   actions: {
     gap: Spacing.sm,
     marginBottom: Spacing.xl,
+  },
+  timingValueContainer: {
+    alignItems: 'flex-end',
+    flexShrink: 1,
+    maxWidth: '65%',
+  },
+  timeTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Colors.brandSoft,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 3,
+    borderRadius: Radii.sm,
+    marginBottom: 4,
+  },
+  timeTagText: {
+    ...Typography.labelSmall,
+    color: Colors.primary,
+    fontWeight: '700',
+    fontSize: 13,
   },
 });

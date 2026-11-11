@@ -13,6 +13,9 @@ import androidx.core.app.NotificationManagerCompat
 import expo.modules.kotlin.exception.Exceptions
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import expo.modules.medchainalarm.widget.UpcomingDoseWidgetProvider
+import expo.modules.medchainalarm.widget.WidgetDataStore
+import expo.modules.medchainalarm.widget.WidgetDoseData
 
 class MedchainAlarmModule : Module() {
   private var sample: MediaPlayer? = null
@@ -146,6 +149,37 @@ class MedchainAlarmModule : Module() {
       startSettings(
         Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + context.packageName))
       )
+    }
+
+    Function("canPinWidget") {
+      UpcomingDoseWidgetProvider.canPin(context)
+    }
+
+    AsyncFunction("requestPinWidget") {
+      UpcomingDoseWidgetProvider.requestPin(context)
+    }
+
+    AsyncFunction("updateWidgetData") { data: Map<String, Any?> ->
+      val hasUpcoming = data["hasUpcoming"] as? Boolean ?: false
+      if (hasUpcoming) {
+        val doseData = WidgetDoseData(
+          hasUpcoming = true,
+          medicationName = data["medicationName"] as? String ?: "",
+          dosageText = data["dosageText"] as? String ?: "",
+          scheduledTimeStr = data["scheduledTimeStr"] as? String ?: "",
+          triggerAtMillis = (data["triggerAtMillis"] as? Number)?.toLong() ?: 0L,
+          occurrenceId = data["occurrenceId"] as? String ?: "",
+          state = data["state"] as? String ?: "UPCOMING"
+        )
+        WidgetDataStore.save(context, doseData)
+      } else {
+        WidgetDataStore.clear(context)
+      }
+      UpcomingDoseWidgetProvider.updateAll(context)
+    }
+
+    AsyncFunction("refreshWidget") {
+      UpcomingDoseWidgetProvider.updateAll(context)
     }
 
     /**

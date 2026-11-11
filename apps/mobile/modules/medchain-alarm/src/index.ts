@@ -22,6 +22,16 @@ export interface NativeAlarm {
   voice: 'female' | 'male';
 }
 
+export interface WidgetDosePayload {
+  hasUpcoming: boolean;
+  medicationName?: string;
+  dosageText?: string;
+  scheduledTimeStr?: string;
+  triggerAtMillis?: number;
+  occurrenceId?: string;
+  state?: 'UPCOMING' | 'DUE' | 'SNOOZED' | 'NONE';
+}
+
 interface MedchainAlarmNative {
   getStatus(): AlarmStatus;
   schedule(alarm: NativeAlarm): Promise<void>;
@@ -38,6 +48,10 @@ interface MedchainAlarmNative {
   openFullScreenIntentSettings(): Promise<void>;
   requestIgnoreBatteryOptimizations(): Promise<void>;
   endAlarmSession(): Promise<void>;
+  canPinWidget(): boolean;
+  requestPinWidget(): Promise<boolean>;
+  updateWidgetData(data: WidgetDosePayload): Promise<void>;
+  refreshWidget(): Promise<void>;
 }
 
 /** The native Android module; null on iOS, in Expo Go and in Bun tests. */

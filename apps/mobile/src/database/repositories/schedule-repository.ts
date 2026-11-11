@@ -86,6 +86,48 @@ export class ScheduleRepository {
     };
   }
 
+  async getAll(): Promise<Schedule[]> {
+    const rows = await this.db.all<any>(`SELECT * FROM medication_schedules;`);
+    const allTimes = await this.db.all<{ schedule_id: string; local_time: string }>(
+      `SELECT schedule_id, local_time FROM schedule_times ORDER BY schedule_id, ordinal ASC;`
+    );
+    const timesBySchedule = new Map<string, string[]>();
+    for (const t of allTimes) {
+      const arr = timesBySchedule.get(t.schedule_id) || [];
+      arr.push(t.local_time);
+      timesBySchedule.set(t.schedule_id, arr);
+    }
+
+    return rows.map((row) => {
+      let activeWeekdays: number[] = [];
+      if (row.active_weekdays_json) {
+        try {
+          activeWeekdays = JSON.parse(row.active_weekdays_json);
+        } catch {
+          activeWeekdays = [];
+        }
+      }
+
+      return {
+        id: row.id,
+        medicationId: row.medication_id,
+        scheduleType: row.schedule_type,
+        recurrenceType: row.recurrence_type,
+        startDate: row.start_date,
+        timezoneId: row.timezone_id,
+        fixedTimes: timesBySchedule.get(row.id) || [],
+        activeWeekdays,
+        cycleDaysOn: row.cycle_days_on ?? null,
+        cycleDaysOff: row.cycle_days_off ?? null,
+        cycleAnchorDate: row.cycle_anchor_date ?? null,
+        intervalHours: row.interval_hours ?? null,
+        intervalFirstTime: row.interval_first_time ?? null,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      };
+    });
+  }
+
   async deleteByMedicationId(medicationId: string): Promise<void> {
     await this.db.run(
       `DELETE FROM schedule_times WHERE schedule_id IN (SELECT id FROM medication_schedules WHERE medication_id = ?);`,

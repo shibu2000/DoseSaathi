@@ -7,15 +7,21 @@ import { PrimaryButton } from '@/components/Buttons';
 import { Colors, Radii, Spacing, Typography } from '@/theme/tokens';
 import { useApp } from '@/state/AppContext';
 import { Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { formatSchedule } from '@/utils/schedule-formatter';
 
 type FilterType = 'all' | 'active' | 'queued' | 'completed';
 
 export default function MedicinesListScreen() {
   const router = useRouter();
-  const { medications, refreshMedications, clearDraft } = useApp();
+  const { medications, schedules, refreshMedications, clearDraft } = useApp();
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<FilterType>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const getScheduleDisplay = (med: (typeof medications)[number]) => {
+    const sched = schedules.find((s) => s.medicationId === med.id);
+    return formatSchedule(sched, med.instructions).combinedSummary;
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -160,7 +166,7 @@ export default function MedicinesListScreen() {
                           key={med.id}
                           name={med.name}
                           dosage={med.dosageText}
-                          scheduleText={med.instructions || 'No instructions added'}
+                          scheduleText={getScheduleDisplay(med)}
                           statusLabel={isLowStock ? 'Low stock' : 'Active'}
                           statusVariant={isLowStock ? 'lowStock' : 'taken'}
                           stockText={med.trackStock ? `${med.currentStock} ${med.doseUnit} left` : undefined}
@@ -182,7 +188,7 @@ export default function MedicinesListScreen() {
                         key={med.id}
                         name={med.name}
                         dosage={med.dosageText}
-                        scheduleText="Starts after this course"
+                        scheduleText={getScheduleDisplay(med) || 'Starts after this course'}
                         statusLabel="Starts later"
                         statusVariant="queued"
                         onPress={() => router.push(`/medicine/${med.id}`)}
@@ -220,7 +226,7 @@ export default function MedicinesListScreen() {
                       key={med.id}
                       name={med.name}
                       dosage={med.dosageText}
-                      scheduleText={med.instructions || 'No instructions added'}
+                      scheduleText={getScheduleDisplay(med)}
                       statusLabel={isLowStock ? 'Low stock' : med.lifecycleStatus === 'ACTIVE' ? 'Active' : med.lifecycleStatus === 'COMPLETED' ? 'Completed' : 'Starts later'}
                       statusVariant={isLowStock ? 'lowStock' : med.lifecycleStatus === 'ACTIVE' ? 'taken' : 'queued'}
                       stockText={med.trackStock ? `${med.currentStock} ${med.doseUnit} left` : undefined}

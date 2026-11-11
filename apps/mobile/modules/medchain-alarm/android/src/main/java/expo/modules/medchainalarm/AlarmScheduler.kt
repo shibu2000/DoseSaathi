@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import expo.modules.medchainalarm.widget.UpcomingDoseWidgetProvider
 
 object AlarmScheduler {
   const val EXTRA_ALARM_ID = "medchain_alarm_id"
@@ -60,12 +61,14 @@ object AlarmScheduler {
     } else {
       am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, a.triggerAtMillis, fire)
     }
+    UpcomingDoseWidgetProvider.updateAll(c)
   }
 
   fun cancel(c: Context, id: String) {
     alarmManager(c).cancel(firePendingIntent(c, id))
     AlarmStore.remove(c, id)
     AlarmNotifications.dismiss(c, id)
+    UpcomingDoseWidgetProvider.updateAll(c)
   }
 
   fun cancelAll(c: Context) {
@@ -74,6 +77,7 @@ object AlarmScheduler {
       AlarmNotifications.dismiss(c, it.id)
     }
     AlarmStore.clear(c)
+    UpcomingDoseWidgetProvider.updateAll(c)
   }
 
   /** Re-arms everything still in the future; alarms that came due while the phone was off fire now. */
@@ -84,5 +88,6 @@ object AlarmScheduler {
       else if (now - a.triggerAtMillis < 10 * 60 * 1000L) AlarmNotifications.post(c, a)
       else AlarmStore.remove(c, a.id)
     }
+    UpcomingDoseWidgetProvider.updateAll(c)
   }
 }
