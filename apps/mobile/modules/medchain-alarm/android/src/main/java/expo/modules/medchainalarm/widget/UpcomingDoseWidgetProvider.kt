@@ -88,7 +88,7 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
       var isSnoozed = false
 
       val cached = WidgetDataStore.get(context)
-      if (cached != null && cached.hasUpcoming && cached.triggerAtMillis > (now - 15 * 60 * 1000L)) {
+      if (cached != null && cached.hasUpcoming && cached.triggerAtMillis > (now - 45 * 60 * 1000L)) {
         hasDose = true
         medName = cached.medicationName
         dosageOrTime = listOf(cached.scheduledTimeStr, cached.dosageText)
@@ -128,7 +128,7 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
         if (diffMs <= 0) {
           isDue = true
           val minsAgo = (-diffMs) / 60_000L
-          countdownText = if (minsAgo < 1) "Due now" else "Due ${minsAgo}m ago"
+          countdownText = if (minsAgo < 5) "Due now" else "Due ${minsAgo}m ago"
         } else {
           isDue = false
           val totalMinutes = (diffMs + 59_999L) / 60_000L
@@ -178,17 +178,14 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
         }
       }
 
-      // Tap Intent -> Opens DoseSaathi (alarm screen if due, or today tab)
-      val launchIntent = if (hasDose && occurrenceId.isNotBlank()) {
-        Intent(Intent.ACTION_VIEW, Uri.parse("dosesaathi://alarm/$occurrenceId")).apply {
-          setPackage(context.packageName)
-          addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        }
-      } else {
-        Intent(Intent.ACTION_VIEW, Uri.parse("dosesaathi://today")).apply {
-          setPackage(context.packageName)
-          addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        }
+      // Tap Intent -> Opens DoseSaathi actual app home screen
+      val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+        action = Intent.ACTION_MAIN
+        addCategory(Intent.CATEGORY_LAUNCHER)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+      } ?: Intent(Intent.ACTION_VIEW, Uri.parse("dosesaathi://today")).apply {
+        setPackage(context.packageName)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
       }
 
       val pendingIntent = PendingIntent.getActivity(

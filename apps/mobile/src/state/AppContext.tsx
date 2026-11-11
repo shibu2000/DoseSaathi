@@ -320,8 +320,16 @@ export function AppProvider({
   // Keep native Android home screen widget updated with the next upcoming medicine & countdown
   useEffect(() => {
     if (!MedchainAlarm) return;
-    const due = todayOccurrences.filter((o) => o.state !== 'TAKEN' && o.state !== 'SKIPPED');
-    const nextOcc = due[0];
+    const nowMs = Date.now();
+    const unhandled = todayOccurrences.filter((o) => o.state !== 'TAKEN' && o.state !== 'SKIPPED');
+
+    // Prioritize upcoming doses or currently active due doses (scheduled within last 45 minutes or upcoming)
+    const upcomingOrDue = unhandled.filter((o) => {
+      const triggerTime = new Date(o.snoozedUntil || o.scheduledAtUtc).getTime();
+      return triggerTime >= nowMs - 45 * 60 * 1000;
+    });
+
+    const nextOcc = upcomingOrDue[0];
     if (nextOcc) {
       const triggerTime = new Date(nextOcc.snoozedUntil || nextOcc.scheduledAtUtc).getTime();
       MedchainAlarm.updateWidgetData({

@@ -179,8 +179,19 @@ export default function PatientTodayScreen() {
     return { label: cd.badgeText, variant: 'queued' };
   };
 
-  const heroOccurrence = dueOccurrences[0];
-  const laterDueOccurrences = dueOccurrences.slice(1);
+  const heroOccurrence = useMemo(() => {
+    const nowMs = Date.now();
+    const upcomingOrDue = dueOccurrences.filter((o) => {
+      const triggerTime = new Date(o.snoozedUntil || o.scheduledAtUtc).getTime();
+      return triggerTime >= nowMs - 45 * 60 * 1000;
+    });
+    return upcomingOrDue[0] || dueOccurrences[0];
+  }, [dueOccurrences, now]);
+
+  const laterDueOccurrences = useMemo(
+    () => dueOccurrences.filter((o) => o.id !== heroOccurrence?.id),
+    [dueOccurrences, heroOccurrence]
+  );
 
   return (
     <View style={styles.screen}>
