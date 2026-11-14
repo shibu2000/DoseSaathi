@@ -116,8 +116,11 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
       val dosageTimeId = context.resources.getIdentifier("widget_time_dosage", "id", context.packageName)
       val countdownBadgeId = context.resources.getIdentifier("widget_countdown_badge", "id", context.packageName)
 
-      // Drawable ID lookups
-      val badgeUpcomingRes = context.resources.getIdentifier("widget_badge_upcoming", "drawable", context.packageName)
+      // Theme-aware Drawable ID lookups
+      val isGlassTheme = (cached?.theme == "glassmorphism")
+      val badgeGlassRes = context.resources.getIdentifier("widget_badge_glass", "drawable", context.packageName)
+      val defaultUpcomingRes = context.resources.getIdentifier("widget_badge_upcoming", "drawable", context.packageName)
+      val badgeUpcomingRes = if (isGlassTheme && badgeGlassRes != 0) badgeGlassRes else defaultUpcomingRes
       val badgeDueRes = context.resources.getIdentifier("widget_badge_due", "drawable", context.packageName)
 
       if (hasDose && medName.isNotBlank()) {
@@ -159,7 +162,7 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
             views.setTextColor(countdownBadgeId, 0xFFA33E38.toInt()) // brand danger red
           } else if (badgeUpcomingRes != 0) {
             views.setInt(countdownBadgeId, "setBackgroundResource", badgeUpcomingRes)
-            views.setTextColor(countdownBadgeId, 0xFF034339.toInt()) // brand primary teal
+            views.setTextColor(countdownBadgeId, 0xFF006156.toInt()) // brand primary teal
           }
         }
 
@@ -173,7 +176,7 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
           views.setTextViewText(countdownBadgeId, "✓ All done")
           if (badgeUpcomingRes != 0) {
             views.setInt(countdownBadgeId, "setBackgroundResource", badgeUpcomingRes)
-            views.setTextColor(countdownBadgeId, 0xFF034339.toInt())
+            views.setTextColor(countdownBadgeId, 0xFF006156.toInt())
           }
         }
       }
@@ -198,6 +201,11 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
       val rootId = context.resources.getIdentifier("widget_root_layout", "id", context.packageName)
       if (rootId != 0) {
         views.setOnClickPendingIntent(rootId, pendingIntent)
+        val bgDrawableName = if (isGlassTheme) "widget_bg_glass" else "widget_bg"
+        val bgDrawableRes = context.resources.getIdentifier(bgDrawableName, "drawable", context.packageName)
+        if (bgDrawableRes != 0) {
+          views.setInt(rootId, "setBackgroundResource", bgDrawableRes)
+        }
       }
 
       appWidgetManager.updateAppWidget(appWidgetId, views)

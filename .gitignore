@@ -14,6 +14,7 @@ apps/mobile/ios/
 
 # Local APK builds
 build-output/
+*.apk
 
 # Gradle output of the in-repo native module
 apps/mobile/modules/*/android/build/

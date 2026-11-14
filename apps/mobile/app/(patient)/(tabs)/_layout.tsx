@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Tabs, useRouter } from 'expo-router';
-import { Colors, Radii, Spacing, Typography } from '@/theme/tokens';
+import { Colors, Radii, Spacing, Typography, scaleFont, FontFamily } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 
@@ -14,27 +15,40 @@ interface PatientTabHeaderProps {
 function PatientTabHeader({ title, iconName, isCommunityIcon = false }: PatientTabHeaderProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
 
   return (
-    <View style={[styles.headerContainer, { paddingTop: Math.max(insets.top, 24) }]}>
+    <View
+      style={[
+        styles.headerContainer,
+        {
+          paddingTop: Math.max(insets.top, 24),
+          backgroundColor: colors.surface,
+          borderBottomColor: colors.border,
+        },
+      ]}
+    >
       <View style={styles.headerBar}>
         <View style={styles.headerBrand}>
           {isCommunityIcon ? (
-            <MaterialCommunityIcons name={iconName} size={26} color={Colors.primary} />
+            <MaterialCommunityIcons name={iconName} size={24} color={colors.primary} />
           ) : (
-            <MaterialIcons name={iconName} size={26} color={Colors.primary} />
+            <MaterialIcons name={iconName} size={24} color={colors.primary} />
           )}
-          <Text style={styles.headerBrandText}>{title}</Text>
+          <Text style={[styles.headerBrandText, { color: colors.textPrimary }]}>{title}</Text>
         </View>
         <View style={styles.headerActions}>
           <TouchableOpacity
-            style={styles.headerSettingsButton}
+            style={[
+              styles.headerSettingsButton,
+              { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : colors.surfaceSecondary },
+            ]}
             accessibilityRole="button"
             accessibilityLabel="Settings"
             onPress={() => router.push('/settings')}
             activeOpacity={0.7}
           >
-            <Ionicons name="settings-outline" size={22} color={Colors.ink} />
+            <Ionicons name="settings-outline" size={20} color={colors.textPrimary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -43,83 +57,147 @@ function PatientTabHeader({ title, iconName, isCommunityIcon = false }: PatientT
 }
 
 export default function PatientTabsLayout() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
   const hasBottomInset = insets.bottom > 0;
 
   return (
     <Tabs
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
         tabBarStyle: {
-          backgroundColor: Colors.surface,
-          borderTopColor: Colors.outline,
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           borderTopWidth: StyleSheet.hairlineWidth,
-          height: hasBottomInset ? 64 + insets.bottom : 68,
+          height: hasBottomInset ? 62 + insets.bottom : 66,
           paddingTop: 6,
           paddingBottom: hasBottomInset ? insets.bottom : 6,
-          elevation: 4,
-          shadowColor: Colors.ink,
+          elevation: isDark ? 2 : 4,
+          shadowColor: colors.textPrimary,
           shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 6,
+          shadowOpacity: isDark ? 0.25 : 0.05,
+          shadowRadius: 8,
         },
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.inkMuted,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarItemStyle: {
           justifyContent: 'center',
           alignItems: 'center',
           paddingVertical: 2,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
+          fontFamily: FontFamily.semiBold,
+          fontSize: scaleFont(11.5),
           marginTop: 2,
         },
       }}
     >
+      {/* 1. Home / Today Screen */}
       <Tabs.Screen
         name="today"
         options={{
-          title: 'Today',
-          tabBarLabel: 'Today',
-          header: () => <PatientTabHeader title="Today" iconName="pill" isCommunityIcon />,
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons
-              name="calendar-today"
-              size={24}
-              color={typeof color === 'string' ? color : Colors.primary}
+          title: 'Home',
+          tabBarLabel: 'Home',
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              name={focused ? 'home' : 'home-outline'}
+              size={22}
+              color={focused ? colors.primary : colors.textSecondary}
             />
           ),
         }}
       />
+
+      {/* 2. Medicines List */}
       <Tabs.Screen
         name="medicines/index"
         options={{
           title: 'Medicines',
           tabBarLabel: 'Medicines',
+          headerShown: true,
           header: () => <PatientTabHeader title="Medicines" iconName="medication" />,
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons
-              name="medication"
-              size={24}
-              color={typeof color === 'string' ? color : Colors.primary}
+          tabBarIcon: ({ focused }) => (
+            <MaterialCommunityIcons
+              name={focused ? 'pill' : 'pill'}
+              size={23}
+              color={focused ? colors.primary : colors.textSecondary}
             />
           ),
         }}
       />
+
+      {/* 3. Central Elevated Add Medicine Button */}
+      <Tabs.Screen
+        name="add"
+        options={{
+          title: '',
+          tabBarLabel: () => null,
+          tabBarIcon: () => null,
+          tabBarButton: () => (
+            <View style={styles.centerAddWrapper}>
+              <TouchableOpacity
+                style={[
+                  styles.centerAddButton,
+                  { backgroundColor: colors.primary },
+                ]}
+                onPress={() => router.push('/medicine/new/details')}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel="Add new medicine"
+              >
+                <Ionicons name="add" size={28} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+          ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            router.push('/medicine/new/details');
+          },
+        }}
+      />
+
+      {/* 4. Family Hub */}
       <Tabs.Screen
         name="family/link"
         options={{
           title: 'Family',
           tabBarLabel: 'Family',
+          headerShown: true,
           header: () => <PatientTabHeader title="Family" iconName="diversity-1" />,
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons
-              name="diversity-1"
-              size={24}
-              color={typeof color === 'string' ? color : Colors.primary}
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              name={focused ? 'people' : 'people-outline'}
+              size={23}
+              color={focused ? colors.primary : colors.textSecondary}
             />
           ),
+        }}
+      />
+
+      {/* 5. More / Settings Hub */}
+      <Tabs.Screen
+        name="more"
+        options={{
+          title: 'More',
+          tabBarLabel: 'More',
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              name={focused ? 'grid' : 'grid-outline'}
+              size={21}
+              color={focused ? colors.primary : colors.textSecondary}
+            />
+          ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            router.push('/settings');
+          },
         }}
       />
     </Tabs>
@@ -128,18 +206,16 @@ export default function PatientTabsLayout() {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: Colors.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.outline,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
-    elevation: 3,
+    elevation: 2,
     zIndex: 10,
   },
   headerBar: {
-    minHeight: 56,
+    minHeight: 54,
     paddingHorizontal: Spacing.xl,
     flexDirection: 'row',
     alignItems: 'center',
@@ -149,15 +225,13 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
+    gap: 8,
   },
   headerBrandText: {
-    ...Typography.headlineSmall,
-    color: Colors.ink,
-    fontSize: 20,
-    lineHeight: 26,
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(19),
+    letterSpacing: -0.2,
     flexShrink: 1,
-    fontWeight: '700',
   },
   headerActions: {
     flexDirection: 'row',
@@ -165,10 +239,28 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   headerSettingsButton: {
-    width: 48,
-    height: 48,
-    borderRadius: Radii.full,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  centerAddWrapper: {
+    top: -12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 99,
+  },
+  centerAddButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#006156',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
 });

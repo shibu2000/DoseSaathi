@@ -2,7 +2,7 @@
   "expo": {
     "name": "DoseSaathi",
     "slug": "dosesaathi",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -22,7 +22,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#034339"
+        "backgroundColor": "#004C43"
       },
       "package": "com.dosesaathi.app",
       "permissions": [
@@ -43,7 +43,7 @@
         "expo-notifications",
         {
           "icon": "./assets/icon.png",
-          "color": "#034339",
+          "color": "#006156",
           "sounds": [
             "./assets/sounds/medchain_reminder_female.ogg",
             "./assets/sounds/medchain_reminder_male.ogg"

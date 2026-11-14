@@ -1,14 +1,27 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors, Radii, Spacing, Typography } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeContext';
 import { PrimaryButton } from './Buttons';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
 export function OfflineBanner() {
+  const { colors, isGlass } = useTheme();
+
   return (
-    <View style={styles.banner}>
-      <MaterialIcons name="cloud-off" size={16} color={Colors.inkMuted} style={styles.icon} />
-      <Text style={styles.text}>Offline. Changes are saved on this phone and will sync when you are connected.</Text>
+    <View
+      style={[
+        styles.banner,
+        {
+          backgroundColor: isGlass ? 'rgba(255, 255, 255, 0.65)' : colors.surfaceMuted,
+          borderColor: isGlass ? 'rgba(255, 255, 255, 0.85)' : colors.outline,
+        },
+      ]}
+    >
+      <MaterialIcons name="cloud-off" size={16} color={colors.inkMuted} style={styles.icon} />
+      <Text style={[styles.text, { color: colors.inkMuted }]}>
+        Offline. Changes are saved on this phone and will sync when you are connected.
+      </Text>
     </View>
   );
 }
@@ -28,25 +41,37 @@ export function EmptyState({
   buttonTitle,
   onButtonPress,
 }: EmptyStateProps) {
+  const { colors, isGlass } = useTheme();
+
   const renderIcon = () => {
     if (React.isValidElement(icon)) {
       return icon;
     }
     if (typeof icon === 'string' && icon.length > 2) {
-      // Named icon fallback or string
-      return <MaterialCommunityIcons name="pill" size={44} color={Colors.brand} />;
+      return <MaterialCommunityIcons name="pill" size={44} color={colors.brand} />;
     }
     if (typeof icon === 'string') {
       return <Text style={styles.emptyIcon}>{icon}</Text>;
     }
-    return <MaterialCommunityIcons name="pill" size={44} color={Colors.brand} />;
+    return <MaterialCommunityIcons name="pill" size={44} color={colors.brand} />;
   };
 
   return (
     <View style={styles.emptyContainer}>
-      <View style={styles.iconWrapper}>{renderIcon()}</View>
-      <Text style={styles.emptyTitle}>{title}</Text>
-      <Text style={styles.emptyDescription}>{description}</Text>
+      <View
+        style={[
+          styles.iconWrapper,
+          {
+            backgroundColor: isGlass ? 'rgba(255, 255, 255, 0.85)' : colors.brandSoft,
+            borderColor: isGlass ? 'rgba(255, 255, 255, 0.95)' : 'transparent',
+            borderWidth: isGlass ? 1.5 : 0,
+          },
+        ]}
+      >
+        {renderIcon()}
+      </View>
+      <Text style={[styles.emptyTitle, { color: colors.ink }]}>{title}</Text>
+      <Text style={[styles.emptyDescription, { color: colors.inkMuted }]}>{description}</Text>
       {buttonTitle && onButtonPress && (
         <PrimaryButton
           title={buttonTitle}

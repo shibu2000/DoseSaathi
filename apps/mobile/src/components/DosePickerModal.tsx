@@ -10,7 +10,8 @@ import {
   TextInput,
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { Colors, Radii, Spacing, Typography } from '../theme/tokens';
+import { Radii, Spacing, Typography, FontFamily, scaleFont } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeContext';
 
 export const COMMON_UNITS = [
   { value: 'tablet', label: 'Tablet (Pill)', icon: 'medication' },
@@ -40,18 +41,25 @@ export function DoseQuantityModal({
   onSelect,
   onClose,
 }: DoseQuantityModalProps) {
+  const { colors, isDark } = useTheme();
+
   return (
     <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+        <Pressable
+          style={[styles.sheet, { backgroundColor: colors.surface }]}
+          onPress={(e) => e.stopPropagation()}
+        >
           <View style={styles.header}>
-            <Text style={styles.title}>Select dose quantity</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <Ionicons name="close" size={22} color={Colors.inkMuted} />
+            <Text style={[styles.title, { color: colors.textPrimary }]}>Select dose quantity</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeBtn} accessibilityLabel="Close">
+              <Ionicons name="close" size={22} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.sub}>How many units to take per scheduled dose</Text>
+          <Text style={[styles.sub, { color: colors.textSecondary }]}>
+            How many units to take per scheduled dose
+          </Text>
 
           <View style={styles.qtyGrid}>
             {COMMON_QUANTITIES.map((q) => {
@@ -59,14 +67,27 @@ export function DoseQuantityModal({
               return (
                 <TouchableOpacity
                   key={q}
-                  style={[styles.qtyCell, isSelected && styles.qtyCellSelected]}
+                  style={[
+                    styles.qtyCell,
+                    { backgroundColor: colors.surfaceSecondary, borderColor: colors.border },
+                    isSelected && {
+                      backgroundColor: colors.primary,
+                      borderColor: colors.primary,
+                    },
+                  ]}
                   onPress={() => {
                     onSelect(q);
                     onClose();
                   }}
                   activeOpacity={0.8}
                 >
-                  <Text style={[styles.qtyCellText, isSelected && styles.qtyCellTextSelected]}>
+                  <Text
+                    style={[
+                      styles.qtyCellText,
+                      { color: colors.textPrimary },
+                      isSelected && { color: colors.white, fontWeight: '700' },
+                    ]}
+                  >
                     {q}
                   </Text>
                 </TouchableOpacity>
@@ -92,6 +113,7 @@ export function DoseUnitModal({
   onSelect,
   onClose,
 }: DoseUnitModalProps) {
+  const { colors, isDark } = useTheme();
   const [customUnit, setCustomUnit] = useState('');
 
   const handleApplyCustom = () => {
@@ -105,15 +127,22 @@ export function DoseUnitModal({
   return (
     <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+        <Pressable
+          style={[styles.sheet, { backgroundColor: colors.surface }]}
+          onPress={(e) => e.stopPropagation()}
+        >
           <View style={styles.header}>
-            <Text style={styles.title}>Select medicine form / unit</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <Ionicons name="close" size={22} color={Colors.inkMuted} />
+            <Text style={[styles.title, { color: colors.textPrimary }]}>
+              Select medicine form / unit
+            </Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeBtn} accessibilityLabel="Close">
+              <Ionicons name="close" size={22} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.sub}>Choose medicine form or enter a custom unit below</Text>
+          <Text style={[styles.sub, { color: colors.textSecondary }]}>
+            Choose medicine form or enter a custom unit below
+          </Text>
 
           <ScrollView style={styles.unitsList} showsVerticalScrollIndicator={false}>
             {COMMON_UNITS.map((u) => {
@@ -121,7 +150,15 @@ export function DoseUnitModal({
               return (
                 <TouchableOpacity
                   key={u.value}
-                  style={[styles.unitRow, isSelected && styles.unitRowSelected]}
+                  style={[
+                    styles.unitRow,
+                    { backgroundColor: colors.surfaceSecondary, borderColor: 'transparent' },
+                    isSelected && {
+                      backgroundColor: isDark ? 'rgba(0, 97, 86, 0.25)' : colors.primaryLight,
+                      borderColor: colors.primary,
+                      borderWidth: 1.5,
+                    },
+                  ]}
                   onPress={() => {
                     onSelect(u.value);
                     onClose();
@@ -132,14 +169,20 @@ export function DoseUnitModal({
                     <MaterialIcons
                       name={u.icon as any}
                       size={20}
-                      color={isSelected ? Colors.primary : Colors.inkMuted}
+                      color={isSelected ? colors.primary : colors.textSecondary}
                     />
-                    <Text style={[styles.unitLabel, isSelected && styles.unitLabelSelected]}>
+                    <Text
+                      style={[
+                        styles.unitLabel,
+                        { color: colors.textPrimary },
+                        isSelected && { color: colors.primary, fontWeight: '700' },
+                      ]}
+                    >
                       {u.label}
                     </Text>
                   </View>
                   {isSelected && (
-                    <MaterialIcons name="check" size={20} color={Colors.primary} />
+                    <MaterialIcons name="check" size={20} color={colors.primary} />
                   )}
                 </TouchableOpacity>
               );
@@ -147,11 +190,18 @@ export function DoseUnitModal({
           </ScrollView>
 
           {/* Custom Unit Input */}
-          <View style={styles.customUnitContainer}>
+          <View style={[styles.customUnitContainer, { borderTopColor: colors.border }]}>
             <TextInput
-              style={styles.customUnitInput}
+              style={[
+                styles.customUnitInput,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  color: colors.textPrimary,
+                  borderColor: colors.border,
+                },
+              ]}
               placeholder="Or enter custom unit (e.g. drops with water)"
-              placeholderTextColor={Colors.inkMuted}
+              placeholderTextColor={colors.textSecondary}
               value={customUnit}
               onChangeText={setCustomUnit}
               onSubmitEditing={handleApplyCustom}
@@ -159,11 +209,11 @@ export function DoseUnitModal({
             />
             {customUnit.trim().length > 0 && (
               <TouchableOpacity
-                style={styles.customApplyBtn}
+                style={[styles.customApplyBtn, { backgroundColor: colors.primary }]}
                 onPress={handleApplyCustom}
                 activeOpacity={0.8}
               >
-                <Text style={styles.customApplyBtnText}>Set</Text>
+                <Text style={[styles.customApplyBtnText, { color: colors.white }]}>Set</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -176,17 +226,18 @@ export function DoseUnitModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(32, 43, 40, 0.55)',
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: Colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.xl,
     paddingBottom: Spacing.xxl,
     maxHeight: '85%',
+    borderWidth: 1,
+    borderBottomWidth: 0,
   },
   header: {
     flexDirection: 'row',
@@ -195,14 +246,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   title: {
-    ...Typography.headlineSmall,
-    color: Colors.ink,
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(18),
   },
   sub: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(13),
     marginBottom: Spacing.md,
   },
   closeBtn: {
@@ -219,25 +268,13 @@ const styles = StyleSheet.create({
     width: '23%',
     height: 52,
     borderRadius: Radii.md,
-    backgroundColor: Colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: 'transparent',
-  },
-  qtyCellSelected: {
-    backgroundColor: Colors.brandSoft,
-    borderColor: Colors.brand,
   },
   qtyCellText: {
-    ...Typography.headlineSmall,
-    fontSize: 18,
-    color: Colors.ink,
-    fontWeight: '600',
-  },
-  qtyCellTextSelected: {
-    color: Colors.primary,
-    fontWeight: '700',
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(18),
   },
   unitsList: {
     maxHeight: 300,
@@ -249,14 +286,8 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
     borderRadius: Radii.md,
-    backgroundColor: Colors.surfaceMuted,
     marginBottom: Spacing.xs,
     borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  unitRowSelected: {
-    backgroundColor: Colors.brandSoft,
-    borderColor: Colors.brand,
   },
   unitLeft: {
     flexDirection: 'row',
@@ -264,13 +295,8 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   unitLabel: {
-    ...Typography.bodyMedium,
-    color: Colors.ink,
-    fontWeight: '500',
-  },
-  unitLabelSelected: {
-    color: Colors.primary,
-    fontWeight: '700',
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(14.5),
   },
   customUnitContainer: {
     flexDirection: 'row',
@@ -279,30 +305,25 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     paddingTop: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: Colors.outline,
   },
   customUnitInput: {
     flex: 1,
     height: 48,
     borderRadius: Radii.md,
-    borderWidth: 1.5,
-    borderColor: Colors.outline,
+    borderWidth: 1,
     paddingHorizontal: Spacing.md,
-    fontSize: 15,
-    color: Colors.ink,
-    backgroundColor: Colors.surfaceMuted,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(14.5),
   },
   customApplyBtn: {
     height: 48,
     paddingHorizontal: Spacing.lg,
     borderRadius: Radii.md,
-    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   customApplyBtnText: {
-    ...Typography.labelMedium,
-    color: Colors.white,
-    fontWeight: '700',
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(14),
   },
 });

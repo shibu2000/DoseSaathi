@@ -1,0 +1,10 @@
+<resources>
+  <color name="splashscreen_background">#F7F6F0</color>
+  <color name="iconBackground">#004C43</color>
+  <color name="iconBackground_nature">#004C43</color>
+  <color name="iconBackground_ocean">#104566</color>
+  <color name="iconBackground_sunset">#6E3B0E</color>
+  <color name="iconBackground_lavender">#3F355C</color>
+  <color name="colorPrimary">#006156</color>
+  <color name="notification_icon_color">#006156</color>
+</resources>

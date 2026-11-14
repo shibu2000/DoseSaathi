@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider, useApp } from '@/state/AppContext';
 import { StatusBar } from 'expo-status-bar';
 import { Colors } from '@/theme/tokens';
+import { ThemeProvider, useTheme } from '@/theme/ThemeContext';
 import {
   useFonts,
   AtkinsonHyperlegibleNext_400Regular,
@@ -140,6 +141,40 @@ export function ErrorBoundary({ retry }: { error: Error; retry: () => void }) {
   );
 }
 
+function ThemedNavigation() {
+  const { colors } = useTheme();
+  return (
+    <NotificationLifecycleManager>
+      <StatusBar style="dark" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.canvas },
+          animation: 'fade',
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="welcome" />
+        <Stack.Screen name="(onboarding)" />
+        <Stack.Screen name="setup/reminders" />
+        <Stack.Screen name="(patient)/(tabs)" />
+        <Stack.Screen name="(caregiver)/(tabs)" />
+        <Stack.Screen name="alarm/[occurrenceId]" options={{ presentation: 'fullScreenModal' }} />
+        <Stack.Screen name="settings/index" />
+      </Stack>
+    </NotificationLifecycleManager>
+  );
+}
+
+function ThemedRoot() {
+  const { themeMode, setThemeMode } = useApp();
+  return (
+    <ThemeProvider initialMode={themeMode} onThemeChange={setThemeMode}>
+      <ThemedNavigation />
+    </ThemeProvider>
+  );
+}
+
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     AtkinsonHyperlegibleNext_400Regular,
@@ -157,25 +192,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AppProvider>
-        <NotificationLifecycleManager>
-          <StatusBar style="dark" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: Colors.canvas },
-              animation: 'fade',
-            }}
-          >
-            <Stack.Screen name="index" />
-            <Stack.Screen name="welcome" />
-            <Stack.Screen name="(onboarding)" />
-            <Stack.Screen name="setup/reminders" />
-            <Stack.Screen name="(patient)/(tabs)" />
-            <Stack.Screen name="(caregiver)/(tabs)" />
-            <Stack.Screen name="alarm/[occurrenceId]" options={{ presentation: 'fullScreenModal' }} />
-            <Stack.Screen name="settings/index" />
-          </Stack>
-        </NotificationLifecycleManager>
+        <ThemedRoot />
       </AppProvider>
     </SafeAreaProvider>
   );

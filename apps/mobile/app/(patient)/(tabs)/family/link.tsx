@@ -8,7 +8,8 @@ import type { PermissionKey } from '@medchain/contracts';
 import { AppScreen } from '@/components/AppScreen';
 import { PrimaryButton, SecondaryButton, DestructiveButton } from '@/components/Buttons';
 import { FormField } from '@/components/FormField';
-import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { Colors, Spacing, Typography, Radii, FontFamily } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import type { PairingSessionView } from '@/sync/api-client';
 import { Notice } from '@/pairing/Notice';
@@ -37,6 +38,7 @@ function statusText(status: string): string {
 
 export default function PatientLinkFamilyScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const { api, patientRelationships, refreshPatientRelationships, startFamilySharing, syncNow, isOnline, stopSharingAndEraseServerData } = useApp();
   const [erasing, setErasing] = useState(false);
   const [eraseError, setEraseError] = useState<FriendlyError | null>(null);
@@ -346,15 +348,15 @@ export default function PatientLinkFamilyScreen() {
 
   const header = (
     <View style={styles.headerBlock}>
-      <Text style={styles.title}>Link a family member</Text>
-      <Text style={styles.subtitle}>
+      <Text style={[styles.title, { color: colors.textPrimary }]}>Link a family member</Text>
+      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
         Let someone you trust see your medicine schedule from their phone. You choose what they can see, and you can remove access at any time.
       </Text>
     </View>
   );
 
   const privacy = (
-    <Text style={styles.footnote}>
+    <Text style={[styles.footnote, { color: colors.textSecondary }]}>
       Information between your phone and the DoseSaathi server is sent over HTTPS. Sharing is optional: your reminders and medicines work the same without it.
     </Text>
   );
@@ -375,7 +377,7 @@ export default function PatientLinkFamilyScreen() {
     return (
       <AppScreen>
         {header}
-        <ActivityIndicator color={Colors.brand} size="large" accessibilityLabel="Loading" />
+        <ActivityIndicator color={colors.primary} size="large" accessibilityLabel="Loading" />
       </AppScreen>
     );
   }
@@ -385,9 +387,9 @@ export default function PatientLinkFamilyScreen() {
       <AppScreen>
         {header}
         {!isOnline && <Notice tone="warning">You appear to be offline. Starting family sharing needs a connection.</Notice>}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Start sharing</Text>
-          <Text style={styles.body}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Start sharing</Text>
+          <Text style={[styles.body, { color: colors.textSecondary, marginBottom: Spacing.md }]}>
             This creates a sharing identity for this phone on the server. No account or password is needed. Your medicines stay on your phone until you approve someone.
           </Text>
           <FormField
@@ -420,11 +422,11 @@ export default function PatientLinkFamilyScreen() {
       {approvedNotice && <Notice tone="success">{approvedNotice}</Notice>}
 
       {hasPending && incoming ? (
-        <View style={styles.card} accessibilityLabel="Family request">
-          <Text style={styles.cardTitle}>Someone wants to connect</Text>
-          <Text style={styles.personName}>{incoming.caregiverDisplayName}</Text>
-          <Text style={styles.bodyMuted}>{incoming.caregiverEmail}</Text>
-          <Text style={[styles.body, { marginTop: Spacing.md }]}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]} accessibilityLabel="Family request">
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Someone wants to connect</Text>
+          <Text style={[styles.personName, { color: colors.textPrimary }]}>{incoming.caregiverDisplayName}</Text>
+          <Text style={[styles.bodyMuted, { color: colors.textSecondary }]}>{incoming.caregiverEmail}</Text>
+          <Text style={[styles.body, { color: colors.textSecondary, marginTop: Spacing.md }]}>
             Check that you know this person. Choose what they may do:
           </Text>
           <PermissionToggles value={perms} onChange={setPerms} labels={PATIENT_PERMISSION_TEXT} disabled={deciding} />
@@ -441,11 +443,11 @@ export default function PatientLinkFamilyScreen() {
           <DestructiveButton title="Decline" onPress={decline} disabled={deciding} />
         </View>
       ) : (
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           {sessionLoading && !session ? (
             <View style={styles.centered}>
-              <ActivityIndicator color={Colors.brand} size="large" accessibilityLabel="Creating your code" />
-              <Text style={styles.bodyMuted}>Creating your code...</Text>
+              <ActivityIndicator color={colors.primary} size="large" accessibilityLabel="Creating your code" />
+              <Text style={[styles.bodyMuted, { color: colors.textSecondary }]}>Creating your code...</Text>
             </View>
           ) : sessionError && !session ? (
             <>
@@ -454,51 +456,69 @@ export default function PatientLinkFamilyScreen() {
             </>
           ) : session ? (
             <>
-              <View style={styles.tabs} accessibilityRole="tablist">
+              <View style={[styles.tabs, { backgroundColor: colors.surfaceSecondary }]} accessibilityRole="tablist">
                 {(['code', 'qr'] as const).map((t) => (
                   <TouchableOpacity
                     key={t}
-                    style={[styles.tab, tab === t && styles.tabActive]}
+                    style={[
+                      styles.tab,
+                      tab === t && [styles.tabActive, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 }],
+                    ]}
                     onPress={() => setTab(t)}
                     accessibilityRole="tab"
                     accessibilityState={{ selected: tab === t }}
                   >
-                    <Text style={[styles.tabText, tab === t && styles.tabTextActive]} numberOfLines={2}>{t === 'code' ? 'Numeric code' : 'QR code'}</Text>
+                    <Text
+                      style={[
+                        styles.tabText,
+                        { color: tab === t ? colors.primary : colors.textSecondary },
+                        tab === t && styles.tabTextActive,
+                      ]}
+                      numberOfLines={2}
+                    >
+                      {t === 'code' ? 'Numeric code' : 'QR code'}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </View>
 
               {sessionDead ? (
                 <View style={styles.centered}>
-                  <MaterialIcons name="timer-off" size={36} color={Colors.warning} />
-                  <Text style={styles.cardTitle}>This code has expired</Text>
-                  <Text style={styles.bodyMuted}>Create a new code to keep going.</Text>
+                  <MaterialIcons name="timer-off" size={36} color={colors.warning} />
+                  <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>This code has expired</Text>
+                  <Text style={[styles.bodyMuted, { color: colors.textSecondary }]}>Create a new code to keep going.</Text>
                 </View>
               ) : tab === 'code' ? (
                 <View style={styles.centered}>
-                  <Text style={styles.bodyMuted}>Ask your family member to enter this code in DoseSaathi</Text>
-                  <Text style={styles.code} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} accessibilityLabel={`Pairing code ${session.pairingCode.split('').join(' ')}`}>
+                  <Text style={[styles.bodyMuted, { color: colors.textSecondary }]}>Ask your family member to enter this code in DoseSaathi</Text>
+                  <Text
+                    style={[styles.code, { color: colors.primary }]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.6}
+                    accessibilityLabel={`Pairing code ${session.pairingCode.split('').join(' ')}`}
+                  >
                     {code}
                   </Text>
                   <SecondaryButton
                     title={copied ? 'Copied' : 'Copy code'}
                     onPress={copyCode}
-                    icon={<MaterialIcons name={copied ? 'check' : 'content-copy'} size={20} color={Colors.brand} />}
+                    icon={<MaterialIcons name={copied ? 'check' : 'content-copy'} size={20} color={colors.primary} />}
                   />
                 </View>
               ) : (
                 <View style={styles.centered}>
-                  <Text style={styles.bodyMuted}>Ask your family member to scan this in DoseSaathi</Text>
-                  <View style={styles.qrBox} accessible accessibilityLabel="QR code for pairing">
-                    <QRCode value={session.qrPayload} size={200} color={Colors.ink} backgroundColor={Colors.white} />
+                  <Text style={[styles.bodyMuted, { color: colors.textSecondary }]}>Ask your family member to scan this in DoseSaathi</Text>
+                  <View style={[styles.qrBox, { borderColor: colors.border, backgroundColor: '#FFFFFF' }]} accessible accessibilityLabel="QR code for pairing">
+                    <QRCode value={session.qrPayload} size={200} color="#1F302C" backgroundColor="#FFFFFF" />
                   </View>
                 </View>
               )}
 
               {!sessionDead && (
                 <View style={styles.countdownRow}>
-                  <MaterialIcons name="schedule" size={18} color={Colors.inkMuted} />
-                  <Text style={styles.bodyMuted} accessibilityLiveRegion="polite">
+                  <MaterialIcons name="schedule" size={18} color={colors.textSecondary} />
+                  <Text style={[styles.bodyMuted, { color: colors.textSecondary }]} accessibilityLiveRegion="polite">
                     Expires in {countdown.label}
                   </Text>
                 </View>
@@ -513,17 +533,17 @@ export default function PatientLinkFamilyScreen() {
               )}
               {!sessionDead && !pollNote && (
                 <View style={styles.countdownRow}>
-                  <ActivityIndicator size="small" color={Colors.inkMuted} />
-                  <Text style={styles.bodyMuted}>Waiting for the phone to connect</Text>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                  <Text style={[styles.bodyMuted, { color: colors.textSecondary }]}>Waiting for the phone to connect</Text>
                 </View>
               )}
               <SecondaryButton
                 title={sessionDead ? 'Create new code' : 'Regenerate code'}
                 onPress={regenerate}
                 loading={sessionLoading}
-                icon={<MaterialIcons name="refresh" size={20} color={Colors.brand} />}
+                icon={<MaterialIcons name="refresh" size={20} color={colors.primary} />}
               />
-              {!sessionDead && <Text style={styles.footnote}>Regenerating makes the old code stop working.</Text>}
+              {!sessionDead && <Text style={[styles.footnote, { color: colors.textSecondary }]}>Regenerating makes the old code stop working.</Text>}
             </>
           ) : (
             <PrimaryButton title="Create a code" onPress={createSession} loading={sessionLoading} />
@@ -531,23 +551,23 @@ export default function PatientLinkFamilyScreen() {
         </View>
       )}
 
-      <Text style={styles.sectionTitle}>People with access</Text>
+      <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>People with access</Text>
       {revokeError && <Notice tone="error">{revokeError.message}</Notice>}
       {activePeople.length === 0 ? (
-        <Text style={styles.bodyMuted}>No one can see your medicines yet.</Text>
+        <Text style={[styles.bodyMuted, { color: colors.textSecondary }]}>No one can see your medicines yet.</Text>
       ) : (
         activePeople.map((r) => (
-          <View key={r.relationshipId} style={styles.card}>
-            <Text style={styles.personName}>{r.caregiverDisplayName}</Text>
-            <Text style={styles.bodyMuted}>
+          <View key={r.relationshipId} style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.personName, { color: colors.textPrimary }]}>{r.caregiverDisplayName}</Text>
+            <Text style={[styles.bodyMuted, { color: colors.textSecondary }]}>
               {r.relationshipLabel} · {r.caregiverEmail}
             </Text>
             <View style={styles.statusRow}>
-              <MaterialIcons name="check-circle" size={18} color={Colors.success} />
-              <Text style={styles.statusText}>{statusText(r.status)}</Text>
+              <MaterialIcons name="check-circle" size={18} color={colors.success} />
+              <Text style={[styles.statusText, { color: colors.success }]}>{statusText(r.status)}</Text>
             </View>
             {describePermissions(r.permissions, 'patient').map((t) => (
-              <Text key={t} style={styles.permLine}>
+              <Text key={t} style={[styles.permLine, { color: colors.textPrimary }]}>
                 {'•'} {t}
               </Text>
             ))}
@@ -561,11 +581,11 @@ export default function PatientLinkFamilyScreen() {
         ))
       )}
       {pastPeople.map((r) => (
-        <View key={r.relationshipId} style={styles.cardMuted}>
-          <Text style={styles.personName}>{r.caregiverDisplayName}</Text>
+        <View key={r.relationshipId} style={[styles.cardMuted, { backgroundColor: colors.surfaceSecondary }]}>
+          <Text style={[styles.personName, { color: colors.textPrimary }]}>{r.caregiverDisplayName}</Text>
           <View style={styles.statusRow}>
-            <MaterialIcons name="block" size={18} color={Colors.inkMuted} />
-            <Text style={styles.bodyMuted}>{statusText(r.status)}</Text>
+            <MaterialIcons name="block" size={18} color={colors.textSecondary} />
+            <Text style={[styles.bodyMuted, { color: colors.textSecondary }]}>{statusText(r.status)}</Text>
           </View>
         </View>
       ))}
@@ -573,8 +593,8 @@ export default function PatientLinkFamilyScreen() {
       <SecondaryButton title="I'll do this later" onPress={later} />
       {privacy}
 
-      <Text style={styles.sectionTitle}>Stop sharing</Text>
-      <Text style={styles.bodyMuted}>
+      <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Stop sharing</Text>
+      <Text style={[styles.bodyMuted, { color: colors.textSecondary }]}>
         Removes everyone's access and deletes what the DoseSaathi server stores for this phone. Your medicines on
         this phone are not deleted.
       </Text>
@@ -609,7 +629,7 @@ const styles = StyleSheet.create({
   footnote: { ...Typography.bodySmall, marginTop: Spacing.md },
   personName: { ...Typography.headlineSmall },
   centered: { alignItems: 'center', paddingVertical: Spacing.md, gap: Spacing.sm },
-  code: { maxWidth: '100%', fontSize: 44, lineHeight: 52, fontWeight: '700', letterSpacing: 4, color: Colors.primary, marginVertical: Spacing.sm },
+  code: { maxWidth: '100%', fontFamily: FontFamily.bold, fontSize: 44, lineHeight: 52, letterSpacing: 4, color: Colors.primary, marginVertical: Spacing.sm },
   qrBox: { backgroundColor: Colors.white, padding: Spacing.lg, borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.outline },
   tabs: {
     flexDirection: 'row',

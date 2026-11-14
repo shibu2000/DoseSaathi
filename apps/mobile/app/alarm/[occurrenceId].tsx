@@ -326,7 +326,7 @@ export default function MedicationAlarmScreen() {
           {/* Top Brand & Schedule Context */}
           <View style={styles.topSection}>
             <View style={styles.brandBadge}>
-              <MedChainLogo size={15} color={Colors.brand} />
+              <MedChainLogo size={18} />
               <Text style={styles.brandBadgeText}>DoseSaathi</Text>
             </View>
 

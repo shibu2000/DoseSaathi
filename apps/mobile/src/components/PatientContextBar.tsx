@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Colors, Radii, Spacing, Typography } from '../theme/tokens';
+import { Radii, Spacing, Typography } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeContext';
 
 interface PatientContextBarProps {
   patientName: string;
@@ -13,22 +14,40 @@ export function PatientContextBar({
   relationshipLabel,
   onSwitch,
 }: PatientContextBarProps) {
+  const { colors, isGlass, glassStyles } = useTheme();
+
   return (
-    <View style={styles.bar}>
+    <View
+      style={[
+        styles.bar,
+        {
+          backgroundColor: isGlass ? colors.cardBackground : colors.brandSoft,
+          borderColor: isGlass ? colors.cardBorder : colors.outline,
+          borderWidth: isGlass ? 1.5 : 1,
+        },
+        isGlass && glassStyles.card,
+      ]}
+    >
       <View style={styles.textContainer}>
-        <Text style={styles.prefix}>Managing medicines for</Text>
-        <Text style={styles.name}>
+        <Text style={[styles.prefix, { color: colors.brand }]}>Managing medicines for</Text>
+        <Text style={[styles.name, { color: colors.primary }]}>
           {patientName} ({relationshipLabel})
         </Text>
       </View>
       {onSwitch && (
         <TouchableOpacity
           onPress={onSwitch}
-          style={styles.switchButton}
+          style={[
+            styles.switchButton,
+            {
+              backgroundColor: isGlass ? 'rgba(255, 255, 255, 0.8)' : colors.surface,
+              borderColor: isGlass ? 'rgba(255, 255, 255, 0.95)' : colors.outline,
+            },
+          ]}
           accessibilityRole="button"
           accessibilityLabel="Switch family member"
         >
-          <Text style={styles.switchText}>Switch</Text>
+          <Text style={[styles.switchText, { color: colors.brand }]}>Switch</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -37,9 +56,6 @@ export function PatientContextBar({
 
 const styles = StyleSheet.create({
   bar: {
-    backgroundColor: Colors.brandSoft,
-    borderColor: Colors.outline,
-    borderWidth: 1,
     borderRadius: Radii.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
@@ -53,21 +69,19 @@ const styles = StyleSheet.create({
   },
   prefix: {
     ...Typography.labelSmall,
-    color: Colors.brand,
   },
   name: {
     ...Typography.labelMedium,
-    color: Colors.primary,
     fontWeight: '700',
   },
   switchButton: {
     paddingHorizontal: Spacing.md,
-    minHeight: 48,
-    justifyContent: 'center',
+    paddingVertical: 6,
+    borderRadius: Radii.sm,
+    borderWidth: 1,
   },
   switchText: {
     ...Typography.labelSmall,
-    color: Colors.brand,
-    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
 });

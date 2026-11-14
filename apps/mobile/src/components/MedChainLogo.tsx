@@ -1,31 +1,48 @@
 import React from 'react';
-import Svg, { Path, Rect } from 'react-native-svg';
-import { Colors } from '../theme/tokens';
+import { Image, ImageStyle, StyleProp } from 'react-native';
+import { useTheme, type ThemeMode } from '../theme/ThemeContext';
 
-interface MedChainLogoProps {
+const THEMED_ICONS: Record<string, any> = {
+  nature: require('../../assets/brand-icon-nature.png'),
+  ocean: require('../../assets/brand-icon-ocean.png'),
+  sunset: require('../../assets/brand-icon-sunset.png'),
+  lavender: require('../../assets/brand-icon-lavender.png'),
+  classic: require('../../assets/brand-icon-nature.png'),
+  glassmorphism: require('../../assets/brand-icon-nature.png'),
+};
+
+export interface MedChainLogoProps {
   size?: number;
   color?: string;
+  theme?: ThemeMode;
+  style?: StyleProp<ImageStyle>;
 }
 
-export function MedChainLogo({ size = 40, color = Colors.brand }: MedChainLogoProps) {
+export function MedChainLogo({ size = 40, theme, style }: MedChainLogoProps) {
+  let activeTheme: ThemeMode = 'nature';
+  try {
+    const themeContext = useTheme();
+    activeTheme = theme || themeContext.themeMode || 'nature';
+  } catch {
+    activeTheme = theme || 'nature';
+  }
+
+  const iconSource = THEMED_ICONS[activeTheme] || THEMED_ICONS.nature;
+
   return (
-    <Svg width={size} height={size} viewBox="0 0 48 48" fill="none">
-      <Path
-        d="M24 4L24 44M4 24L44 24"
-        stroke={color}
-        strokeWidth={4}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <Rect
-        x={14}
-        y={14}
-        width={20}
-        height={20}
-        rx={4}
-        stroke={color}
-        strokeWidth={2.4}
-      />
-    </Svg>
+    <Image
+      source={iconSource}
+      style={[
+        {
+          width: size,
+          height: size,
+          borderRadius: Math.round(size * 0.225),
+        },
+        style,
+      ]}
+      resizeMode="contain"
+      accessibilityRole="image"
+      accessibilityLabel="DoseSaathi Logo"
+    />
   );
 }

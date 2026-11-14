@@ -11,30 +11,37 @@ import {
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AppScreen } from '@/components/AppScreen';
-import { ScreenHeader } from '@/components/ScreenHeader';
-import { SecondaryButton, PrimaryButton } from '@/components/Buttons';
-import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Spacing, Radii, scaleFont, FontFamily } from '@/theme/tokens';
+import { useTheme, type ThemeMode, type AppearanceMode } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { MedchainAlarm } from '../../modules/medchain-alarm/src';
 import type { SchedulerDiagnostics } from '@/alarms';
+import { ThemeThumbnail } from '@/components/ThemeThumbnail';
+import { MedChainLogo } from '@/components/MedChainLogo';
+import { FormField } from '@/components/FormField';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const {
     mode,
     setMode,
-    api,
     db,
     scheduler,
+    themeMode,
+    setThemeMode,
+    patientName,
+    setPatientName,
     refreshPermissions,
     requestNotificationPermission,
     requestExactAlarmPermission,
     scheduleTestAlarm,
     resetToCleanSlate,
   } = useApp();
+  const { colors, colorScheme, setColorScheme, isDark } = useTheme();
+
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [voice, setVoice] = useState<'female' | 'male'>('female');
   const [playing, setPlaying] = useState<'female' | 'male' | null>(null);
@@ -42,14 +49,24 @@ export default function SettingsScreen() {
   const [vibrationEnabled, setVibrationEnabled] = useState(true);
   const [diagnostics, setDiagnostics] = useState<SchedulerDiagnostics | null>(null);
   const [testSent, setTestSent] = useState(false);
-  const [lastFire, setLastFire] = useState<null | {
-    firedAtMillis: number;
-    screenWasOn: boolean;
-    deviceWasLocked: boolean;
-    fullScreenIntentAllowed: boolean;
-    notificationsEnabled: boolean;
-    outcome: string;
-  }>(null);
+  const [userName, setUserName] = useState(
+    patientName && patientName.toLowerCase() !== 'me' ? patientName : ''
+  );
+
+  useEffect(() => {
+    if (patientName && patientName.toLowerCase() !== 'me') {
+      setUserName(patientName);
+    }
+  }, [patientName]);
+
+  const handleSaveName = async (val: string) => {
+    try {
+      await setPatientName(val);
+    } catch {}
+  };
+
+  // Accordion section states
+  const [expandedSection, setExpandedSection] = useState<'notifications' | 'backup' | 'language' | 'accessibility' | null>(null);
 
   const loadSettings = useCallback(async () => {
     if (db) {
@@ -58,12 +75,6 @@ export default function SettingsScreen() {
       setSoundEnabled(sound);
       setVoice((await db.settings.get('alarm_voice')) === 'male' ? 'male' : 'female');
       setVibrationEnabled(vib);
-    }
-    try {
-      const raw = MedchainAlarm?.getLastFire();
-      setLastFire(raw ? JSON.parse(raw) : null);
-    } catch {
-      setLastFire(null);
     }
     if (scheduler) {
       const diag = await scheduler.getDiagnostics();
@@ -88,7 +99,7 @@ export default function SettingsScreen() {
     if (res === 'denied') {
       Alert.alert(
         'Notifications Disabled',
-        'Please enable notifications in OS settings to receive medication alarms.',
+        'Please enable notifications in phone settings so you can receive reminder alerts for your medicines.',
         [
           { text: 'Cancel', style: 'cancel' },
           { text: 'Open Settings', onPress: handleOpenSystemSettings },
@@ -107,13 +118,13 @@ export default function SettingsScreen() {
       setTestSent(true);
       await scheduleTestAlarm(5);
       Alert.alert(
-        '🔔 Test Alarm Scheduled',
-        'A test medication reminder will trigger in 5 seconds. Lock your phone or leave the app to see the notification.',
+        '🔔 Test Reminder Scheduled',
+        'A test reminder will ring in 5 seconds. You can lock your phone now to see how it appears on your lock screen.',
         [{ text: 'OK' }]
       );
       setTimeout(() => setTestSent(false), 5000);
     } catch (err: any) {
-      Alert.alert('Error', err?.message || 'Could not schedule test alarm');
+      Alert.alert('Notice', err?.message || 'Could not schedule test reminder');
       setTestSent(false);
     }
   };
@@ -121,7 +132,7 @@ export default function SettingsScreen() {
   const handleResetDatabase = () => {
     Alert.alert(
       'Delete all your medicines?',
-      'This deletes every medicine, schedule and dose record on this phone. It cannot be undone.',
+      'This erases all medicines, schedules and dose history saved on this phone. This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -129,7 +140,7 @@ export default function SettingsScreen() {
           style: 'destructive',
           onPress: async () => {
             await resetToCleanSlate();
-            Alert.alert('Done', 'All medicines and history on this phone were deleted.');
+            Alert.alert('Done', 'All medicines and records on this phone have been cleared.');
           },
         },
       ]
@@ -140,7 +151,6 @@ export default function SettingsScreen() {
     setVoice(v);
     setVoiceError(null);
     if (db) await db.settings.set('alarm_voice', v);
-    // Re-arm the pending reminders so they use the newly chosen voice
     try {
       await scheduler?.reconcileAlarms();
     } catch {}
@@ -155,12 +165,15 @@ export default function SettingsScreen() {
         return;
       }
       setPlaying(v);
-      await MedchainAlarm?.playSample(v);
-      // The sample is ~28 s; clear the playing marker when it ends
-      setTimeout(() => setPlaying((cur) => (cur === v ? null : cur)), 28500);
+      if (MedchainAlarm) {
+        await MedchainAlarm.playSample(v);
+        setTimeout(() => setPlaying((cur) => (cur === v ? null : cur)), 28500);
+      } else {
+        setTimeout(() => setPlaying((cur) => (cur === v ? null : cur)), 2500);
+      }
     } catch (e: any) {
       setPlaying(null);
-      setVoiceError('Could not play the sample on this build.');
+      setVoiceError('Could not play the sample on this device.');
     }
   };
 
@@ -198,501 +211,864 @@ export default function SettingsScreen() {
     }
   };
 
+  const toggleAccordion = (section: 'notifications' | 'backup' | 'language' | 'accessibility') => {
+    setExpandedSection((prev) => (prev === section ? null : section));
+  };
+
+  const themes: Array<{
+    id: ThemeMode;
+    name: string;
+    subtitle: string;
+    thumbnail: 'nature' | 'ocean' | 'sunset' | 'lavender';
+    accent: string;
+  }> = [
+    {
+      id: 'nature',
+      name: 'Nature Green',
+      subtitle: 'Calm, clean and easy on the eyes.',
+      thumbnail: 'nature',
+      accent: '#006156',
+    },
+    {
+      id: 'ocean',
+      name: 'Ocean Blue',
+      subtitle: 'Clean and modern look.',
+      thumbnail: 'ocean',
+      accent: '#186594',
+    },
+    {
+      id: 'sunset',
+      name: 'Sunset Warm',
+      subtitle: 'Warm and friendly.',
+      thumbnail: 'sunset',
+      accent: '#9E5716',
+    },
+    {
+      id: 'lavender',
+      name: 'Lavender Calm',
+      subtitle: 'Soft and comfortable.',
+      thumbnail: 'lavender',
+      accent: '#5B4D82',
+    },
+  ];
+
   return (
-    <AppScreen>
-      <ScrollView contentContainerStyle={{ paddingBottom: Spacing.xxl }}>
-        <ScreenHeader
-          title="Settings & Accessibility"
-          subtitle="Device permissions, alarm alerts and storage"
-          showBack={true}
-          onBack={() => router.back()}
-        />
-
-        {/* Operating Mode Switcher */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Operating Mode</Text>
-          <Text style={styles.cardDesc}>
-            Using DoseSaathi as: <Text style={styles.boldText}>{mode === 'personal' ? 'Myself (my medicines)' : 'A family caregiver'}</Text>
-          </Text>
-          <SecondaryButton
-            title={mode === 'personal' ? 'Switch to family caregiver' : 'Switch to my medicines'}
-            onPress={toggleMode}
-            style={styles.switchModeBtn}
-          />
-        </View>
-
-        {/* Permissions & Native Alarms */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Reminders and permissions</Text>
-
-          {/* Exact Alarms */}
-          <View style={styles.settingRow}>
-            <View style={styles.settingTextContainer}>
-              <Text style={styles.settingLabel}>Exact alarm timing</Text>
-              <Text style={styles.settingSubtext}>
-                {diagnostics?.exactAlarmGranted
-                  ? 'Reminders ring at the exact minute'
-                  : 'Needs your permission so reminders ring on time'}
-              </Text>
-            </View>
-            <View style={[styles.grantedPill, !diagnostics?.exactAlarmGranted && styles.warningPill]}>
-              <Text style={[styles.grantedText, !diagnostics?.exactAlarmGranted && styles.warningPillText]}>
-                {diagnostics?.exactAlarmGranted ? 'Allowed' : 'Not Allowed'}
-              </Text>
-            </View>
-          </View>
-
-          {!diagnostics?.exactAlarmGranted && (
-            <TouchableOpacity
-              style={styles.fixPermissionBtn}
-              onPress={handleRequestExactAlarm}
-              activeOpacity={0.85}
-            >
-              <MaterialIcons name="alarm" size={16} color={Colors.brand} />
-              <Text style={styles.fixPermissionText}>Allow exact alarms in System Settings</Text>
-            </TouchableOpacity>
-          )}
-
-          <View style={styles.divider} />
-
-          {/* Full-screen alarm (Android 14+ requires the user to allow it) */}
-          {diagnostics?.fullScreenIntentGranted !== null && diagnostics?.fullScreenIntentGranted !== undefined && (
-            <>
-              <View style={styles.settingRow}>
-                <View style={styles.settingTextContainer}>
-                  <Text style={styles.settingLabel}>Full-screen alarm</Text>
-                  <Text style={styles.settingSubtext}>
-                    {diagnostics.fullScreenIntentGranted
-                      ? 'Reminders can wake the screen and show over the lock screen'
-                      : 'Not allowed: reminders appear as a notification only'}
-                  </Text>
-                </View>
-                <View style={[styles.grantedPill, !diagnostics.fullScreenIntentGranted && styles.warningPill]}>
-                  <Text style={[styles.grantedText, !diagnostics.fullScreenIntentGranted && styles.warningPillText]}>
-                    {diagnostics.fullScreenIntentGranted ? 'Allowed' : 'Not Allowed'}
-                  </Text>
-                </View>
-              </View>
-              {!diagnostics.fullScreenIntentGranted && (
-                <TouchableOpacity
-                  style={styles.fixPermissionBtn}
-                  onPress={() => MedchainAlarm?.openFullScreenIntentSettings().catch(() => {})}
-                  activeOpacity={0.85}
-                  accessibilityRole="button"
-                >
-                  <MaterialIcons name="fullscreen" size={16} color={Colors.brand} />
-                  <Text style={styles.fixPermissionText}>Allow full-screen alarms in System Settings</Text>
-                </TouchableOpacity>
-              )}
-              <View style={styles.divider} />
-            </>
-          )}
-
-          {/* Notifications */}
-          <View style={styles.settingRow}>
-            <View style={styles.settingTextContainer}>
-              <Text style={styles.settingLabel}>Notifications</Text>
-              <Text style={styles.settingSubtext}>
-                {diagnostics?.notificationGranted
-                  ? 'Notification alerts enabled'
-                  : 'Notifications disabled in OS settings'}
-              </Text>
-            </View>
-            <View style={[styles.grantedPill, !diagnostics?.notificationGranted && styles.warningPill]}>
-              <Text style={[styles.grantedText, !diagnostics?.notificationGranted && styles.warningPillText]}>
-                {diagnostics?.notificationGranted ? 'Allowed' : 'Disabled'}
-              </Text>
-            </View>
-          </View>
-
-          {!diagnostics?.notificationGranted && (
-            <TouchableOpacity
-              style={styles.fixPermissionBtn}
-              onPress={handleRequestNotifications}
-              activeOpacity={0.85}
-            >
-              <MaterialIcons name="notifications-active" size={16} color={Colors.brand} />
-              <Text style={styles.fixPermissionText}>Allow notifications</Text>
-            </TouchableOpacity>
-          )}
-
-          <View style={styles.divider} />
-
-          <SecondaryButton
-            title={testSent ? 'Test alarm rings in 5 seconds...' : 'Send a test alarm (5 seconds)'}
-            onPress={handleSendTestAlarm}
-            icon={<MaterialIcons name="alarm-on" size={18} color={Colors.brand} />}
-          />
-
-          <View style={styles.divider} />
-
-          {__DEV__ && (
-          <SecondaryButton
-            title="Open Full-Screen Alarm View"
-            onPress={() => router.push('/alarm/test_occurrence_preview')}
-            icon={<MaterialIcons name="fullscreen" size={18} color={Colors.brand} />}
-          />
-          )}
-
-          <View style={styles.divider} />
-
-          <SecondaryButton
-            title="Open Android app settings"
-            onPress={handleOpenSystemSettings}
-            icon={<Ionicons name="settings-outline" size={18} color={Colors.brand} />}
-          />
-
-          <View style={styles.divider} />
-
-          {/* Reminder voice: only on builds that include the native alarm module */}
-          {MedchainAlarm && (
-            <>
-              <Text style={styles.settingLabel} accessibilityRole="header">Reminder voice</Text>
-              <Text style={styles.settingSubtext}>
-                Choose who says "It's time for your medicine" with the music.
-              </Text>
-              {(['female', 'male'] as const).map((v) => {
-                const selected = voice === v;
-                return (
-                  <View key={v} style={styles.voiceRow}>
-                    <TouchableOpacity
-                      style={[styles.voiceOption, selected && styles.voiceOptionSelected]}
-                      onPress={() => handleVoiceChange(v)}
-                      accessibilityRole="radio"
-                      accessibilityState={{ selected }}
-                      accessibilityLabel={`${v === 'female' ? 'Female' : 'Male'} voice`}
-                      activeOpacity={0.85}
-                    >
-                      <MaterialIcons
-                        name={selected ? 'radio-button-checked' : 'radio-button-unchecked'}
-                        size={22}
-                        color={selected ? Colors.brand : Colors.inkMuted}
-                      />
-                      <Text style={styles.voiceOptionText}>{v === 'female' ? 'Female voice' : 'Male voice'}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.voicePlayBtn}
-                      onPress={() => handlePlaySample(v)}
-                      accessibilityRole="button"
-                      accessibilityLabel={playing === v ? `Stop ${v} voice sample` : `Play ${v} voice sample`}
-                      activeOpacity={0.85}
-                    >
-                      <MaterialIcons name={playing === v ? 'stop' : 'play-arrow'} size={22} color={Colors.brand} />
-                      <Text style={styles.fixPermissionText}>{playing === v ? 'Stop' : 'Listen'}</Text>
-                    </TouchableOpacity>
-                  </View>
-                );
-              })}
-              {voiceError && <Text style={[styles.settingSubtext, { color: Colors.danger }]}>{voiceError}</Text>}
-              <View style={styles.divider} />
-            </>
-          )}
-
-          {/* Sound Toggle */}
-          <View style={styles.settingRow}>
-            <View style={styles.settingTextContainer}>
-              <Text style={styles.settingLabel}>Alarm sound</Text>
-              <Text style={styles.settingSubtext}>Play a sound with each reminder</Text>
-            </View>
-            <Switch
-              value={soundEnabled}
-              onValueChange={handleSoundChange}
-              trackColor={{ false: Colors.outline, true: Colors.brand }}
-              accessibilityLabel="Alarm Sound Toggle"
-            />
-          </View>
-
-          <View style={styles.divider} />
-
-          {/* Vibration Toggle */}
-          <View style={styles.settingRow}>
-            <View style={styles.settingTextContainer}>
-              <Text style={styles.settingLabel}>Vibration</Text>
-              <Text style={styles.settingSubtext}>Vibrate with each reminder</Text>
-            </View>
-            <Switch
-              value={vibrationEnabled}
-              onValueChange={handleVibrationChange}
-              trackColor={{ false: Colors.outline, true: Colors.brand }}
-              accessibilityLabel="Alarm Vibration Toggle"
-            />
-          </View>
-        </View>
-
-        {/* What Android actually did with the last alarm (Android builds with the native alarm module) */}
-        {lastFire && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Last alarm: what happened</Text>
-            <View style={styles.diagRow}>
-              <Text style={styles.diagLabel}>Fired at:</Text>
-              <Text style={styles.diagValue}>{new Date(lastFire.firedAtMillis).toLocaleTimeString()}</Text>
-            </View>
-            <View style={styles.diagRow}>
-              <Text style={styles.diagLabel}>Screen was:</Text>
-              <Text style={styles.diagValue}>{lastFire.screenWasOn ? 'on' : 'off'}{lastFire.deviceWasLocked ? ', locked' : ', unlocked'}</Text>
-            </View>
-            <View style={styles.diagRow}>
-              <Text style={styles.diagLabel}>Full-screen allowed:</Text>
-              <Text style={styles.diagValue}>{lastFire.fullScreenIntentAllowed ? 'yes' : 'no (Android blocked it)'}</Text>
-            </View>
-            <View style={styles.diagRow}>
-              <Text style={styles.diagLabel}>Notifications on:</Text>
-              <Text style={styles.diagValue}>{lastFire.notificationsEnabled ? 'yes' : 'no'}</Text>
-            </View>
-            <View style={styles.diagRow}>
-              <Text style={styles.diagLabel}>Result:</Text>
-              <Text style={styles.diagValue}>{lastFire.outcome}</Text>
-            </View>
-            {lastFire.screenWasOn && !lastFire.deviceWasLocked && (
-              <Text style={styles.cardDesc}>
-                The phone was unlocked and in use, so Android shows a banner instead of taking over the screen. This is normal.
-              </Text>
-            )}
-          </View>
-        )}
-
-        {/* Honest Diagnostics */}
-        {diagnostics && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Reminder status</Text>
-            <View style={styles.diagRow}>
-              <Text style={styles.diagLabel}>Phone:</Text>
-              <Text style={styles.diagValue}>{diagnostics.platform === 'android' ? 'Android' : diagnostics.platform === 'ios' ? 'iPhone' : 'Test environment'}</Text>
-            </View>
-            <View style={styles.diagRow}>
-              <Text style={styles.diagLabel}>Reminder type:</Text>
-              <Text style={styles.diagValue}>{({
-                  FULL_SCREEN_INTENT: 'Full-screen alarm',
-                  EXACT_ALARM_CLOCK: 'Exact alarm notification',
-                  ALARM_KIT: 'System alarm',
-                  LOCAL_NOTIFICATION_FALLBACK: 'Standard notification (limited)',
-                } as Record<string, string>)[diagnostics.activeAlarmMode] ?? diagnostics.activeAlarmMode}</Text>
-            </View>
-            <View style={styles.diagRow}>
-              <Text style={styles.diagLabel}>Reminders scheduled:</Text>
-              <Text style={styles.diagValue}>{diagnostics.activeAlarmsCount}</Text>
-            </View>
-            {diagnostics.nextScheduledAlarmAt && (
-              <View style={styles.diagRow}>
-                <Text style={styles.diagLabel}>Next reminder:</Text>
-                <Text style={styles.diagValue}>
-                  {new Date(diagnostics.nextScheduledAlarmAt).toLocaleTimeString()}
-                </Text>
-              </View>
-            )}
-            {diagnostics.lastReconciledAt && (
-              <View style={styles.diagRow}>
-                <Text style={styles.diagLabel}>Last updated:</Text>
-                <Text style={styles.diagValue}>
-                  {new Date(diagnostics.lastReconciledAt).toLocaleTimeString()}
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
-
-        {/* Truthful Storage & Data Privacy */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Your data</Text>
-          <Text style={styles.cardDesc}>
-            Your medicines, schedules and dose history are stored on this phone.
-          </Text>
-          <Text style={styles.cardDesc}>
-            Nothing is sent to a server until you link a family member. After that, dose updates and plan changes travel between your phones over HTTPS.
-          </Text>
-
-          <View style={styles.divider} />
-
-          {api.isConfigured && (
-            <>
-              <SecondaryButton title="Privacy policy" onPress={() => Linking.openURL(`${api.publicBaseUrl}/privacy`).catch(() => {})} />
-              <SecondaryButton
-                title="How to delete your account and data"
-                onPress={() => Linking.openURL(`${api.publicBaseUrl}/delete-account`).catch(() => {})}
-              />
-              <View style={styles.divider} />
-            </>
-          )}
-
-          <View style={styles.settingRow}>
-            <Text style={styles.settingLabel}>App version</Text>
-            <Text style={styles.settingSubtext}>
-              {Constants.expoConfig?.version ?? 'unknown'}
-              {Constants.expoConfig?.android?.versionCode ? ` (build ${Constants.expoConfig.android.versionCode})` : ''}
+    <SafeAreaView style={[styles.safeContainer, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header matching Phone 3 */}
+        <View style={styles.topHeader}>
+          <TouchableOpacity
+            style={[styles.backCircle, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            onPress={() => router.back()}
+            accessibilityRole="button"
+            accessibilityLabel="Back"
+          >
+            <Ionicons name="arrow-back" size={20} color={colors.textPrimary} />
+          </TouchableOpacity>
+          <View style={styles.headerTextGroup}>
+            <Text style={[styles.screenTitle, { color: colors.textPrimary }]}>
+              Settings & Appearance
+            </Text>
+            <Text style={[styles.screenSubtitle, { color: colors.textSecondary }]}>
+              Customize your experience for you and your family.
             </Text>
           </View>
+        </View>
 
-          <View style={styles.settingRow}>
-            <Text style={styles.settingLabel}>Storage</Text>
-            <Text style={styles.settingSubtext}>On this phone</Text>
+        <View style={{ paddingHorizontal: Spacing.xl }}>
+          {/* ========================================================
+              1. APPEARANCE SECTION (MATCHES PHONE 3 REFERENCE)
+          ======================================================== */}
+          <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            {/* Appearance Header */}
+            <View style={styles.sectionHeaderRow}>
+              <MedChainLogo size={24} style={{ marginRight: 8 }} />
+              <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Appearance</Text>
+            </View>
+
+            {/* Segmented Light / Dark / System Mode Switch */}
+            <View style={[styles.modeSegmentContainer, { backgroundColor: colors.surfaceSecondary }]}>
+              {(['light', 'dark', 'system'] as AppearanceMode[]).map((scheme) => {
+                const isSelected = colorScheme === scheme;
+                return (
+                  <TouchableOpacity
+                    key={scheme}
+                    style={[
+                      styles.modeSegmentItem,
+                      isSelected && [
+                        styles.modeSegmentActive,
+                        { backgroundColor: colors.surface, borderColor: colors.border },
+                      ],
+                    ]}
+                    onPress={() => setColorScheme(scheme)}
+                    activeOpacity={0.8}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: isSelected }}
+                  >
+                    <Ionicons
+                      name={
+                        scheme === 'light'
+                          ? 'sunny-outline'
+                          : scheme === 'dark'
+                          ? 'moon-outline'
+                          : 'laptop-outline'
+                      }
+                      size={16}
+                      color={isSelected ? colors.primary : colors.textSecondary}
+                      style={{ marginRight: 6 }}
+                    />
+                    <Text
+                      style={[
+                        styles.modeSegmentText,
+                        {
+                          color: isSelected ? colors.primaryDark : colors.textSecondary,
+                          fontWeight: isSelected ? '700' : '500',
+                        },
+                      ]}
+                    >
+                      {scheme.charAt(0).toUpperCase() + scheme.slice(1)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* 4 Theme Cards */}
+            <View style={styles.themeCardsStack}>
+              {themes.map((t) => {
+                const isSelected = themeMode === t.id || (themeMode === 'classic' && t.id === 'nature');
+                return (
+                  <TouchableOpacity
+                    key={t.id}
+                    style={[
+                      styles.themeCardItem,
+                      {
+                        backgroundColor: isSelected ? colors.surfaceSecondary : colors.surface,
+                        borderColor: isSelected ? colors.primary : colors.border,
+                      },
+                    ]}
+                    onPress={() => setThemeMode(t.id)}
+                    activeOpacity={0.8}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: isSelected }}
+                  >
+                    {/* Themed Brand Icon + Landscape Thumbnail */}
+                    <MedChainLogo size={38} theme={t.id} style={{ marginRight: 8 }} />
+                    <ThemeThumbnail theme={t.thumbnail} width={50} height={38} />
+
+                    <View style={styles.themeInfoCol}>
+                      <Text style={[styles.themeItemTitle, { color: colors.textPrimary }]}>
+                        {t.name}
+                      </Text>
+                      <Text style={[styles.themeItemSubtitle, { color: colors.textSecondary }]}>
+                        {t.subtitle}
+                      </Text>
+                    </View>
+
+                    {/* Radio/Check Circle */}
+                    <View
+                      style={[
+                        styles.themeRadioCircle,
+                        {
+                          backgroundColor: isSelected ? colors.primary : 'transparent',
+                          borderColor: isSelected ? colors.primary : colors.border,
+                        },
+                      ]}
+                    >
+                      {isSelected && <Ionicons name="checkmark" size={14} color={colors.surface} />}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
 
-          <View style={styles.divider} />
+          {/* ========================================================
+              2. GROUPED SETTINGS ROWS (MATCHES PHONE 3 REFERENCE)
+          ======================================================== */}
+          <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, padding: 0 }]}>
+            {/* Row 1: Notifications */}
+            <TouchableOpacity
+              style={styles.settingListItem}
+              onPress={() => toggleAccordion('notifications')}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.listIconCircle, { backgroundColor: '#DDF2E9' }]}>
+                <Ionicons name="notifications" size={20} color="#006156" />
+              </View>
+              <View style={styles.listTextCol}>
+                <Text style={[styles.listTitle, { color: colors.textPrimary }]}>Notifications</Text>
+                <Text style={[styles.listSubtitle, { color: colors.textSecondary }]}>
+                  Dose reminders, alerts and updates
+                </Text>
+              </View>
+              <Ionicons
+                name={expandedSection === 'notifications' ? 'chevron-down' : 'chevron-forward'}
+                size={20}
+                color={colors.textSecondary}
+              />
+            </TouchableOpacity>
 
-          <SecondaryButton
-            title="Show the welcome tour again"
-            onPress={() => router.push('/welcome')}
-            icon={<Ionicons name="sparkles-outline" size={18} color={Colors.brand} />}
-          />
+            {/* Notifications Sub-Panel */}
+            {expandedSection === 'notifications' && (
+              <View style={[styles.expandedPanel, { backgroundColor: colors.surfaceSecondary, borderTopColor: colors.border }]}>
+                {/* Voice Selection */}
+                <Text style={[styles.subpanelHeader, { color: colors.textPrimary }]}>Reminder voice</Text>
+                <Text style={[styles.subpanelDesc, { color: colors.textSecondary }]}>
+                  Spoken announcement: "It's time for your medicine."
+                </Text>
 
-          <View style={styles.divider} />
+                {(['female', 'male'] as const).map((v) => {
+                  const selected = voice === v;
+                  return (
+                    <View key={v} style={styles.voiceRow}>
+                      <TouchableOpacity
+                        style={[
+                          styles.voiceOption,
+                          {
+                            backgroundColor: selected ? colors.primaryLight : colors.surface,
+                            borderColor: selected ? colors.primary : colors.border,
+                          },
+                        ]}
+                        onPress={() => handleVoiceChange(v)}
+                        accessibilityRole="radio"
+                        accessibilityState={{ selected }}
+                        activeOpacity={0.85}
+                      >
+                        <MaterialIcons
+                          name={selected ? 'radio-button-checked' : 'radio-button-unchecked'}
+                          size={20}
+                          color={selected ? colors.primary : colors.textSecondary}
+                        />
+                        <View style={styles.voiceTextCol}>
+                          <Text style={[styles.voiceTitle, { color: colors.textPrimary }]}>
+                            {v === 'female' ? 'Female voice' : 'Male voice'}
+                          </Text>
+                          <Text style={[styles.voiceSubtitle, { color: colors.textSecondary }]}>
+                            {v === 'female' ? 'Warm & clear' : 'Calm & steady'}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.voicePlayBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
+                        onPress={() => handlePlaySample(v)}
+                        accessibilityRole="button"
+                        activeOpacity={0.85}
+                      >
+                        <MaterialIcons name={playing === v ? 'stop' : 'play-arrow'} size={18} color={colors.primary} />
+                        <Text style={[styles.voicePlayText, { color: colors.primary }]}>
+                          {playing === v ? 'Stop' : 'Listen'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
 
-          <SecondaryButton
-            title="Delete all my medicines"
-            onPress={handleResetDatabase}
-            icon={<MaterialIcons name="delete-outline" size={18} color={Colors.danger} />}
-          />
+                {voiceError && <Text style={[styles.subpanelDesc, { color: colors.error, marginTop: 4 }]}>{voiceError}</Text>}
+
+                {/* Alarm Sound Switch */}
+                <View style={[styles.subpanelSwitchRow, { borderTopColor: colors.border }]}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.switchLabel, { color: colors.textPrimary }]}>Alarm sound</Text>
+                    <Text style={[styles.switchSubtext, { color: colors.textSecondary }]}>Play gentle chime with reminders</Text>
+                  </View>
+                  <Switch
+                    value={soundEnabled}
+                    onValueChange={handleSoundChange}
+                    trackColor={{ false: colors.border, true: colors.primary }}
+                    thumbColor={colors.surface}
+                  />
+                </View>
+
+                {/* Vibration Switch */}
+                <View style={[styles.subpanelSwitchRow, { borderTopColor: colors.border }]}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.switchLabel, { color: colors.textPrimary }]}>Vibration</Text>
+                    <Text style={[styles.switchSubtext, { color: colors.textSecondary }]}>Vibrate during alarms</Text>
+                  </View>
+                  <Switch
+                    value={vibrationEnabled}
+                    onValueChange={handleVibrationChange}
+                    trackColor={{ false: colors.border, true: colors.primary }}
+                    thumbColor={colors.surface}
+                  />
+                </View>
+
+                {/* Test Reminder Button */}
+                <TouchableOpacity
+                  style={[styles.testReminderBtn, { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+                  onPress={handleSendTestAlarm}
+                  activeOpacity={0.85}
+                >
+                  <Ionicons name="alarm-outline" size={18} color={colors.primaryDark} />
+                  <Text style={[styles.testReminderText, { color: colors.primaryDark }]}>
+                    {testSent ? 'Reminder ringing in 5 seconds…' : 'Ring a test reminder (5 seconds)'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            <View style={[styles.listDivider, { backgroundColor: colors.border }]} />
+
+            {/* Row 2: Family & Caregivers */}
+            <TouchableOpacity
+              style={styles.settingListItem}
+              onPress={() => router.push('/(patient)/(tabs)/family/link')}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.listIconCircle, { backgroundColor: '#E0F2F1' }]}>
+                <Ionicons name="people" size={20} color="#00695C" />
+              </View>
+              <View style={styles.listTextCol}>
+                <Text style={[styles.listTitle, { color: colors.textPrimary }]}>Family & Caregivers</Text>
+                <Text style={[styles.listSubtitle, { color: colors.textSecondary }]}>
+                  Manage family members and access
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+            </TouchableOpacity>
+
+            <View style={[styles.listDivider, { backgroundColor: colors.border }]} />
+
+            {/* Row 3: Backup & Sync */}
+            <TouchableOpacity
+              style={styles.settingListItem}
+              onPress={() => toggleAccordion('backup')}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.listIconCircle, { backgroundColor: '#E8F5E9' }]}>
+                <Ionicons name="cloud-outline" size={20} color="#2E7D32" />
+              </View>
+              <View style={styles.listTextCol}>
+                <Text style={[styles.listTitle, { color: colors.textPrimary }]}>Backup & Sync</Text>
+                <Text style={[styles.listSubtitle, { color: colors.textSecondary }]}>
+                  Keep your data safe and in sync
+                </Text>
+              </View>
+              <Ionicons
+                name={expandedSection === 'backup' ? 'chevron-down' : 'chevron-forward'}
+                size={20}
+                color={colors.textSecondary}
+              />
+            </TouchableOpacity>
+
+            {/* Backup & Sync Sub-Panel */}
+            {expandedSection === 'backup' && (
+              <View style={[styles.expandedPanel, { backgroundColor: colors.surfaceSecondary, borderTopColor: colors.border }]}>
+                <Text style={[styles.subpanelHeader, { color: colors.textPrimary }]}>Local Database Status</Text>
+                <Text style={[styles.subpanelDesc, { color: colors.textSecondary }]}>
+                  DoseSaathi stores your medicines, reminders, and history completely offline on your phone's encrypted SQLite database.
+                </Text>
+                {diagnostics && (
+                  <View style={[styles.diagContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <View style={styles.diagRow}>
+                      <Text style={[styles.diagKey, { color: colors.textSecondary }]}>Active scheduled doses:</Text>
+                      <Text style={[styles.diagVal, { color: colors.textPrimary }]}>{diagnostics.activeAlarmsCount}</Text>
+                    </View>
+                    <View style={styles.diagRow}>
+                      <Text style={[styles.diagKey, { color: colors.textSecondary }]}>Alarm engine:</Text>
+                      <Text style={[styles.diagVal, { color: colors.textPrimary }]}>
+                        {diagnostics.activeAlarmMode === 'FULL_SCREEN_INTENT' ? 'Screen wake & exact timer' : 'Exact alarm notification'}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              </View>
+            )}
+
+            <View style={[styles.listDivider, { backgroundColor: colors.border }]} />
+
+            {/* Row 4: Language */}
+            <TouchableOpacity
+              style={styles.settingListItem}
+              onPress={() => toggleAccordion('language')}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.listIconCircle, { backgroundColor: '#E0F7FA' }]}>
+                <Ionicons name="globe-outline" size={20} color="#00838F" />
+              </View>
+              <View style={styles.listTextCol}>
+                <Text style={[styles.listTitle, { color: colors.textPrimary }]}>Language</Text>
+                <Text style={[styles.listSubtitle, { color: colors.textSecondary }]}>
+                  English (India)
+                </Text>
+              </View>
+              <Ionicons
+                name={expandedSection === 'language' ? 'chevron-down' : 'chevron-forward'}
+                size={20}
+                color={colors.textSecondary}
+              />
+            </TouchableOpacity>
+
+            {expandedSection === 'language' && (
+              <View style={[styles.expandedPanel, { backgroundColor: colors.surfaceSecondary, borderTopColor: colors.border }]}>
+                <Text style={[styles.subpanelDesc, { color: colors.textSecondary }]}>
+                  Currently set to English (India). Multi-language support (Hindi, Bengali, Marathi, Tamil, Telugu) is coming soon in the next release!
+                </Text>
+              </View>
+            )}
+
+            <View style={[styles.listDivider, { backgroundColor: colors.border }]} />
+
+            {/* Row 5: Accessibility */}
+            <TouchableOpacity
+              style={styles.settingListItem}
+              onPress={() => toggleAccordion('accessibility')}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.listIconCircle, { backgroundColor: '#E8F5E9' }]}>
+                <Ionicons name="accessibility-outline" size={20} color="#1B5E20" />
+              </View>
+              <View style={styles.listTextCol}>
+                <Text style={[styles.listTitle, { color: colors.textPrimary }]}>Accessibility</Text>
+                <Text style={[styles.listSubtitle, { color: colors.textSecondary }]}>
+                  Larger text, high contrast and more
+                </Text>
+              </View>
+              <Ionicons
+                name={expandedSection === 'accessibility' ? 'chevron-down' : 'chevron-forward'}
+                size={20}
+                color={colors.textSecondary}
+              />
+            </TouchableOpacity>
+
+            {expandedSection === 'accessibility' && (
+              <View style={[styles.expandedPanel, { backgroundColor: colors.surfaceSecondary, borderTopColor: colors.border }]}>
+                <Text style={[styles.subpanelDesc, { color: colors.textSecondary }]}>
+                  DoseSaathi automatically adapts to your device's Dynamic Type and system font scaling, ensuring all headings and instructions remain comfortably legible for elderly family members.
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {/* ========================================================
+              3. USER PROFILE (YOUR NAME)
+          ======================================================== */}
+          <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={styles.sectionHeaderRow}>
+              <View style={[styles.iconCircleBadge, { backgroundColor: colors.primaryLight }]}>
+                <Ionicons name="person-circle-outline" size={20} color={colors.primary} />
+              </View>
+              <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Your Profile</Text>
+            </View>
+            <Text style={[styles.modeDesc, { color: colors.textSecondary }]}>
+              Customize your name for personalized greetings on the home dashboard.
+            </Text>
+            <View style={{ marginTop: Spacing.sm }}>
+              <FormField
+                label="Your name (optional)"
+                placeholder="e.g. Shibu"
+                value={userName}
+                onChangeText={setUserName}
+                onBlur={() => handleSaveName(userName)}
+                onSubmitEditing={() => handleSaveName(userName)}
+                returnKeyType="done"
+              />
+            </View>
+          </View>
+
+          {/* ========================================================
+              4. USER MODE SWITCHER
+          ======================================================== */}
+          <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={styles.sectionHeaderRow}>
+              <View style={[styles.iconCircleBadge, { backgroundColor: colors.primaryLight }]}>
+                <Ionicons name="person-outline" size={18} color={colors.primary} />
+              </View>
+              <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Who is using this phone?</Text>
+            </View>
+            <Text style={[styles.modeDesc, { color: colors.textSecondary }]}>
+              Current user:{' '}
+              <Text style={{ fontWeight: '700', color: colors.primaryDark }}>
+                {mode === 'personal'
+                  ? 'Myself (tracking my own medicines)'
+                  : 'Family caregiver (managing for loved ones)'}
+              </Text>
+            </Text>
+            <TouchableOpacity
+              style={[styles.switchUserButton, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
+              onPress={toggleMode}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="swap-horizontal" size={18} color={colors.primary} />
+              <Text style={[styles.switchUserText, { color: colors.primary }]}>
+                {mode === 'personal'
+                  ? 'Switch to family caregiver mode'
+                  : 'Switch to tracking my own medicines'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* ========================================================
+              4. DATA & PRIVACY CARD
+          ======================================================== */}
+          <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={styles.sectionHeaderRow}>
+              <View style={[styles.iconCircleBadge, { backgroundColor: colors.primaryLight }]}>
+                <Ionicons name="shield-checkmark-outline" size={18} color={colors.primary} />
+              </View>
+              <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Your Data & Privacy</Text>
+            </View>
+            <Text style={[styles.privacyDesc, { color: colors.textSecondary }]}>
+              🔒 Your medicine names, schedules, and dose records are stored safely on this phone. No medical data is shared over the internet unless you choose to connect with a family caregiver.
+            </Text>
+
+            <View style={[styles.appVersionRow, { borderTopColor: colors.border }]}>
+              <Text style={[styles.appVersionLabel, { color: colors.textSecondary }]}>App version</Text>
+              <Text style={[styles.appVersionVal, { color: colors.textPrimary }]}>
+                {Constants.expoConfig?.version ?? '1.0.3'}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.actionRowBtn, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
+              onPress={() => router.push('/welcome')}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="sparkles-outline" size={18} color={colors.primary} />
+              <Text style={[styles.actionRowText, { color: colors.primary }]}>
+                Take the app welcome tour again
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.deleteButton, { backgroundColor: '#FDF2F0', borderColor: '#F5C6CB' }]}
+              onPress={handleResetDatabase}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="trash-outline" size={18} color={colors.error} />
+              <Text style={[styles.deleteButtonText, { color: colors.error }]}>
+                Delete all medicines on this phone
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
-    </AppScreen>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: Spacing.huge,
+  },
+  topHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.md,
+    gap: Spacing.md,
+  },
+  backCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    marginTop: 2,
+  },
+  headerTextGroup: {
+    flex: 1,
+  },
+  screenTitle: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(23),
+    letterSpacing: -0.3,
+  },
+  screenSubtitle: {
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(13.5),
+    lineHeight: scaleFont(19),
+    marginTop: 2,
+  },
   card: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1,
     borderRadius: Radii.card,
-    padding: Spacing.xl,
+    padding: Spacing.lg,
     marginBottom: Spacing.lg,
   },
-  cardTitle: {
-    ...Typography.labelMedium,
-    color: Colors.ink,
-    fontWeight: '700',
-    marginBottom: Spacing.xs,
-  },
-  cardDesc: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
-    lineHeight: 18,
-    marginBottom: Spacing.sm,
-  },
-  boldText: {
-    fontWeight: '700',
-    color: Colors.brand,
-  },
-  switchModeBtn: {
-    marginTop: Spacing.xs,
-  },
-  settingRow: {
+  sectionHeaderRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: Spacing.xs,
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
   },
-  settingTextContainer: {
+  iconCircleBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardTitle: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(16.5),
+  },
+  modeSegmentContainer: {
+    flexDirection: 'row',
+    borderRadius: Radii.full,
+    padding: 4,
+    marginBottom: Spacing.md,
+  },
+  modeSegmentItem: {
     flex: 1,
-    marginRight: Spacing.md,
-  },
-  settingLabel: {
-    ...Typography.bodyMedium,
-    color: Colors.ink,
-    fontWeight: '600',
-  },
-  settingSubtext: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: Colors.outline,
-    marginVertical: Spacing.md,
-  },
-  grantedPill: {
-    flexShrink: 0,
-    backgroundColor: '#E4F1EC',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
+    height: 38,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: Radii.full,
   },
-  grantedText: {
-    ...Typography.labelSmall,
-    color: Colors.brand,
-    fontWeight: '700',
+  modeSegmentActive: {
+    borderWidth: 1,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
   },
-  warningPill: {
-    backgroundColor: '#FBF0DF',
+  modeSegmentText: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(13),
   },
-  warningPillText: {
-    ...Typography.labelSmall,
-    color: Colors.warning,
-    fontWeight: '700',
+  themeCardsStack: {
+    gap: Spacing.sm,
   },
-  diagRow: {
+  themeCardItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: Radii.md,
+    padding: Spacing.sm + 2,
     gap: Spacing.md,
-    paddingVertical: Spacing.xs,
   },
-  diagLabel: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
-    flexShrink: 0,
-    maxWidth: '55%',
-  },
-  diagValue: {
-    ...Typography.bodySmall,
-    color: Colors.ink,
-    fontWeight: '600',
+  themeInfoCol: {
     flex: 1,
-    flexShrink: 1,
-    textAlign: 'right',
+  },
+  themeItemTitle: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(15),
+  },
+  themeItemSubtitle: {
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(12.5),
+    marginTop: 2,
+  },
+  themeRadioCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md + 2,
+    gap: Spacing.md,
+  },
+  listIconCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  listTextCol: {
+    flex: 1,
+  },
+  listTitle: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(15.5),
+  },
+  listSubtitle: {
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(13),
+    marginTop: 2,
+  },
+  listDivider: {
+    height: 1,
+    marginLeft: Spacing.lg + 38 + Spacing.md,
+  },
+  expandedPanel: {
+    borderTopWidth: 1,
+    padding: Spacing.lg,
+  },
+  subpanelHeader: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(14.5),
+    marginBottom: 4,
+  },
+  subpanelDesc: {
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(13),
+    lineHeight: scaleFont(18),
+    marginBottom: Spacing.md,
   },
   voiceRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    marginTop: Spacing.sm,
+    marginBottom: Spacing.sm,
   },
   voiceOption: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 52,
-    paddingHorizontal: Spacing.md,
+    gap: Spacing.sm,
+    borderWidth: 1,
     borderRadius: Radii.md,
-    borderWidth: 1.5,
-    borderColor: Colors.outline,
-    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
   },
-  voiceOptionSelected: {
-    borderColor: Colors.brand,
-    backgroundColor: Colors.brandSoft,
+  voiceTextCol: {
+    flex: 1,
   },
-  voiceOptionText: {
-    ...Typography.labelMedium,
-    color: Colors.ink,
-    marginLeft: Spacing.sm,
-    flexShrink: 1,
+  voiceTitle: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(14),
+  },
+  voiceSubtitle: {
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(12),
   },
   voicePlayBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 52,
-    minWidth: 96,
-    paddingHorizontal: Spacing.md,
+    gap: 4,
+    borderWidth: 1,
     borderRadius: Radii.md,
-    backgroundColor: Colors.brandSoft,
+    paddingHorizontal: Spacing.md,
+    height: 48,
   },
-  fixPermissionBtn: {
+  voicePlayText: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(13),
+  },
+  subpanelSwitchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    minHeight: 48,
-    backgroundColor: Colors.brandSoft,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    borderRadius: Radii.sm,
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.sm + 2,
+    borderTopWidth: 1,
     marginTop: Spacing.xs,
   },
-  fixPermissionText: {
-    ...Typography.labelMedium,
-    color: Colors.brand,
-    fontWeight: '700',
-    flexShrink: 1,
+  switchLabel: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(14),
+  },
+  switchSubtext: {
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(12.5),
+    marginTop: 2,
+  },
+  testReminderBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderRadius: Radii.card,
+    height: 48,
+    gap: Spacing.xs,
+    marginTop: Spacing.md,
+  },
+  testReminderText: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(14),
+  },
+  diagContainer: {
+    borderWidth: 1,
+    borderRadius: Radii.md,
+    padding: Spacing.md,
+    marginTop: Spacing.xs,
+  },
+  diagRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 3,
+  },
+  diagKey: {
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(13),
+  },
+  diagVal: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(13),
+  },
+  modeDesc: {
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(13.5),
+    lineHeight: scaleFont(19),
+    marginBottom: Spacing.md,
+  },
+  switchUserButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderRadius: Radii.card,
+    height: 50,
+    gap: Spacing.xs,
+  },
+  switchUserText: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(14.5),
+  },
+  privacyDesc: {
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(13.5),
+    lineHeight: scaleFont(19),
+    marginBottom: Spacing.md,
+  },
+  appVersionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.sm,
+    borderTopWidth: 1,
+    marginBottom: Spacing.sm,
+  },
+  appVersionLabel: {
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(13.5),
+  },
+  appVersionVal: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(13.5),
+  },
+  actionRowBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderRadius: Radii.card,
+    height: 48,
+    gap: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+  actionRowText: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(14),
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderRadius: Radii.card,
+    height: 48,
+    gap: Spacing.xs,
+  },
+  deleteButtonText: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(14),
   },
 });

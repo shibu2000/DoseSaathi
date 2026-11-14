@@ -35,6 +35,8 @@ export interface CaregiverRelationshipContext {
 
 export type CaregiverUser = CaregiverSession['caregiver'];
 
+export type AppThemeMode = 'nature' | 'ocean' | 'sunset' | 'lavender' | 'classic' | 'glassmorphism';
+
 export interface AppState {
   isReady: boolean;
   db: AppDatabase | null;
@@ -71,6 +73,9 @@ export interface AppState {
   todayOccurrences: OccurrenceWithMedication[];
   notificationPermission: 'granted' | 'denied' | 'prompt';
   exactAlarmPermission: 'granted' | 'denied' | 'prompt';
+  themeMode: AppThemeMode;
+  setThemeMode: (mode: AppThemeMode) => Promise<void>;
+  setPatientName: (name: string) => Promise<void>;
   setMode: (mode: AppMode) => void;
   setOnboarded: (onboarded: boolean) => void;
   setSelectedRelationship: (rel: CaregiverRelationshipContext | null) => void;
@@ -94,6 +99,7 @@ export interface AppState {
   getDraft: () => Promise<WizardDraft | null>;
   clearDraft: () => Promise<void>;
   createMedicationFromDraft: (draft: WizardDraft) => Promise<{ medication: Medication; schedule: Schedule }>;
+  deleteMedication: (medicationId: string) => Promise<void>;
   refreshPermissions: () => Promise<{ notifications: string; exactAlarms: string }>;
   requestNotificationPermission: () => Promise<string>;
   requestExactAlarmPermission: () => Promise<string>;
@@ -140,6 +146,35 @@ export function AppProvider({
   const [todayOccurrences, setTodayOccurrences] = useState<OccurrenceWithMedication[]>([]);
   const [notificationPermission, setNotificationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [exactAlarmPermission, setExactAlarmPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
+  const [themeMode, setThemeModeState] = useState<AppThemeMode>('nature');
+
+  const setThemeMode = useCallback(async (newMode: AppThemeMode) => {
+    setThemeModeState(newMode);
+    if (db) {
+      await db.settings.set('app_theme', newMode);
+    }
+    if (MedchainAlarm) {
+      MedchainAlarm.updateWidgetData({
+        hasUpcoming: false,
+        theme: newMode === 'glassmorphism' ? 'glassmorphism' : 'classic',
+      }).catch(() => {});
+      MedchainAlarm.setAppIcon(newMode).catch(() => {});
+    }
+  }, [db]);
+
+  const updatePatientName = useCallback(
+    async (name: string) => {
+      const trimmed = name.trim();
+      setPatientName(trimmed || 'Me');
+      if (db) {
+        const primary = await db.profiles.getPrimary();
+        if (primary) {
+          await db.profiles.update({ id: primary.id, displayName: trimmed || 'Me' });
+        }
+      }
+    },
+    [db]
+  );
 
   const refreshPermissions = useCallback(async () => {
     try {
@@ -340,11 +375,12 @@ export function AppProvider({
         triggerAtMillis: triggerTime,
         occurrenceId: nextOcc.id,
         state: nextOcc.snoozedUntil ? 'SNOOZED' : 'UPCOMING',
+        theme: themeMode,
       }).catch(() => {});
     } else {
-      MedchainAlarm.updateWidgetData({ hasUpcoming: false }).catch(() => {});
+      MedchainAlarm.updateWidgetData({ hasUpcoming: false, theme: themeMode }).catch(() => {});
     }
-  }, [todayOccurrences]);
+  }, [todayOccurrences, themeMode]);
 
   // Initial SQLite Setup & Seed
   useEffect(() => {
@@ -371,6 +407,12 @@ export function AppProvider({
 
         const savedOnboarded = await activeDb.settings.getBoolean('is_onboarded', false);
         if (!isCancelled) setOnboardedState(savedOnboarded);
+
+        const savedTheme = (await activeDb.settings.get('app_theme')) as AppThemeMode | null;
+        if (savedTheme && !isCancelled) {
+          setThemeModeState(savedTheme);
+          MedchainAlarm?.setAppIcon(savedTheme).catch(() => {});
+        }
 
         // Query initial data
         const [meds, scheds] = await Promise.all([
@@ -670,6 +712,20 @@ export function AppProvider({
     [db, afterPlanChange]
   );
 
+  const deleteMedication = useCallback(
+    async (medicationId: string) => {
+      if (!db) throw new Error('Database not initialized');
+      await db.connection.withTransaction(async () => {
+        await db.medications.delete(medicationId);
+        await db.schedules.deleteByMedicationId(medicationId);
+        await db.dependencies.deleteByChild(medicationId);
+        await db.occurrences.deleteOpenForMedicationAll(medicationId);
+      });
+      await afterPlanChange();
+    },
+    [db, afterPlanChange]
+  );
+
   return (
     <AppContext.Provider
       value={{
@@ -703,6 +759,9 @@ export function AppProvider({
         todayOccurrences,
         notificationPermission,
         exactAlarmPermission,
+        themeMode,
+        setThemeMode,
+        setPatientName: updatePatientName,
         setMode,
         setOnboarded,
         setSelectedRelationship,
@@ -719,6 +778,7 @@ export function AppProvider({
         getDraft,
         clearDraft,
         createMedicationFromDraft,
+        deleteMedication,
         refreshPermissions,
         requestNotificationPermission,
         requestExactAlarmPermission,

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ScreenHeader } from '@/components/ScreenHeader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { FormField } from '@/components/FormField';
-import { PrimaryButton, SecondaryButton } from '@/components/Buttons';
-import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { Spacing, Radii, scaleFont, FontFamily } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { PatientContextBar } from '@/components/PatientContextBar';
 import { useWizardSession } from '@/caregiver/wizard-session';
@@ -14,6 +14,7 @@ import type { ScheduleType, RecurrenceType } from '@medchain/contracts';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { TimePickerModal } from '@/components/TimePickerModal';
 import { formatTime12h } from '@/utils/schedule-formatter';
+import { StepProgressBar } from '@/components/StepProgressBar';
 
 /** Accepts "8:00", "08:00", "8.30"; returns "HH:mm" or null. */
 function normalizeTime(raw: string): string | null {
@@ -36,8 +37,9 @@ const TIME_HINT = 'Use 24-hour time, like 08:00 or 20:30.';
 export default function Step2ReminderScheduleScreen() {
   const router = useRouter();
   const session = useWizardSession();
-  const { getDraft, saveDraft } = session;
-  const { medications } = useApp();
+  const { getDraft, saveDraft, clearDraft } = session;
+  const { medications, createMedicationFromDraft } = useApp();
+  const { colors, isDark } = useTheme();
 
   const [activeDraft, setActiveDraft] = useState<WizardDraft>(DEFAULT_WIZARD_DRAFT);
   const [scheduleType, setScheduleType] = useState<ScheduleType>('FIXED_TIMES');
@@ -55,6 +57,9 @@ export default function Step2ReminderScheduleScreen() {
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 4, 5, 6, 7]);
   const [error, setError] = useState('');
   const [timePickerTarget, setTimePickerTarget] = useState<'fixed1' | 'fixed2' | 'interval' | 'fallback' | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const isEditing = Boolean(activeDraft.editingMedicationId);
 
   const weekdays = [
     { num: 1, label: 'Mon' },
@@ -130,9 +135,10 @@ export default function Step2ReminderScheduleScreen() {
     };
   };
 
-  const handleContinue = async () => {
+  const validateSchedule = (): boolean => {
     const fail = (msg: string) => {
       setError(msg);
+      return false;
     };
     if (scheduleType === 'FIXED_TIMES') {
       if (!fixedTime1.trim()) return fail('Add at least one reminder time, like 08:00.');
@@ -155,7 +161,11 @@ export default function Step2ReminderScheduleScreen() {
       if (fallbackPolicy === 'USE_FALLBACK_TIME' && !normalizeTime(fallbackTime)) return fail(`The reminder time is not valid. ${TIME_HINT}`);
     }
     setError('');
+    return true;
+  };
 
+  const handleContinue = async () => {
+    if (!validateSchedule()) return;
     const updated = buildDraft();
     updated.currentStep = 3;
     try {
@@ -165,6 +175,44 @@ export default function Step2ReminderScheduleScreen() {
       return;
     }
     router.push(session.route('/medicine/new/treatment') as any);
+  };
+
+  const handleQuickSave = async () => {
+    if (!validateSchedule()) return;
+    const updated = buildDraft();
+
+    if (session.isCaregiver) {
+      try {
+        await saveDraft(updated);
+        router.push(session.route('/medicine/new/review') as any);
+      } catch {
+        setError("Couldn't save changes. Please try again.");
+      }
+      return;
+    }
+
+    try {
+      setIsUpdating(true);
+      await createMedicationFromDraft(updated);
+      await clearDraft();
+      router.replace('/(patient)/(tabs)/medicines');
+    } catch {
+      setError("Couldn't update this medicine. Please try again.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleJumpToStep = async (stepRoute: string, stepNum: number) => {
+    if (!validateSchedule()) return;
+    const updated = buildDraft();
+    updated.currentStep = stepNum;
+    try {
+      await saveDraft(updated);
+      router.push(session.route(stepRoute) as any);
+    } catch {
+      setError("Couldn't save step. Please try again.");
+    }
   };
 
   const handleBack = async () => {
@@ -183,7 +231,19 @@ export default function Step2ReminderScheduleScreen() {
     if (!session.access.canEdit) {
       return (
         <FormScreen>
-          <ScreenHeader title="Reminder schedule" showBack={true} />
+          <View style={styles.topHeader}>
+            <TouchableOpacity
+              style={[styles.backCircle, { backgroundColor: colors.surface, borderColor: colors.border }]}
+              onPress={() => router.back()}
+              accessibilityRole="button"
+              accessibilityLabel="Back"
+            >
+              <Ionicons name="arrow-back" size={20} color={colors.textPrimary} />
+            </TouchableOpacity>
+            <Text style={[styles.screenTitle, { color: colors.textPrimary }]}>
+              Reminder schedule
+            </Text>
+          </View>
           <Notice icon="eye-outline" title="View only">
             You do not have permission to change {session.access.relationship.patientDisplayName}'s medicines.
           </Notice>
@@ -193,372 +253,632 @@ export default function Step2ReminderScheduleScreen() {
   }
 
   return (
-    <FormScreen>
-      <ScreenHeader
-        title="Reminder schedule"
-        subtitle="Step 2 of 4: reminder times and repeat"
-        showBack={true}
-      />
-
-      {session.isCaregiver && session.access.state === 'ready' && (
-        <PatientContextBar
-          patientName={session.access.relationship.patientDisplayName}
-          relationshipLabel={session.access.relationship.relationshipLabel}
-        />
-      )}
-
-      <View style={styles.formCard}>
-        {/* Schedule Type Selection */}
-        <Text style={styles.sectionLabel}>How often?</Text>
-        <View style={styles.tabRow}>
+    <SafeAreaView style={[styles.safeContainer, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Top Header matching reference Phone 2 */}
+        <View style={styles.topHeader}>
           <TouchableOpacity
-            style={[styles.tabButton, scheduleType === 'FIXED_TIMES' && styles.activeTab]}
-            onPress={() => setScheduleType('FIXED_TIMES')}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: scheduleType === 'FIXED_TIMES' }}
+            style={[styles.backCircle, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            onPress={handleBack}
+            accessibilityRole="button"
+            accessibilityLabel="Back"
           >
-            <Text style={[styles.tabText, scheduleType === 'FIXED_TIMES' && styles.activeTabText]}>
-              Fixed times
-            </Text>
+            <Ionicons name="arrow-back" size={20} color={colors.textPrimary} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tabButton, scheduleType === 'INTERVAL' && styles.activeTab]}
-            onPress={() => setScheduleType('INTERVAL')}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: scheduleType === 'INTERVAL' }}
-          >
-            <Text style={[styles.tabText, scheduleType === 'INTERVAL' && styles.activeTabText]}>
-              Interval
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tabButton, scheduleType === 'SAME_DAY_DEPENDENT' && styles.activeTab]}
-            onPress={() => setScheduleType('SAME_DAY_DEPENDENT')}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: scheduleType === 'SAME_DAY_DEPENDENT' }}
-          >
-            <Text style={[styles.tabText, scheduleType === 'SAME_DAY_DEPENDENT' && styles.activeTabText]}>
-              After another
-            </Text>
-          </TouchableOpacity>
+          <Text style={[styles.screenTitle, { color: colors.textPrimary }]}>
+            {isEditing ? 'Edit Schedule' : 'Add Medicine'}
+          </Text>
         </View>
 
-        {scheduleType === 'FIXED_TIMES' && (
-          <View style={styles.optionsBlock}>
-            <Text style={styles.sectionLabel}>Recurrence</Text>
-            <View style={styles.pillRow}>
-              <TouchableOpacity
-                style={[styles.pill, recurrenceType === 'DAILY' && styles.activePill]}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: recurrenceType === 'DAILY' }}
-                onPress={() => setRecurrenceType('DAILY')}
-              >
-                <Text style={[styles.pillText, recurrenceType === 'DAILY' && styles.activePillText]}>
-                  Every day
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.pill, recurrenceType === 'SPECIFIC_DAYS' && styles.activePill]}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: recurrenceType === 'SPECIFIC_DAYS' }}
-                onPress={() => setRecurrenceType('SPECIFIC_DAYS')}
-              >
-                <Text style={[styles.pillText, recurrenceType === 'SPECIFIC_DAYS' && styles.activePillText]}>
-                  Selected days
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.pill, recurrenceType === 'CYCLE' && styles.activePill]}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: recurrenceType === 'CYCLE' }}
-                onPress={() => setRecurrenceType('CYCLE')}
-              >
-                <Text style={[styles.pillText, recurrenceType === 'CYCLE' && styles.activePillText]}>
-                  On/off cycle
-                </Text>
-              </TouchableOpacity>
-            </View>
+        {/* Step Progress Bar */}
+        <StepProgressBar currentStep={2} totalSteps={4} stepName="Reminder schedule" />
 
-            {recurrenceType === 'SPECIFIC_DAYS' && (
-              <View style={styles.weekdaysRow}>
-                {weekdays.map((d) => {
-                  const isSel = selectedDays.includes(d.num);
-                  return (
-                    <TouchableOpacity
-                      key={d.num}
-                      style={[styles.dayCircle, isSel && styles.activeDayCircle]}
-                      onPress={() => toggleDay(d.num)}
-                      accessibilityRole="checkbox"
-                      accessibilityState={{ checked: isSel }}
-                    >
-                      <Text style={[styles.dayText, isSel && styles.activeDayText]}>
-                        {d.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            )}
+        {session.isCaregiver && session.access.state === 'ready' && (
+          <View style={{ paddingHorizontal: Spacing.xl, marginBottom: Spacing.sm }}>
+            <PatientContextBar
+              patientName={session.access.relationship.patientDisplayName}
+              relationshipLabel={session.access.relationship.relationshipLabel}
+            />
+          </View>
+        )}
 
-            {recurrenceType === 'CYCLE' && (
-              <View style={styles.row}>
-                <View style={styles.halfCol}>
-                  <FormField
-                    label="Days on"
-                    keyboardType="numeric"
-                    value={cycleDaysOn}
-                    onChangeText={setCycleDaysOn}
-                  />
-                </View>
-                <View style={styles.halfCol}>
-                  <FormField
-                    label="Days off"
-                    keyboardType="numeric"
-                    value={cycleDaysOff}
-                    onChangeText={setCycleDaysOff}
-                  />
-                </View>
-              </View>
-            )}
+        {isEditing && (
+          <View style={[styles.stepTabsRow, { backgroundColor: colors.surfaceSecondary, marginHorizontal: Spacing.xl }]}>
+            <TouchableOpacity
+              style={styles.stepTab}
+              onPress={() => handleJumpToStep('/medicine/new/details', 1)}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.stepTabText, { color: colors.textSecondary }]}>1. Details</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.stepTab, { backgroundColor: colors.primary }]} activeOpacity={0.8}>
+              <Text style={[styles.stepTabTextActive, { color: colors.surface }]}>2. Schedule</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.stepTab}
+              onPress={() => handleJumpToStep('/medicine/new/treatment', 3)}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.stepTabText, { color: colors.textSecondary }]}>3. Duration</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.stepTab}
+              onPress={() => handleJumpToStep('/medicine/new/review', 4)}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.stepTabText, { color: colors.textSecondary }]}>4. Review</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-            {/* First time field */}
-            <View style={styles.timeStackBlock}>
-              <Text style={styles.fieldLabel}>First dose time (required)</Text>
-              <TouchableOpacity
-                style={styles.timeSelectTriggerStacked}
-                onPress={() => setTimePickerTarget('fixed1')}
-                activeOpacity={0.8}
-                accessibilityRole="button"
-                accessibilityLabel={`Select first time, currently ${formatTime12h(fixedTime1)}`}
-              >
-                <View style={styles.timeSelectInner}>
-                  <MaterialIcons name="schedule" size={22} color={Colors.primary} />
-                  <Text style={styles.timeSelectValueStacked}>
-                    {formatTime12h(fixedTime1) || '08:00 AM'}
-                  </Text>
-                </View>
-                <View style={styles.timeSelectAction}>
-                  <Text style={styles.timeSelectActionText}>Change</Text>
-                  <Ionicons name="chevron-down" size={16} color={Colors.primary} />
-                </View>
-              </TouchableOpacity>
-            </View>
-
-            {/* Second time field */}
-            <View style={styles.timeStackBlock}>
-              <View style={styles.timeStackHeader}>
-                <Text style={styles.fieldLabel}>Second dose time (optional)</Text>
-                {fixedTime2 ? (
-                  <TouchableOpacity
-                    onPress={() => setFixedTime2('')}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    accessibilityRole="button"
-                    accessibilityLabel="Remove second dose time"
-                  >
-                    <Text style={styles.removeSecondTimeText}>Remove (once daily only)</Text>
-                  </TouchableOpacity>
-                ) : null}
-              </View>
-
+        <View style={{ paddingHorizontal: Spacing.xl }}>
+          {/* Main Card */}
+          <View
+            style={[
+              styles.formCard,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            {/* Schedule Type Selection */}
+            <Text style={[styles.sectionLabel, { color: colors.textPrimary }]}>How often?</Text>
+            <View style={[styles.tabRow, { backgroundColor: colors.surfaceSecondary }]}>
               <TouchableOpacity
                 style={[
-                  styles.timeSelectTriggerStacked,
-                  !fixedTime2 && styles.timeSelectTriggerEmpty,
+                  styles.tabButton,
+                  scheduleType === 'FIXED_TIMES' && [
+                    styles.activeTab,
+                    { backgroundColor: colors.surface, borderColor: colors.border },
+                  ],
                 ]}
-                onPress={() => setTimePickerTarget('fixed2')}
-                activeOpacity={0.8}
-                accessibilityRole="button"
-                accessibilityLabel={
-                  fixedTime2
-                    ? `Select second time, currently ${formatTime12h(fixedTime2)}`
-                    : 'Add second dose time'
-                }
+                onPress={() => setScheduleType('FIXED_TIMES')}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: scheduleType === 'FIXED_TIMES' }}
               >
-                <View style={styles.timeSelectInner}>
-                  <MaterialIcons
-                    name={fixedTime2 ? 'schedule' : 'add-circle-outline'}
-                    size={22}
-                    color={fixedTime2 ? Colors.primary : Colors.inkMuted}
-                  />
-                  <Text
+                <Text
+                  style={[
+                    styles.tabText,
+                    { color: scheduleType === 'FIXED_TIMES' ? colors.primary : colors.textSecondary },
+                  ]}
+                >
+                  Fixed times
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.tabButton,
+                  scheduleType === 'INTERVAL' && [
+                    styles.activeTab,
+                    { backgroundColor: colors.surface, borderColor: colors.border },
+                  ],
+                ]}
+                onPress={() => setScheduleType('INTERVAL')}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: scheduleType === 'INTERVAL' }}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    { color: scheduleType === 'INTERVAL' ? colors.primary : colors.textSecondary },
+                  ]}
+                >
+                  Interval
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.tabButton,
+                  scheduleType === 'SAME_DAY_DEPENDENT' && [
+                    styles.activeTab,
+                    { backgroundColor: colors.surface, borderColor: colors.border },
+                  ],
+                ]}
+                onPress={() => setScheduleType('SAME_DAY_DEPENDENT')}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: scheduleType === 'SAME_DAY_DEPENDENT' }}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    { color: scheduleType === 'SAME_DAY_DEPENDENT' ? colors.primary : colors.textSecondary },
+                  ]}
+                >
+                  After another
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {scheduleType === 'FIXED_TIMES' && (
+              <View style={styles.optionsBlock}>
+                <Text style={[styles.sectionLabel, { color: colors.textPrimary }]}>Recurrence</Text>
+                <View style={styles.pillRow}>
+                  <TouchableOpacity
                     style={[
-                      styles.timeSelectValueStacked,
-                      !fixedTime2 && styles.timeSelectPlaceholderStacked,
+                      styles.pill,
+                      {
+                        backgroundColor: recurrenceType === 'DAILY' ? colors.primaryLight : colors.surface,
+                        borderColor: recurrenceType === 'DAILY' ? colors.primary : colors.border,
+                      },
                     ]}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: recurrenceType === 'DAILY' }}
+                    onPress={() => setRecurrenceType('DAILY')}
                   >
-                    {fixedTime2 ? formatTime12h(fixedTime2) : 'Tap to add a second dose time'}
-                  </Text>
+                    <Text
+                      style={[
+                        styles.pillText,
+                        {
+                          color: recurrenceType === 'DAILY' ? colors.primaryDark : colors.textPrimary,
+                          fontWeight: recurrenceType === 'DAILY' ? '700' : '500',
+                        },
+                      ]}
+                    >
+                      Every day
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.pill,
+                      {
+                        backgroundColor: recurrenceType === 'SPECIFIC_DAYS' ? colors.primaryLight : colors.surface,
+                        borderColor: recurrenceType === 'SPECIFIC_DAYS' ? colors.primary : colors.border,
+                      },
+                    ]}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: recurrenceType === 'SPECIFIC_DAYS' }}
+                    onPress={() => setRecurrenceType('SPECIFIC_DAYS')}
+                  >
+                    <Text
+                      style={[
+                        styles.pillText,
+                        {
+                          color: recurrenceType === 'SPECIFIC_DAYS' ? colors.primaryDark : colors.textPrimary,
+                          fontWeight: recurrenceType === 'SPECIFIC_DAYS' ? '700' : '500',
+                        },
+                      ]}
+                    >
+                      Selected days
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.pill,
+                      {
+                        backgroundColor: recurrenceType === 'CYCLE' ? colors.primaryLight : colors.surface,
+                        borderColor: recurrenceType === 'CYCLE' ? colors.primary : colors.border,
+                      },
+                    ]}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: recurrenceType === 'CYCLE' }}
+                    onPress={() => setRecurrenceType('CYCLE')}
+                  >
+                    <Text
+                      style={[
+                        styles.pillText,
+                        {
+                          color: recurrenceType === 'CYCLE' ? colors.primaryDark : colors.textPrimary,
+                          fontWeight: recurrenceType === 'CYCLE' ? '700' : '500',
+                        },
+                      ]}
+                    >
+                      On/off cycle
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-                <View style={styles.timeSelectAction}>
-                  <Text
-                    style={
+
+                {recurrenceType === 'SPECIFIC_DAYS' && (
+                  <View style={styles.weekdaysRow}>
+                    {weekdays.map((d) => {
+                      const isSel = selectedDays.includes(d.num);
+                      return (
+                        <TouchableOpacity
+                          key={d.num}
+                          style={[
+                            styles.dayCircle,
+                            {
+                              backgroundColor: isSel ? colors.primary : colors.surface,
+                              borderColor: isSel ? colors.primary : colors.border,
+                            },
+                          ]}
+                          onPress={() => toggleDay(d.num)}
+                          accessibilityRole="checkbox"
+                          accessibilityState={{ checked: isSel }}
+                        >
+                          <Text
+                            style={[
+                              styles.dayText,
+                              {
+                                color: isSel ? colors.surface : colors.textSecondary,
+                                fontWeight: isSel ? '700' : '500',
+                              },
+                            ]}
+                          >
+                            {d.label}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                )}
+
+                {recurrenceType === 'CYCLE' && (
+                  <View style={styles.row}>
+                    <View style={styles.halfCol}>
+                      <FormField
+                        label="Days on"
+                        keyboardType="numeric"
+                        value={cycleDaysOn}
+                        onChangeText={setCycleDaysOn}
+                      />
+                    </View>
+                    <View style={styles.halfCol}>
+                      <FormField
+                        label="Days off"
+                        keyboardType="numeric"
+                        value={cycleDaysOff}
+                        onChangeText={setCycleDaysOff}
+                      />
+                    </View>
+                  </View>
+                )}
+
+                {/* First time field */}
+                <View style={styles.timeStackBlock}>
+                  <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>First dose time (required)</Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.timeSelectTriggerStacked,
+                      {
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                    onPress={() => setTimePickerTarget('fixed1')}
+                    activeOpacity={0.8}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Select first time, currently ${formatTime12h(fixedTime1)}`}
+                  >
+                    <View style={styles.timeSelectInner}>
+                      <MaterialIcons name="schedule" size={22} color={colors.primary} />
+                      <Text style={[styles.timeSelectValueStacked, { color: colors.textPrimary }]}>
+                        {formatTime12h(fixedTime1) || '08:00 AM'}
+                      </Text>
+                    </View>
+                    <View style={styles.timeSelectAction}>
+                      <Text style={[styles.timeSelectActionText, { color: colors.primary }]}>Change</Text>
+                      <Ionicons name="chevron-down" size={16} color={colors.primary} />
+                    </View>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Second time field */}
+                <View style={styles.timeStackBlock}>
+                  <View style={styles.timeStackHeader}>
+                    <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Second dose time (optional)</Text>
+                    {fixedTime2 ? (
+                      <TouchableOpacity
+                        onPress={() => setFixedTime2('')}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        accessibilityRole="button"
+                        accessibilityLabel="Remove second dose time"
+                      >
+                        <Text style={[styles.removeSecondTimeText, { color: colors.textSecondary }]}>Remove (once daily only)</Text>
+                      </TouchableOpacity>
+                    ) : null}
+                  </View>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.timeSelectTriggerStacked,
+                      {
+                        backgroundColor: fixedTime2 ? colors.surface : colors.surfaceSecondary,
+                        borderColor: colors.border,
+                        borderStyle: fixedTime2 ? 'solid' : 'dashed',
+                      },
+                    ]}
+                    onPress={() => setTimePickerTarget('fixed2')}
+                    activeOpacity={0.8}
+                    accessibilityRole="button"
+                    accessibilityLabel={
                       fixedTime2
-                        ? styles.timeSelectActionText
-                        : styles.timeSelectAddText
+                        ? `Select second time, currently ${formatTime12h(fixedTime2)}`
+                        : 'Add second dose time'
                     }
                   >
-                    {fixedTime2 ? 'Change' : '+ Add'}
-                  </Text>
-                  <Ionicons
-                    name="chevron-down"
-                    size={16}
-                    color={fixedTime2 ? Colors.primary : Colors.inkMuted}
+                    <View style={styles.timeSelectInner}>
+                      <MaterialIcons
+                        name={fixedTime2 ? 'schedule' : 'add-circle-outline'}
+                        size={22}
+                        color={fixedTime2 ? colors.primary : colors.textSecondary}
+                      />
+                      <Text
+                        style={[
+                          styles.timeSelectValueStacked,
+                          {
+                            color: fixedTime2 ? colors.textPrimary : colors.textSecondary,
+                            fontWeight: fixedTime2 ? '700' : '500',
+                            fontSize: fixedTime2 ? scaleFont(16) : scaleFont(14.5),
+                          },
+                        ]}
+                      >
+                        {fixedTime2 ? formatTime12h(fixedTime2) : 'Tap to add a second dose time'}
+                      </Text>
+                    </View>
+                    <View style={styles.timeSelectAction}>
+                      <Text
+                        style={[
+                          styles.timeSelectActionText,
+                          { color: fixedTime2 ? colors.primary : colors.textSecondary },
+                        ]}
+                      >
+                        {fixedTime2 ? 'Change' : '+ Add'}
+                      </Text>
+                      <Ionicons
+                        name="chevron-down"
+                        size={16}
+                        color={fixedTime2 ? colors.primary : colors.textSecondary}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {scheduleType === 'INTERVAL' && (
+              <View style={styles.optionsBlock}>
+                <View style={styles.timeStackBlock}>
+                  <FormField
+                    label="Hours between doses"
+                    placeholder="6"
+                    keyboardType="numeric"
+                    value={intervalHours}
+                    onChangeText={setIntervalHours}
                   />
                 </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
-        {scheduleType === 'INTERVAL' && (
-          <View style={styles.optionsBlock}>
-            <View style={styles.timeStackBlock}>
-              <FormField
-                label="Hours between doses"
-                placeholder="6"
-                keyboardType="numeric"
-                value={intervalHours}
-                onChangeText={setIntervalHours}
-              />
-            </View>
-            <View style={styles.timeStackBlock}>
-              <Text style={styles.fieldLabel}>First dose time</Text>
-              <TouchableOpacity
-                style={styles.timeSelectTriggerStacked}
-                onPress={() => setTimePickerTarget('interval')}
-                activeOpacity={0.8}
-                accessibilityRole="button"
-                accessibilityLabel={`Select first interval dose time, currently ${formatTime12h(intervalFirstTime)}`}
-              >
-                <View style={styles.timeSelectInner}>
-                  <MaterialIcons name="schedule" size={22} color={Colors.primary} />
-                  <Text style={styles.timeSelectValueStacked}>
-                    {formatTime12h(intervalFirstTime) || '08:00 AM'}
-                  </Text>
-                </View>
-                <View style={styles.timeSelectAction}>
-                  <Text style={styles.timeSelectActionText}>Change</Text>
-                  <Ionicons name="chevron-down" size={16} color={Colors.primary} />
-                </View>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.helperText}>
-              Reminders every {intervalHours || 6} hours, starting at {intervalFirstTime || '08:00'}.
-            </Text>
-          </View>
-        )}
-
-        {scheduleType === 'SAME_DAY_DEPENDENT' && (
-          <View style={styles.optionsBlock}>
-            <Text style={styles.sectionLabel}>Take after which medicine?</Text>
-            {candidateParents.length === 0 ? (
-              <Text style={styles.warningText}>
-                {session.isCaregiver && session.planError
-                  ? session.planError
-                  : session.isCaregiver && session.planLoading
-                  ? 'Loading the current medicines…'
-                  : session.isCaregiver
-                  ? 'No other medicines on the plan yet. Add the first medicine, then link this one to it, or choose Fixed times.'
-                  : 'No other active medicines yet. Add that medicine first, or choose Fixed times.'}
-              </Text>
-            ) : (
-              <View style={styles.parentList}>
-                {candidateParents.map((p) => {
-                  const isSelected = parentMedId === p.id;
-                  return (
-                    <TouchableOpacity
-                      key={p.id}
-                      style={[styles.parentOption, isSelected && styles.selectedParentOption]}
-                      onPress={() => setParentMedId(p.id)}
-                      accessibilityRole="radio"
-                      accessibilityState={{ selected: isSelected }}
-                    >
-                      <Text style={[styles.parentName, isSelected && styles.selectedParentName]}>
-                        {p.name}
+                <View style={styles.timeStackBlock}>
+                  <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>First dose time</Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.timeSelectTriggerStacked,
+                      {
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                    onPress={() => setTimePickerTarget('interval')}
+                    activeOpacity={0.8}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Select first interval dose time, currently ${formatTime12h(intervalFirstTime)}`}
+                  >
+                    <View style={styles.timeSelectInner}>
+                      <MaterialIcons name="schedule" size={22} color={colors.primary} />
+                      <Text style={[styles.timeSelectValueStacked, { color: colors.textPrimary }]}>
+                        {formatTime12h(intervalFirstTime) || '08:00 AM'}
                       </Text>
-                      <Text style={styles.parentDesc}>{p.dosageText}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
+                    </View>
+                    <View style={styles.timeSelectAction}>
+                      <Text style={[styles.timeSelectActionText, { color: colors.primary }]}>Change</Text>
+                      <Ionicons name="chevron-down" size={16} color={colors.primary} />
+                    </View>
+                  </TouchableOpacity>
+                </View>
+                <Text style={[styles.helperText, { color: colors.textSecondary }]}>
+                  Reminders every {intervalHours || 6} hours, starting at {intervalFirstTime || '08:00'}.
+                </Text>
               </View>
             )}
 
-            <FormField
-              label="Minutes after that dose is taken"
-              placeholder="30"
-              keyboardType="numeric"
-              value={dependentDelay}
-              onChangeText={setDependentDelay}
-              helper="If that dose is snoozed, this reminder waits too."
-            />
-
-            <Text style={[styles.sectionLabel, { marginTop: Spacing.md }]}>
-              If that dose is skipped:
-            </Text>
-            <View style={styles.pillRow}>
-              <TouchableOpacity
-                style={[styles.pill, fallbackPolicy === 'SKIP_CHILD' && styles.activePill]}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: fallbackPolicy === 'SKIP_CHILD' }}
-                onPress={() => setFallbackPolicy('SKIP_CHILD')}
-              >
-                <Text style={[styles.pillText, fallbackPolicy === 'SKIP_CHILD' && styles.activePillText]}>
-                  Skip this medicine
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.pill, fallbackPolicy === 'USE_FALLBACK_TIME' && styles.activePill]}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: fallbackPolicy === 'USE_FALLBACK_TIME' }}
-                onPress={() => setFallbackPolicy('USE_FALLBACK_TIME')}
-              >
-                <Text style={[styles.pillText, fallbackPolicy === 'USE_FALLBACK_TIME' && styles.activePillText]}>
-                  Remind at a set time
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {fallbackPolicy === 'USE_FALLBACK_TIME' && (
-              <View style={styles.timeStackBlock}>
-                <Text style={styles.fieldLabel}>Fallback reminder time</Text>
-                <TouchableOpacity
-                  style={styles.timeSelectTriggerStacked}
-                  onPress={() => setTimePickerTarget('fallback')}
-                  activeOpacity={0.8}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Select fallback reminder time, currently ${formatTime12h(fallbackTime)}`}
-                >
-                  <View style={styles.timeSelectInner}>
-                    <MaterialIcons name="schedule" size={22} color={Colors.primary} />
-                    <Text style={styles.timeSelectValueStacked}>{formatTime12h(fallbackTime) || '12:00 PM'}</Text>
+            {scheduleType === 'SAME_DAY_DEPENDENT' && (
+              <View style={styles.optionsBlock}>
+                <Text style={[styles.sectionLabel, { color: colors.textPrimary }]}>Take after which medicine?</Text>
+                {candidateParents.length === 0 ? (
+                  <Text style={[styles.warningText, { color: colors.warning }]}>
+                    {session.isCaregiver && session.planError
+                      ? session.planError
+                      : session.isCaregiver && session.planLoading
+                      ? 'Loading the current medicines…'
+                      : session.isCaregiver
+                      ? 'No other medicines on the plan yet. Add the first medicine, then link this one to it, or choose Fixed times.'
+                      : 'No other active medicines yet. Add that medicine first, or choose Fixed times.'}
+                  </Text>
+                ) : (
+                  <View style={styles.parentList}>
+                    {candidateParents.map((p) => {
+                      const isSelected = parentMedId === p.id;
+                      return (
+                        <TouchableOpacity
+                          key={p.id}
+                          style={[
+                            styles.parentOption,
+                            {
+                              backgroundColor: isSelected ? colors.primaryLight : colors.surface,
+                              borderColor: isSelected ? colors.primary : colors.border,
+                            },
+                          ]}
+                          onPress={() => setParentMedId(p.id)}
+                          accessibilityRole="radio"
+                          accessibilityState={{ selected: isSelected }}
+                        >
+                          <Text
+                            style={[
+                              styles.parentName,
+                              {
+                                color: isSelected ? colors.primaryDark : colors.textPrimary,
+                                fontWeight: isSelected ? '700' : '600',
+                              },
+                            ]}
+                          >
+                            {p.name}
+                          </Text>
+                          <Text style={[styles.parentDesc, { color: colors.textSecondary }]}>{p.dosageText}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
                   </View>
-                  <View style={styles.timeSelectAction}>
-                    <Text style={styles.timeSelectActionText}>Change</Text>
-                    <Ionicons name="chevron-down" size={16} color={Colors.primary} />
+                )}
+
+                <FormField
+                  label="Minutes after that dose is taken"
+                  placeholder="30"
+                  keyboardType="numeric"
+                  value={dependentDelay}
+                  onChangeText={setDependentDelay}
+                  helper="If that dose is snoozed, this reminder waits too."
+                />
+
+                <Text style={[styles.sectionLabel, { marginTop: Spacing.md, color: colors.textPrimary }]}>
+                  If that dose is skipped:
+                </Text>
+                <View style={styles.pillRow}>
+                  <TouchableOpacity
+                    style={[
+                      styles.pill,
+                      {
+                        backgroundColor: fallbackPolicy === 'SKIP_CHILD' ? colors.primaryLight : colors.surface,
+                        borderColor: fallbackPolicy === 'SKIP_CHILD' ? colors.primary : colors.border,
+                      },
+                    ]}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: fallbackPolicy === 'SKIP_CHILD' }}
+                    onPress={() => setFallbackPolicy('SKIP_CHILD')}
+                  >
+                    <Text
+                      style={[
+                        styles.pillText,
+                        {
+                          color: fallbackPolicy === 'SKIP_CHILD' ? colors.primaryDark : colors.textPrimary,
+                          fontWeight: fallbackPolicy === 'SKIP_CHILD' ? '700' : '500',
+                        },
+                      ]}
+                    >
+                      Skip this medicine
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.pill,
+                      {
+                        backgroundColor: fallbackPolicy === 'USE_FALLBACK_TIME' ? colors.primaryLight : colors.surface,
+                        borderColor: fallbackPolicy === 'USE_FALLBACK_TIME' ? colors.primary : colors.border,
+                      },
+                    ]}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: fallbackPolicy === 'USE_FALLBACK_TIME' }}
+                    onPress={() => setFallbackPolicy('USE_FALLBACK_TIME')}
+                  >
+                    <Text
+                      style={[
+                        styles.pillText,
+                        {
+                          color: fallbackPolicy === 'USE_FALLBACK_TIME' ? colors.primaryDark : colors.textPrimary,
+                          fontWeight: fallbackPolicy === 'USE_FALLBACK_TIME' ? '700' : '500',
+                        },
+                      ]}
+                    >
+                      Remind at a set time
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {fallbackPolicy === 'USE_FALLBACK_TIME' && (
+                  <View style={styles.timeStackBlock}>
+                    <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Fallback reminder time</Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.timeSelectTriggerStacked,
+                        {
+                          backgroundColor: colors.surface,
+                          borderColor: colors.border,
+                        },
+                      ]}
+                      onPress={() => setTimePickerTarget('fallback')}
+                      activeOpacity={0.8}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Select fallback reminder time, currently ${formatTime12h(fallbackTime)}`}
+                    >
+                      <View style={styles.timeSelectInner}>
+                        <MaterialIcons name="schedule" size={22} color={colors.primary} />
+                        <Text style={[styles.timeSelectValueStacked, { color: colors.textPrimary }]}>
+                          {formatTime12h(fallbackTime) || '12:00 PM'}
+                        </Text>
+                      </View>
+                      <View style={styles.timeSelectAction}>
+                        <Text style={[styles.timeSelectActionText, { color: colors.primary }]}>Change</Text>
+                        <Ionicons name="chevron-down" size={16} color={colors.primary} />
+                      </View>
+                    </TouchableOpacity>
                   </View>
-                </TouchableOpacity>
+                )}
               </View>
             )}
           </View>
-        )}
-      </View>
 
-      {error ? (
-        <View style={styles.errorBox} accessibilityRole="alert" accessibilityLiveRegion="polite">
-          <Text style={styles.errorText}>{error}</Text>
+          {error ? (
+            <View style={[styles.errorBox, { borderColor: colors.error }]} accessibilityRole="alert" accessibilityLiveRegion="polite">
+              <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+            </View>
+          ) : null}
+
+          {/* Action Footer */}
+          <View style={styles.footer}>
+            {isEditing ? (
+              <>
+                <TouchableOpacity
+                  style={[styles.continueButton, { backgroundColor: colors.primary }]}
+                  onPress={handleQuickSave}
+                  disabled={isUpdating}
+                  activeOpacity={0.85}
+                >
+                  <Text style={[styles.continueButtonText, { color: colors.surface }]}>
+                    {isUpdating ? 'Saving schedule…' : 'Save & update schedule'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.secondaryActionBtn, { borderColor: colors.border, backgroundColor: colors.surface }]}
+                  onPress={handleContinue}
+                  disabled={isUpdating}
+                  activeOpacity={0.85}
+                >
+                  <Text style={[styles.secondaryActionText, { color: colors.textPrimary }]}>Next: Duration →</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.secondaryActionBtn, { borderColor: colors.border, backgroundColor: colors.surface }]}
+                  onPress={handleBack}
+                  disabled={isUpdating}
+                  activeOpacity={0.85}
+                >
+                  <Text style={[styles.secondaryActionText, { color: colors.textSecondary }]}>Back</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <TouchableOpacity
+                  style={[styles.continueButton, { backgroundColor: colors.primary }]}
+                  onPress={handleContinue}
+                  activeOpacity={0.85}
+                >
+                  <Text style={[styles.continueButtonText, { color: colors.surface }]}>
+                    Continue →
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.secondaryActionBtn, { borderColor: colors.border, backgroundColor: colors.surface }]}
+                  onPress={handleBack}
+                  activeOpacity={0.85}
+                >
+                  <Text style={[styles.secondaryActionText, { color: colors.textSecondary }]}>Back</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
         </View>
-      ) : null}
-
-      <View style={styles.footer}>
-        <PrimaryButton
-          title="Continue to Duration"
-          onPress={handleContinue}
-        />
-        <SecondaryButton
-          title="Back"
-          onPress={handleBack}
-        />
-      </View>
+      </ScrollView>
 
       {/* Interactive Time Picker Panel Modal */}
       <TimePickerModal
@@ -592,56 +912,98 @@ export default function Step2ReminderScheduleScreen() {
         onClear={timePickerTarget === 'fixed2' ? () => setFixedTime2('') : undefined}
         clearLabel="Clear (Once daily only)"
       />
-    </FormScreen>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: Spacing.huge,
+  },
+  topHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.xs,
+    gap: Spacing.md,
+  },
+  backCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  screenTitle: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(22),
+    letterSpacing: -0.3,
+  },
+  stepTabsRow: {
+    flexDirection: 'row',
+    borderRadius: Radii.md,
+    padding: 3,
+    marginBottom: Spacing.md,
+    gap: 4,
+  },
+  stepTab: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: Radii.sm,
+  },
+  stepTabText: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(11),
+  },
+  stepTabTextActive: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(11),
+  },
   formCard: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1,
     borderRadius: Radii.card,
     padding: Spacing.lg,
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
   },
   sectionLabel: {
-    ...Typography.labelMedium,
-    color: Colors.ink,
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(15),
     marginBottom: Spacing.sm,
   },
   tabRow: {
     flexDirection: 'row',
-    backgroundColor: Colors.surfaceMuted,
     borderRadius: Radii.full,
-    padding: Spacing.xs,
+    padding: 4,
     marginBottom: Spacing.lg,
   },
   tabButton: {
     flex: 1,
-    minHeight: 48,
+    minHeight: 44,
     justifyContent: 'center',
     paddingHorizontal: Spacing.xs,
-    paddingVertical: Spacing.sm,
     alignItems: 'center',
     borderRadius: Radii.full,
   },
   activeTab: {
-    backgroundColor: Colors.surface,
+    borderWidth: 1,
     elevation: 1,
-    shadowColor: Colors.ink,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.06,
     shadowRadius: 2,
   },
   tabText: {
-    ...Typography.labelMedium,
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(13.5),
     textAlign: 'center',
-    color: Colors.inkMuted,
-  },
-  activeTabText: {
-    color: Colors.brand,
-    fontWeight: '700',
   },
   optionsBlock: {
     marginTop: Spacing.xs,
@@ -653,26 +1015,16 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   pill: {
-    minHeight: 48,
+    minHeight: 44,
     justifyContent: 'center',
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    paddingVertical: Spacing.xs,
     borderRadius: Radii.full,
     borderWidth: 1,
-    borderColor: Colors.outline,
-    backgroundColor: Colors.surface,
-  },
-  activePill: {
-    backgroundColor: Colors.brandSoft,
-    borderColor: Colors.brand,
   },
   pillText: {
-    ...Typography.labelSmall,
-    color: Colors.ink,
-  },
-  activePillText: {
-    color: Colors.brand,
-    fontWeight: '700',
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(13.5),
   },
   weekdaysRow: {
     flexDirection: 'row',
@@ -681,26 +1033,16 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   dayCircle: {
-    minWidth: 56,
-    minHeight: 48,
-    paddingHorizontal: Spacing.sm,
-    borderRadius: Radii.full,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     borderWidth: 1,
-    borderColor: Colors.outline,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  activeDayCircle: {
-    backgroundColor: Colors.brand,
-    borderColor: Colors.brand,
-  },
   dayText: {
-    ...Typography.labelSmall,
-    color: Colors.inkMuted,
-  },
-  activeDayText: {
-    color: Colors.white,
-    fontWeight: '700',
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(12.5),
   },
   row: {
     flexDirection: 'row',
@@ -719,56 +1061,45 @@ const styles = StyleSheet.create({
   },
   parentOption: {
     borderWidth: 1,
-    borderColor: Colors.outline,
-    borderRadius: Radii.sm,
+    borderRadius: Radii.md,
     padding: Spacing.md,
-    backgroundColor: Colors.surface,
-  },
-  selectedParentOption: {
-    borderColor: Colors.brand,
-    backgroundColor: Colors.brandSoft,
   },
   parentName: {
-    ...Typography.labelMedium,
-    color: Colors.ink,
-  },
-  selectedParentName: {
-    color: Colors.brand,
-    fontWeight: '700',
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(15),
   },
   parentDesc: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(13),
+    marginTop: 2,
   },
   helperText: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(13),
     marginTop: Spacing.xs,
   },
   warningText: {
-    ...Typography.bodySmall,
-    color: Colors.warning,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(13),
     marginBottom: Spacing.md,
   },
   errorBox: {
     borderWidth: 1.5,
-    borderColor: Colors.danger,
-    backgroundColor: Colors.surface,
     borderRadius: Radii.md,
     padding: Spacing.md,
     marginBottom: Spacing.md,
   },
   errorText: {
-    ...Typography.bodyMedium,
-    color: Colors.danger,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(13.5),
   },
   footer: {
-    gap: Spacing.xs,
+    gap: Spacing.sm,
     marginBottom: Spacing.xl,
   },
   fieldLabel: {
-    ...Typography.labelMedium,
-    color: Colors.ink,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(14),
     marginBottom: Spacing.xs,
   },
   timeStackBlock: {
@@ -781,65 +1112,18 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   removeSecondTimeText: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
-    fontSize: 13,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(12.5),
     textDecorationLine: 'underline',
   },
   timeSelectTriggerStacked: {
-    height: 56,
-    minHeight: 56,
+    height: 54,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.surface,
-    borderWidth: 1.5,
-    borderColor: Colors.outline,
+    borderWidth: 1,
     borderRadius: Radii.card,
-    paddingHorizontal: Spacing.lg,
-  },
-  timeSelectTriggerEmpty: {
-    borderColor: Colors.outline,
-    backgroundColor: Colors.surfaceMuted,
-    borderStyle: 'dashed',
-  },
-  timeSelectValueStacked: {
-    ...Typography.bodyLarge,
-    color: Colors.primary,
-    fontWeight: '700',
-    fontSize: 17,
-  },
-  timeSelectPlaceholderStacked: {
-    color: Colors.inkMuted,
-    fontWeight: '500',
-    fontSize: 15,
-  },
-  timeSelectAction: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  timeSelectActionText: {
-    ...Typography.labelSmall,
-    color: Colors.primary,
-    fontWeight: '700',
-  },
-  timeSelectAddText: {
-    ...Typography.labelSmall,
-    color: Colors.inkMuted,
-    fontWeight: '600',
-  },
-  timeSelectTrigger: {
-    height: 52,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: Colors.surface,
-    borderWidth: 1.5,
-    borderColor: Colors.outline,
-    borderRadius: Radii.md,
     paddingHorizontal: Spacing.md,
-    marginBottom: Spacing.xs,
   },
   timeSelectInner: {
     flexDirection: 'row',
@@ -847,24 +1131,44 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     flex: 1,
   },
-  timeSelectValue: {
-    ...Typography.bodyLarge,
-    color: Colors.primary,
-    fontWeight: '700',
+  timeSelectValueStacked: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(16),
   },
-  timeSelectPlaceholder: {
-    color: Colors.inkMuted,
-    fontWeight: '400',
+  timeSelectAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
-  clearTimeButton: {
-    alignSelf: 'flex-start',
-    paddingVertical: 3,
-    paddingHorizontal: Spacing.xs,
-    marginBottom: Spacing.sm,
+  timeSelectActionText: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(13),
   },
-  clearTimeText: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
-    fontSize: 12,
+  continueButton: {
+    height: 54,
+    borderRadius: Radii.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#006156',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.16,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  continueButtonText: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(16),
+    letterSpacing: 0.2,
+  },
+  secondaryActionBtn: {
+    height: 50,
+    borderRadius: Radii.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  secondaryActionText: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(15),
   },
 });

@@ -1,18 +1,21 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, TextInput } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MedicationRow } from '@/components/MedicationRow';
 import { EmptyState } from '@/components/EmptyState';
 import { PrimaryButton } from '@/components/Buttons';
-import { Colors, Radii, Spacing, Typography } from '@/theme/tokens';
+import { Radii, Spacing, scaleFont, FontFamily } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
-import { Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { formatSchedule } from '@/utils/schedule-formatter';
 
 type FilterType = 'all' | 'active' | 'queued' | 'completed';
 
 export default function MedicinesListScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const { medications, schedules, refreshMedications, clearDraft } = useApp();
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<FilterType>('all');
@@ -72,7 +75,7 @@ export default function MedicinesListScreen() {
   const isEmpty = medications.length === 0;
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView style={[styles.screen, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -81,72 +84,107 @@ export default function MedicinesListScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={Colors.primary}
-            colors={[Colors.primary]}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
           />
         }
       >
-        {/* Intro Subtitle & Quick Add Header Row */}
-        <View style={styles.headerSubtitleRow}>
-          <Text style={styles.headerSubtitle}>Manage your medication plans.</Text>
+        {/* Screen Header */}
+        <View style={styles.topHeader}>
+          <View style={styles.headerTitles}>
+            <Text style={[styles.screenTitle, { color: colors.textPrimary }]}>My Medicines</Text>
+            <Text style={[styles.screenSubtitle, { color: colors.textSecondary }]}>
+              {medications.length} {medications.length === 1 ? 'medicine' : 'medicines'} tracked on this phone
+            </Text>
+          </View>
           <TouchableOpacity
-            style={styles.quickAddButton}
+            style={[styles.quickAddButton, { backgroundColor: colors.primary }]}
             onPress={handleAddMedicine}
             accessibilityRole="button"
             accessibilityLabel="Add medication"
-            activeOpacity={0.7}
+            activeOpacity={0.85}
           >
-            <MaterialIcons name="add" size={22} color={Colors.primary} />
+            <Ionicons name="add" size={24} color={colors.surface} />
           </TouchableOpacity>
         </View>
 
-        {/* Filter Pills */}
-        <View style={styles.filterContainer}>
-          {(['all', 'active', 'queued', 'completed'] as FilterType[]).map((tab) => {
-            const isSelected = filter === tab;
-            const labels: Record<FilterType, string> = {
-              all: 'All',
-              active: 'Active',
-              queued: 'Queued',
-              completed: 'Completed',
-            };
-            return (
-              <TouchableOpacity
-                key={tab}
-                style={[styles.filterTab, isSelected && styles.filterTabSelected]}
-                onPress={() => setFilter(tab)}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel={`${labels[tab]} medicines`}
-                accessibilityState={{ selected: isSelected }}
-              >
-                <Text
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                  minimumFontScale={0.8}
-                  style={[
-                    styles.filterTabText,
-                    isSelected && styles.filterTabTextSelected,
-                  ]}
-                >
-                  {labels[tab]}
-                </Text>
+        {/* Search Bar */}
+        {!isEmpty && (
+          <View style={[styles.searchContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Ionicons name="search-outline" size={18} color={colors.textSecondary} style={{ marginRight: 8 }} />
+            <TextInput
+              style={[styles.searchInput, { color: colors.textPrimary }]}
+              placeholder="Search medicines..."
+              placeholderTextColor={colors.textSecondary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
               </TouchableOpacity>
-            );
-          })}
-        </View>
+            )}
+          </View>
+        )}
+
+        {/* Segmented Control Filter Tabs */}
+        {!isEmpty && (
+          <View style={[styles.filterContainer, { backgroundColor: colors.surfaceSecondary }]}>
+            {(['all', 'active', 'queued', 'completed'] as FilterType[]).map((tab) => {
+              const isSelected = filter === tab;
+              const labels: Record<FilterType, string> = {
+                all: 'All',
+                active: `Active (${activeMeds.length})`,
+                queued: `Queued (${queuedMeds.length})`,
+                completed: `Done (${completedMeds.length})`,
+              };
+              return (
+                <TouchableOpacity
+                  key={tab}
+                  style={[
+                    styles.filterTab,
+                    isSelected && [
+                      styles.filterTabSelected,
+                      { backgroundColor: colors.surface, borderColor: colors.border },
+                    ],
+                  ]}
+                  onPress={() => setFilter(tab)}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${labels[tab]} medicines`}
+                  accessibilityState={{ selected: isSelected }}
+                >
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      styles.filterTabText,
+                      {
+                        color: isSelected ? colors.primaryDark : colors.textSecondary,
+                        fontWeight: isSelected ? '700' : '500',
+                      },
+                    ]}
+                  >
+                    {labels[tab]}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
 
         {isEmpty ? (
           <EmptyState
-            icon={<MaterialCommunityIcons name="pill" size={44} color={Colors.brand} />}
-            title="No medicines added"
-            description="You have not added any medicines to your local schedule yet."
+            icon={<MaterialCommunityIcons name="pill" size={44} color={colors.primary} />}
+            title="No medicines added yet"
+            description="Add your prescribed medicines to get reliable on-time reminders and track your family's health."
             buttonTitle="Add your first medicine"
             onButtonPress={handleAddMedicine}
           />
         ) : filteredMeds.length === 0 ? (
           <View style={styles.emptyFilterBox}>
-            <Text style={styles.emptyFilterText}>No medicines in this category.</Text>
+            <Text style={[styles.emptyFilterText, { color: colors.textSecondary }]}>
+              {searchQuery ? `No medicines matching "${searchQuery}"` : 'No medicines in this category.'}
+            </Text>
           </View>
         ) : (
           <>
@@ -156,8 +194,8 @@ export default function MedicinesListScreen() {
                 {activeMeds.length > 0 && (
                   <View style={styles.section}>
                     <View style={styles.sectionHeaderRow}>
-                      <Text style={styles.sectionHeading}>Current schedule</Text>
-                      <Text style={styles.sectionCount}>{activeMeds.length} active</Text>
+                      <Text style={[styles.sectionHeading, { color: colors.textSecondary }]}>CURRENT SCHEDULE</Text>
+                      <Text style={[styles.sectionCount, { color: colors.primary }]}>{activeMeds.length} active</Text>
                     </View>
                     {activeMeds.map((med) => {
                       const isLowStock = med.trackStock && med.currentStock <= med.lowStockThreshold;
@@ -180,8 +218,8 @@ export default function MedicinesListScreen() {
                 {queuedMeds.length > 0 && (
                   <View style={styles.section}>
                     <View style={styles.sectionHeaderRow}>
-                      <Text style={styles.sectionHeading}>Starts later</Text>
-                      <Text style={styles.sectionCount}>{queuedMeds.length} queued</Text>
+                      <Text style={[styles.sectionHeading, { color: colors.textSecondary }]}>STARTS LATER</Text>
+                      <Text style={[styles.sectionCount, { color: colors.primary }]}>{queuedMeds.length} queued</Text>
                     </View>
                     {queuedMeds.map((med) => (
                       <MedicationRow
@@ -200,8 +238,8 @@ export default function MedicinesListScreen() {
                 {completedMeds.length > 0 && (
                   <View style={styles.section}>
                     <View style={styles.sectionHeaderRow}>
-                      <Text style={styles.sectionHeading}>Completed</Text>
-                      <Text style={styles.sectionCount}>{completedMeds.length} finished</Text>
+                      <Text style={[styles.sectionHeading, { color: colors.textSecondary }]}>COMPLETED</Text>
+                      <Text style={[styles.sectionCount, { color: colors.primary }]}>{completedMeds.length} finished</Text>
                     </View>
                     {completedMeds.map((med) => (
                       <MedicationRow
@@ -239,119 +277,130 @@ export default function MedicinesListScreen() {
 
             <View style={styles.addCta}>
               <PrimaryButton
-                title="Add medicine"
+                title="Add another medicine"
                 onPress={handleAddMedicine}
-                icon={<Ionicons name="add" size={22} color={Colors.white} />}
+                icon={<Ionicons name="add" size={20} color={colors.surface} />}
               />
             </View>
           </>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: Colors.canvas,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.lg,
+    paddingTop: Spacing.sm,
     paddingBottom: Spacing.huge,
   },
-  headerSubtitleRow: {
+  topHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: Spacing.md,
   },
-  headerSubtitle: {
+  headerTitles: {
     flex: 1,
     paddingRight: Spacing.sm,
-    ...Typography.bodyMedium,
-    color: Colors.inkMuted,
+  },
+  screenTitle: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(24),
+    letterSpacing: -0.3,
+  },
+  screenSubtitle: {
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(13.5),
+    marginTop: 2,
   },
   quickAddButton: {
-    width: 48,
-    height: 48,
-    borderRadius: Radii.full,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: 'rgba(212, 217, 210, 0.5)',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowColor: '#006156',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.16,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: Radii.card,
+    paddingHorizontal: Spacing.md,
+    height: 46,
+    marginBottom: Spacing.md,
+  },
+  searchInput: {
+    flex: 1,
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(14),
   },
   filterContainer: {
     flexDirection: 'row',
-    backgroundColor: Colors.surfaceMuted,
-    padding: 4,
-    borderRadius: Radii.md,
+    alignItems: 'center',
+    height: 42,
+    padding: 3,
+    borderRadius: Radii.full,
     marginBottom: Spacing.lg,
   },
   filterTab: {
     flex: 1,
-    minHeight: 48,
-    paddingHorizontal: 2,
-    paddingVertical: Spacing.sm,
-    borderRadius: Radii.sm,
+    height: 36,
+    borderRadius: Radii.full,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 4,
   },
   filterTabSelected: {
-    backgroundColor: Colors.primary,
+    borderWidth: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.06,
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 1,
   },
   filterTabText: {
-    ...Typography.labelSmall,
-    color: Colors.inkMuted,
-    fontSize: 13,
-  },
-  filterTabTextSelected: {
-    color: Colors.white,
-    fontWeight: '700',
+    fontSize: scaleFont(12.5),
+    textAlign: 'center',
   },
   section: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
   },
   sectionHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: Spacing.xs,
-    paddingHorizontal: Spacing.xs,
-    flexWrap: 'wrap',
-    gap: Spacing.xs,
+    paddingHorizontal: 2,
   },
   sectionHeading: {
-    ...Typography.labelSmall,
-    color: Colors.inkMuted,
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(11.5),
+    letterSpacing: 0.5,
   },
   sectionCount: {
-    ...Typography.labelSmall,
-    color: Colors.primary,
-    fontWeight: '600',
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(12),
   },
   emptyFilterBox: {
     paddingVertical: Spacing.xxl,
     alignItems: 'center',
   },
   emptyFilterText: {
-    ...Typography.bodyMedium,
-    color: Colors.inkMuted,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(14),
   },
   addCta: {
     marginTop: Spacing.sm,

@@ -30,6 +30,7 @@ export interface WidgetDosePayload {
   triggerAtMillis?: number;
   occurrenceId?: string;
   state?: 'UPCOMING' | 'DUE' | 'SNOOZED' | 'NONE';
+  theme?: string;
 }
 
 interface MedchainAlarmNative {
@@ -52,6 +53,7 @@ interface MedchainAlarmNative {
   requestPinWidget(): Promise<boolean>;
   updateWidgetData(data: WidgetDosePayload): Promise<void>;
   refreshWidget(): Promise<void>;
+  setAppIcon(themeName: string): Promise<void>;
 }
 
 /** The native Android module; null on iOS, in Expo Go and in Bun tests. */

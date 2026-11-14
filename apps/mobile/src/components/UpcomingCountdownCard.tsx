@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
-import { Colors, Radii, Spacing, Typography } from '../theme/tokens';
+import { Colors, Radii, Spacing, Typography, scaleFont, FontFamily } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeContext';
 import { PrimaryButton, SecondaryButton } from './Buttons';
 import type { OccurrenceWithMedication } from '../database';
 import { MedchainAlarm } from '../../modules/medchain-alarm/src';
@@ -22,6 +23,7 @@ export function UpcomingCountdownCard({
   onSnooze,
   onSkip,
 }: UpcomingCountdownCardProps) {
+  const { colors, isGlass, glassStyles } = useTheme();
   const [now, setNow] = useState(() => Date.now());
   const [canPin, setCanPin] = useState(false);
   const [pinAdded, setPinAdded] = useState(false);
@@ -64,30 +66,57 @@ export function UpcomingCountdownCard({
   const dosageLine = `${med.dosageText} • ${med.doseQuantity} ${med.doseUnit}`;
 
   return (
-    <View style={styles.card}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: isGlass ? colors.cardBackground : colors.surface,
+          borderColor: isGlass ? colors.cardBorder : colors.brand,
+          borderWidth: isGlass ? 1.5 : 2,
+        },
+        isGlass && glassStyles.card,
+      ]}
+    >
       {/* Top Header Row with Icon, Section Tag and Countdown Pill */}
       <View style={styles.headerRow}>
         <View style={styles.titleGroup}>
-          <View style={styles.clockEmblem}>
+          <View
+            style={[
+              styles.clockEmblem,
+              {
+                backgroundColor: isGlass ? 'rgba(255, 255, 255, 0.85)' : colors.brandSoft,
+                borderColor: isGlass ? 'rgba(255, 255, 255, 0.95)' : 'transparent',
+                borderWidth: isGlass ? 1 : 0,
+              },
+            ]}
+          >
             <MaterialIcons
               name={countdown.isDue ? 'alarm' : 'schedule'}
               size={18}
-              color={countdown.isDue ? Colors.danger : Colors.primary}
+              color={countdown.isDue ? colors.danger : colors.primary}
             />
           </View>
-          <Text style={styles.headerLabel}>NEXT UPCOMING DOSE</Text>
+          <Text style={[styles.headerLabel, { color: colors.primary }]}>
+            {countdown.isDue ? 'TIME FOR MEDICINE' : 'UPCOMING DOSE'}
+          </Text>
         </View>
 
         <View
           style={[
             styles.countdownBadge,
             countdown.isDue ? styles.countdownBadgeDue : styles.countdownBadgeUpcoming,
+            isGlass && {
+              backgroundColor: countdown.isDue ? 'rgba(255, 218, 214, 0.85)' : 'rgba(30, 88, 77, 0.12)',
+              borderColor: 'rgba(255, 255, 255, 0.8)',
+              borderWidth: 1,
+            },
           ]}
         >
           <Text
             style={[
               styles.countdownBadgeText,
               countdown.isDue ? styles.countdownBadgeTextDue : styles.countdownBadgeTextUpcoming,
+              isGlass && !countdown.isDue && { color: colors.primary },
             ]}
           >
             {countdown.badgeText}
@@ -96,22 +125,46 @@ export function UpcomingCountdownCard({
       </View>
 
       {/* Medication Name & Dosage */}
-      <Text style={styles.medName}>{med.name}</Text>
-      <Text style={styles.dosageText}>{dosageLine}</Text>
+      <Text style={[styles.medName, { color: colors.ink }]}>{med.name}</Text>
+      <Text style={[styles.dosageText, { color: colors.ink }]}>{dosageLine}</Text>
 
       {/* Scheduled Time & Detail Info */}
       <View style={styles.infoRow}>
-        <View style={styles.timePill}>
-          <Ionicons name="time-outline" size={14} color={Colors.primary} />
-          <Text style={styles.timePillText}>{occurrence.scheduledLocalTime}</Text>
+        <View
+          style={[
+            styles.timePill,
+            {
+              backgroundColor: isGlass ? 'rgba(255, 255, 255, 0.8)' : colors.brandSoft,
+              borderColor: isGlass ? 'rgba(255, 255, 255, 0.95)' : 'transparent',
+              borderWidth: isGlass ? 1 : 0,
+            },
+          ]}
+        >
+          <Ionicons name="time-outline" size={14} color={colors.primary} />
+          <Text style={[styles.timePillText, { color: colors.primary }]}>
+            {occurrence.scheduledLocalTime}
+          </Text>
         </View>
-        <Text style={styles.relativeDetailText}>{countdown.relativeDetail}</Text>
+        <Text style={[styles.relativeDetailText, { color: colors.inkMuted }]}>
+          {countdown.relativeDetail}
+        </Text>
       </View>
 
       {med.instructions ? (
-        <View style={styles.instructionsContainer}>
-          <MaterialIcons name="info-outline" size={14} color={Colors.inkMuted} />
-          <Text style={styles.instructionsText}>{med.instructions}</Text>
+        <View
+          style={[
+            styles.instructionsContainer,
+            {
+              backgroundColor: isGlass ? 'rgba(255, 255, 255, 0.50)' : colors.surfaceMuted,
+              borderColor: isGlass ? 'rgba(255, 255, 255, 0.75)' : 'transparent',
+              borderWidth: isGlass ? 1 : 0,
+            },
+          ]}
+        >
+          <MaterialIcons name="info-outline" size={14} color={colors.inkMuted} />
+          <Text style={[styles.instructionsText, { color: colors.inkMuted }]}>
+            {med.instructions}
+          </Text>
         </View>
       ) : null}
 
@@ -143,15 +196,20 @@ export function UpcomingCountdownCard({
         <Pressable
           style={({ pressed }) => [
             styles.pinWidgetButton,
-            pressed && styles.pinWidgetButtonPressed,
+            isGlass && {
+              backgroundColor: pressed ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.65)',
+              borderColor: 'rgba(255, 255, 255, 0.95)',
+              borderWidth: 1.5,
+            },
+            pressed && !isGlass && styles.pinWidgetButtonPressed,
           ]}
           onPress={handlePinWidget}
           accessibilityRole="button"
           accessibilityLabel="Add DoseSaathi widget to phone home screen"
         >
-          <MaterialIcons name="widgets" size={16} color={Colors.primary} />
-          <Text style={styles.pinWidgetButtonText}>
-            {pinAdded ? 'Widget request sent! Check home screen' : 'Place widget on phone home screen'}
+          <MaterialIcons name="widgets" size={16} color={colors.primary} />
+          <Text style={[styles.pinWidgetButtonText, { color: colors.primary }]}>
+            {pinAdded ? '✓ Widget placed on home screen!' : 'Place widget on phone home screen'}
           </Text>
         </Pressable>
       )}
@@ -195,11 +253,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerLabel: {
-    ...Typography.labelSmall,
+    fontFamily: FontFamily.bold,
     color: Colors.primary,
-    fontWeight: '700',
-    fontSize: 12,
-    letterSpacing: 0.5,
+    fontSize: scaleFont(12.5),
+    letterSpacing: 0.8,
   },
   countdownBadge: {
     paddingHorizontal: Spacing.md,
@@ -213,9 +270,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFDAD6',
   },
   countdownBadgeText: {
-    ...Typography.labelSmall,
-    fontSize: 13,
-    fontWeight: '700',
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(13.5),
   },
   countdownBadgeTextUpcoming: {
     color: Colors.primary,
@@ -224,14 +280,16 @@ const styles = StyleSheet.create({
     color: Colors.danger,
   },
   medName: {
-    ...Typography.headlineMedium,
+    fontFamily: FontFamily.bold,
     color: Colors.ink,
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: scaleFont(23),
+    lineHeight: scaleFont(29),
     marginTop: Spacing.xs,
   },
   dosageText: {
-    ...Typography.bodyLarge,
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(16.5),
+    lineHeight: scaleFont(23),
     color: Colors.ink,
     marginTop: 2,
   },
@@ -252,15 +310,15 @@ const styles = StyleSheet.create({
     borderRadius: Radii.sm,
   },
   timePillText: {
-    ...Typography.labelSmall,
+    fontFamily: FontFamily.bold,
     color: Colors.primary,
-    fontWeight: '700',
-    fontSize: 13,
+    fontSize: scaleFont(13.5),
   },
   relativeDetailText: {
     ...Typography.bodySmall,
     color: Colors.inkMuted,
-    fontSize: 13,
+    fontSize: scaleFont(13.5),
+    lineHeight: scaleFont(19),
   },
   instructionsContainer: {
     flexDirection: 'row',
@@ -275,7 +333,8 @@ const styles = StyleSheet.create({
   instructionsText: {
     ...Typography.bodySmall,
     color: Colors.inkMuted,
-    fontSize: 13,
+    fontSize: scaleFont(13.5),
+    lineHeight: scaleFont(19),
     flex: 1,
   },
   actionContainer: {
@@ -283,7 +342,6 @@ const styles = StyleSheet.create({
   },
   takeButton: {
     minHeight: 56,
-    backgroundColor: Colors.brand,
   },
   secondaryRow: {
     flexDirection: 'column',
@@ -313,7 +371,6 @@ const styles = StyleSheet.create({
   pinWidgetButtonText: {
     ...Typography.labelSmall,
     color: Colors.primary,
-    fontWeight: '600',
     fontSize: 13,
   },
 });

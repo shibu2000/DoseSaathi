@@ -47,4 +47,12 @@ describe('formatCountdown', () => {
     expect(resSnoozed.isDue).toBe(false);
     expect(resSnoozed.relativeDetail).toContain('Reminder will ring in next 8 minutes');
   });
+
+  it('theme tokens expose distinct visual styles for classic and glassmorphism', () => {
+    const { ClassicColors, GlassColors } = require('../src/theme');
+    expect(ClassicColors.cardBackground).toBe('#FFFEFA');
+    expect(GlassColors.cardBackground).toContain('rgba');
+    expect(GlassColors.outline).toContain('rgba');
+    expect(GlassColors.canvas).not.toBe(ClassicColors.canvas);
+  });
 });

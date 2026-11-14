@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet, TextInputProps } from 'react-native';
-import { Colors, Radii, Spacing, Typography } from '../theme/tokens';
+import { Radii, Spacing, Typography } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeContext';
 
 interface FormFieldProps extends TextInputProps {
   label: string;
@@ -9,23 +10,31 @@ interface FormFieldProps extends TextInputProps {
 }
 
 export function FormField({ label, error, helper, style, ...inputProps }: FormFieldProps) {
+  const { colors, isGlass, glassStyles } = useTheme();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, { color: colors.ink }]}>{label}</Text>
       <TextInput
         style={[
           styles.input,
+          {
+            backgroundColor: isGlass ? colors.cardBackground : colors.surface,
+            borderColor: error ? colors.danger : isGlass ? colors.cardBorder : colors.outline,
+            color: colors.ink,
+          },
+          isGlass && glassStyles.input,
           error ? styles.inputError : undefined,
           style,
         ]}
-        placeholderTextColor={Colors.inkMuted}
+        placeholderTextColor={colors.inkMuted}
         accessibilityLabel={label}
         {...inputProps}
       />
       {error ? (
-        <Text style={styles.errorText}>{error}</Text>
+        <Text style={[styles.errorText, { color: colors.danger }]}>{error}</Text>
       ) : helper ? (
-        <Text style={styles.helperText}>{helper}</Text>
+        <Text style={[styles.helperText, { color: colors.inkMuted }]}>{helper}</Text>
       ) : null}
     </View>
   );
@@ -37,30 +46,24 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.labelMedium,
-    color: Colors.ink,
     marginBottom: Spacing.xs,
   },
   input: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1.5,
     borderRadius: Radii.card,
     minHeight: 56,
     paddingHorizontal: Spacing.lg,
     fontSize: 16,
-    color: Colors.ink,
   },
   inputError: {
-    borderColor: Colors.danger,
+    borderWidth: 2,
   },
   errorText: {
     ...Typography.bodySmall,
-    color: Colors.danger,
     marginTop: Spacing.xs,
   },
   helperText: {
     ...Typography.bodySmall,
-    color: Colors.inkMuted,
     marginTop: Spacing.xs,
   },
 });

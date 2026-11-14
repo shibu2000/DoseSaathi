@@ -10,7 +10,8 @@ data class WidgetDoseData(
   val scheduledTimeStr: String = "",
   val triggerAtMillis: Long = 0L,
   val occurrenceId: String = "",
-  val state: String = "NONE" // "UPCOMING", "DUE", "SNOOZED", "NONE"
+  val state: String = "NONE", // "UPCOMING", "DUE", "SNOOZED", "NONE"
+  val theme: String = "classic" // "classic" or "glassmorphism"
 ) {
   fun toJson(): String = JSONObject().apply {
     put("hasUpcoming", hasUpcoming)
@@ -20,6 +21,7 @@ data class WidgetDoseData(
     put("triggerAtMillis", triggerAtMillis)
     put("occurrenceId", occurrenceId)
     put("state", state)
+    put("theme", theme)
   }.toString()
 
   companion object {
@@ -32,7 +34,8 @@ data class WidgetDoseData(
         scheduledTimeStr = o.optString("scheduledTimeStr", ""),
         triggerAtMillis = o.optLong("triggerAtMillis", 0L),
         occurrenceId = o.optString("occurrenceId", ""),
-        state = o.optString("state", "NONE")
+        state = o.optString("state", "NONE"),
+        theme = o.optString("theme", "classic")
       )
     } catch (e: Exception) {
       null

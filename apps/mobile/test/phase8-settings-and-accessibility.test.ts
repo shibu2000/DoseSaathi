@@ -75,4 +75,20 @@ describe('Phase 8 — Settings, Permissions, Diagnostics & Truthful Privacy', ()
     const outboxItems = await db.outbox.getAllUnsynced();
     expect(outboxItems).toHaveLength(0);
   });
+
+  it('P8-05: App theme preference (classic vs glassmorphism) persists in SQLite settings', async () => {
+    // Default or unset theme
+    let theme = await db.settings.get('app_theme');
+    expect(theme).toBeNull();
+
+    // Set to glassmorphism
+    await db.settings.set('app_theme', 'glassmorphism');
+    theme = await db.settings.get('app_theme');
+    expect(theme).toBe('glassmorphism');
+
+    // Switch back to classic
+    await db.settings.set('app_theme', 'classic');
+    theme = await db.settings.get('app_theme');
+    expect(theme).toBe('classic');
+  });
 });

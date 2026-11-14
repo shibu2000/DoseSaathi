@@ -9,7 +9,8 @@ import {
   Pressable,
 } from 'react-native';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
-import { Colors, Radii, Spacing, Typography } from '../theme/tokens';
+import { Radii, Spacing, Typography, FontFamily, scaleFont } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeContext';
 import { PrimaryButton, SecondaryButton } from './Buttons';
 
 interface TimePickerModalProps {
@@ -31,6 +32,7 @@ export function TimePickerModal({
   onClear,
   clearLabel = 'Clear time',
 }: TimePickerModalProps) {
+  const { colors, isDark } = useTheme();
   const [hour12, setHour12] = useState(8);
   const [minute, setMinute] = useState(0);
   const [ampm, setAmpm] = useState<'AM' | 'PM'>('AM');
@@ -82,99 +84,145 @@ export function TimePickerModal({
       onRequestClose={onClose}
     >
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+        <Pressable
+          style={[styles.sheet, { backgroundColor: colors.surface }]}
+          onPress={(e) => e.stopPropagation()}
+        >
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerTitleGroup}>
-              <MaterialIcons name="access-time" size={22} color={Colors.primary} />
-              <Text style={styles.title}>{title}</Text>
+              <MaterialIcons name="access-time" size={22} color={colors.primary} />
+              <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn} accessibilityLabel="Close time picker">
-              <Ionicons name="close" size={22} color={Colors.inkMuted} />
+              <Ionicons name="close" size={22} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
           {/* Large Time Display & AM/PM Switcher */}
-          <View style={styles.displayCard}>
+          <View
+            style={[
+              styles.displayCard,
+              { backgroundColor: colors.surfaceSecondary, borderColor: colors.border, borderWidth: 1 },
+            ]}
+          >
             <View style={styles.timeDisplayRow}>
-              <Text style={styles.displayHour}>{String(hour12).padStart(2, '0')}</Text>
-              <Text style={styles.displayColon}>:</Text>
-              <Text style={styles.displayMinute}>{String(minute).padStart(2, '0')}</Text>
+              <Text style={[styles.displayHour, { color: colors.primary }]}>
+                {String(hour12).padStart(2, '0')}
+              </Text>
+              <Text style={[styles.displayColon, { color: colors.textSecondary }]}>:</Text>
+              <Text style={[styles.displayMinute, { color: colors.primary }]}>
+                {String(minute).padStart(2, '0')}
+              </Text>
             </View>
 
-            <View style={styles.ampmSwitch}>
+            <View style={[styles.ampmSwitch, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <TouchableOpacity
-                style={[styles.ampmBtn, ampm === 'AM' && styles.ampmBtnActive]}
+                style={[
+                  styles.ampmBtn,
+                  ampm === 'AM' && { backgroundColor: colors.primary },
+                ]}
                 onPress={() => setAmpm('AM')}
                 activeOpacity={0.8}
               >
-                <Text style={[styles.ampmText, ampm === 'AM' && styles.ampmTextActive]}>AM</Text>
+                <Text
+                  style={[
+                    styles.ampmText,
+                    { color: colors.textSecondary },
+                    ampm === 'AM' && { color: colors.white, fontWeight: '700' },
+                  ]}
+                >
+                  AM
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.ampmBtn, ampm === 'PM' && styles.ampmBtnActive]}
+                style={[
+                  styles.ampmBtn,
+                  ampm === 'PM' && { backgroundColor: colors.primary },
+                ]}
                 onPress={() => setAmpm('PM')}
                 activeOpacity={0.8}
               >
-                <Text style={[styles.ampmText, ampm === 'PM' && styles.ampmTextActive]}>PM</Text>
+                <Text
+                  style={[
+                    styles.ampmText,
+                    { color: colors.textSecondary },
+                    ampm === 'PM' && { color: colors.white, fontWeight: '700' },
+                  ]}
+                >
+                  PM
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
 
           {/* Quick Presets */}
-          <Text style={styles.sectionHeading}>Common medication times</Text>
+          <Text style={[styles.sectionHeading, { color: colors.textSecondary }]}>
+            Common medication times
+          </Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.presetsRow}
           >
-            <TouchableOpacity
-              style={[styles.presetChip, hour12 === 8 && minute === 0 && ampm === 'AM' && styles.presetChipActive]}
-              onPress={() => handlePreset(8, 0, 'AM')}
-            >
-              <Text style={styles.presetChipText}>🌅 Morning 8:00 AM</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.presetChip, hour12 === 12 && minute === 0 && ampm === 'PM' && styles.presetChipActive]}
-              onPress={() => handlePreset(12, 0, 'PM')}
-            >
-              <Text style={styles.presetChipText}>☀️ Noon 12:00 PM</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.presetChip, hour12 === 5 && minute === 0 && ampm === 'PM' && styles.presetChipActive]}
-              onPress={() => handlePreset(5, 0, 'PM')}
-            >
-              <Text style={styles.presetChipText}>☕ Evening 5:00 PM</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.presetChip, hour12 === 8 && minute === 0 && ampm === 'PM' && styles.presetChipActive]}
-              onPress={() => handlePreset(8, 0, 'PM')}
-            >
-              <Text style={styles.presetChipText}>🌙 Night 8:00 PM</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.presetChip, hour12 === 10 && minute === 0 && ampm === 'PM' && styles.presetChipActive]}
-              onPress={() => handlePreset(10, 0, 'PM')}
-            >
-              <Text style={styles.presetChipText}>🛏️ Bedtime 10:00 PM</Text>
-            </TouchableOpacity>
+            {[
+              { label: '🌅 Morning 8:00 AM', h: 8, m: 0, ap: 'AM' as const },
+              { label: '☀️ Noon 12:00 PM', h: 12, m: 0, ap: 'PM' as const },
+              { label: '☕ Evening 5:00 PM', h: 5, m: 0, ap: 'PM' as const },
+              { label: '🌙 Night 8:00 PM', h: 8, m: 0, ap: 'PM' as const },
+              { label: '🛏️ Bedtime 10:00 PM', h: 10, m: 0, ap: 'PM' as const },
+            ].map((p, idx) => {
+              const isSelected = hour12 === p.h && minute === p.m && ampm === p.ap;
+              return (
+                <TouchableOpacity
+                  key={idx}
+                  style={[
+                    styles.presetChip,
+                    {
+                      backgroundColor: isSelected
+                        ? isDark
+                          ? 'rgba(0, 97, 86, 0.25)'
+                          : colors.primaryLight
+                        : colors.surfaceSecondary,
+                      borderColor: isSelected ? colors.primary : colors.border,
+                    },
+                  ]}
+                  onPress={() => handlePreset(p.h, p.m, p.ap)}
+                >
+                  <Text style={[styles.presetChipText, { color: colors.textPrimary }]}>
+                    {p.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
 
           {/* Hour Selector Grid */}
-          <Text style={styles.sectionHeading}>Select hour</Text>
+          <Text style={[styles.sectionHeading, { color: colors.textSecondary }]}>
+            Select hour
+          </Text>
           <View style={styles.grid}>
             {hoursList.map((h) => {
               const isSelected = hour12 === h;
               return (
                 <TouchableOpacity
                   key={h}
-                  style={[styles.gridCell, isSelected && styles.gridCellActive]}
+                  style={[
+                    styles.gridCell,
+                    {
+                      backgroundColor: isSelected ? colors.primary : colors.surfaceSecondary,
+                      borderColor: isSelected ? colors.primary : colors.border,
+                    },
+                  ]}
                   onPress={() => setHour12(h)}
                 >
-                  <Text style={[styles.gridCellText, isSelected && styles.gridCellTextActive]}>
+                  <Text
+                    style={[
+                      styles.gridCellText,
+                      { color: isSelected ? colors.white : colors.textPrimary },
+                      isSelected && { fontWeight: '700' },
+                    ]}
+                  >
                     {h}
                   </Text>
                 </TouchableOpacity>
@@ -183,27 +231,53 @@ export function TimePickerModal({
           </View>
 
           {/* Minute Selector */}
-          <Text style={styles.sectionHeading}>Select minute</Text>
+          <Text style={[styles.sectionHeading, { color: colors.textSecondary }]}>
+            Select minute
+          </Text>
           <View style={styles.minutesRow}>
             {minutesList.map((m) => {
               const isSelected = minute === m;
               return (
                 <TouchableOpacity
                   key={m}
-                  style={[styles.minuteChip, isSelected && styles.minuteChipActive]}
+                  style={[
+                    styles.minuteChip,
+                    {
+                      backgroundColor: isSelected ? colors.primary : colors.surfaceSecondary,
+                      borderColor: isSelected ? colors.primary : colors.border,
+                    },
+                  ]}
                   onPress={() => setMinute(m)}
                 >
-                  <Text style={[styles.minuteChipText, isSelected && styles.minuteChipTextActive]}>
+                  <Text
+                    style={[
+                      styles.minuteChipText,
+                      { color: isSelected ? colors.white : colors.textPrimary },
+                      isSelected && { fontWeight: '700' },
+                    ]}
+                  >
                     :{String(m).padStart(2, '0')}
                   </Text>
                 </TouchableOpacity>
               );
             })}
-            <TouchableOpacity style={styles.stepBtn} onPress={() => adjustMinute(-5)}>
-              <Text style={styles.stepBtnText}>-5m</Text>
+            <TouchableOpacity
+              style={[
+                styles.stepBtn,
+                { backgroundColor: isDark ? 'rgba(0, 97, 86, 0.25)' : colors.primaryLight },
+              ]}
+              onPress={() => adjustMinute(-5)}
+            >
+              <Text style={[styles.stepBtnText, { color: colors.primary }]}>-5m</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.stepBtn} onPress={() => adjustMinute(5)}>
-              <Text style={styles.stepBtnText}>+5m</Text>
+            <TouchableOpacity
+              style={[
+                styles.stepBtn,
+                { backgroundColor: isDark ? 'rgba(0, 97, 86, 0.25)' : colors.primaryLight },
+              ]}
+              onPress={() => adjustMinute(5)}
+            >
+              <Text style={[styles.stepBtnText, { color: colors.primary }]}>+5m</Text>
             </TouchableOpacity>
           </View>
 
@@ -229,17 +303,18 @@ export function TimePickerModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(32, 43, 40, 0.55)',
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: Colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.xl,
     paddingBottom: Spacing.xxl,
     maxHeight: '90%',
+    borderWidth: 1,
+    borderBottomWidth: 0,
   },
   header: {
     flexDirection: 'row',
@@ -253,16 +328,13 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   title: {
-    ...Typography.headlineSmall,
-    color: Colors.ink,
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(18),
   },
   closeBtn: {
     padding: Spacing.xs,
   },
   displayCard: {
-    backgroundColor: Colors.surfaceMuted,
     borderRadius: Radii.card,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.xl,
@@ -276,50 +348,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   displayHour: {
-    fontSize: 38,
-    fontFamily: Typography.display.fontFamily,
-    fontWeight: '700',
-    color: Colors.primary,
+    fontSize: scaleFont(38),
+    fontFamily: FontFamily.bold,
   },
   displayColon: {
-    fontSize: 34,
-    fontWeight: '700',
-    color: Colors.inkMuted,
+    fontSize: scaleFont(34),
+    fontFamily: FontFamily.bold,
     marginHorizontal: 4,
   },
   displayMinute: {
-    fontSize: 38,
-    fontFamily: Typography.display.fontFamily,
-    fontWeight: '700',
-    color: Colors.primary,
+    fontSize: scaleFont(38),
+    fontFamily: FontFamily.bold,
   },
   ampmSwitch: {
     flexDirection: 'row',
-    backgroundColor: Colors.surface,
     borderRadius: Radii.full,
     padding: 3,
     borderWidth: 1,
-    borderColor: Colors.outline,
   },
   ampmBtn: {
     paddingHorizontal: Spacing.md,
     paddingVertical: 6,
     borderRadius: Radii.full,
   },
-  ampmBtnActive: {
-    backgroundColor: Colors.primary,
-  },
   ampmText: {
-    ...Typography.labelSmall,
-    fontWeight: '700',
-    color: Colors.inkMuted,
-  },
-  ampmTextActive: {
-    color: Colors.white,
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(12.5),
   },
   sectionHeading: {
-    ...Typography.labelSmall,
-    color: Colors.inkMuted,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(12.5),
     marginTop: Spacing.sm,
     marginBottom: Spacing.xs,
   },
@@ -332,18 +390,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: 8,
     borderRadius: Radii.full,
-    backgroundColor: Colors.surfaceMuted,
     borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  presetChipActive: {
-    backgroundColor: Colors.brandSoft,
-    borderColor: Colors.brand,
   },
   presetChipText: {
-    ...Typography.labelSmall,
-    color: Colors.ink,
-    fontSize: 13,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(13),
   },
   grid: {
     flexDirection: 'row',
@@ -356,22 +407,14 @@ const styles = StyleSheet.create({
     minWidth: 42,
     height: 42,
     borderRadius: Radii.sm,
-    backgroundColor: Colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 2,
-  },
-  gridCellActive: {
-    backgroundColor: Colors.primary,
+    borderWidth: 1,
   },
   gridCellText: {
-    ...Typography.labelMedium,
-    color: Colors.ink,
-    fontWeight: '600',
-  },
-  gridCellTextActive: {
-    color: Colors.white,
-    fontWeight: '700',
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(14),
   },
   minutesRow: {
     flexDirection: 'row',
@@ -386,34 +429,24 @@ const styles = StyleSheet.create({
     minWidth: 50,
     height: 40,
     borderRadius: Radii.sm,
-    backgroundColor: Colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  minuteChipActive: {
-    backgroundColor: Colors.primary,
+    borderWidth: 1,
   },
   minuteChipText: {
-    ...Typography.labelMedium,
-    color: Colors.ink,
-    fontWeight: '600',
-  },
-  minuteChipTextActive: {
-    color: Colors.white,
-    fontWeight: '700',
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(14),
   },
   stepBtn: {
     height: 40,
     paddingHorizontal: Spacing.sm,
     borderRadius: Radii.sm,
-    backgroundColor: Colors.brandSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepBtnText: {
-    ...Typography.labelSmall,
-    color: Colors.primary,
-    fontWeight: '700',
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(12.5),
   },
   footer: {
     gap: Spacing.xs,

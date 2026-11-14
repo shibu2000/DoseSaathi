@@ -2,8 +2,10 @@ package expo.modules.medchainalarm
 
 import android.app.KeyguardManager
 import android.app.NotificationManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.media.MediaPlayer
 import android.os.Build
@@ -161,6 +163,7 @@ class MedchainAlarmModule : Module() {
 
     AsyncFunction("updateWidgetData") { data: Map<String, Any?> ->
       val hasUpcoming = data["hasUpcoming"] as? Boolean ?: false
+      val currentTheme = data["theme"] as? String ?: (WidgetDataStore.get(context)?.theme ?: "classic")
       if (hasUpcoming) {
         val doseData = WidgetDoseData(
           hasUpcoming = true,
@@ -169,17 +172,76 @@ class MedchainAlarmModule : Module() {
           scheduledTimeStr = data["scheduledTimeStr"] as? String ?: "",
           triggerAtMillis = (data["triggerAtMillis"] as? Number)?.toLong() ?: 0L,
           occurrenceId = data["occurrenceId"] as? String ?: "",
-          state = data["state"] as? String ?: "UPCOMING"
+          state = data["state"] as? String ?: "UPCOMING",
+          theme = currentTheme
         )
         WidgetDataStore.save(context, doseData)
       } else {
-        WidgetDataStore.clear(context)
+        val doseData = WidgetDoseData(
+          hasUpcoming = false,
+          theme = currentTheme
+        )
+        WidgetDataStore.save(context, doseData)
       }
       UpcomingDoseWidgetProvider.updateAll(context)
     }
 
     AsyncFunction("refreshWidget") {
       UpcomingDoseWidgetProvider.updateAll(context)
+    }
+
+    /** Dynamically switches the launcher icon via Android activity-alias. */
+    AsyncFunction("setAppIcon") { themeName: String ->
+      try {
+        val safeTheme = when (themeName.lowercase()) {
+          "ocean" -> "ocean"
+          "sunset" -> "sunset"
+          "lavender" -> "lavender"
+          else -> "nature"
+        }
+
+        val targetAlias = when (safeTheme) {
+          "ocean" -> "com.dosesaathi.app.MainActivityOcean"
+          "sunset" -> "com.dosesaathi.app.MainActivitySunset"
+          "lavender" -> "com.dosesaathi.app.MainActivityLavender"
+          else -> "com.dosesaathi.app.MainActivityNature"
+        }
+
+        val pm = context.packageManager
+        val packageName = context.packageName
+
+        // 1. Enable the target alias
+        val targetComp = ComponentName(packageName, targetAlias)
+        if (pm.getComponentEnabledSetting(targetComp) != PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+          pm.setComponentEnabledSetting(
+            targetComp,
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            PackageManager.DONT_KILL_APP
+          )
+        }
+
+        // 2. Disable all other aliases
+        val allAliases = listOf(
+          "com.dosesaathi.app.MainActivityNature",
+          "com.dosesaathi.app.MainActivityOcean",
+          "com.dosesaathi.app.MainActivitySunset",
+          "com.dosesaathi.app.MainActivityLavender"
+        )
+
+        for (alias in allAliases) {
+          if (alias != targetAlias) {
+            val comp = ComponentName(packageName, alias)
+            if (pm.getComponentEnabledSetting(comp) != PackageManager.COMPONENT_ENABLED_STATE_DISABLED) {
+              pm.setComponentEnabledSetting(
+                comp,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP
+              )
+            }
+          }
+        }
+      } catch (e: Exception) {
+      }
     }
 
     /**

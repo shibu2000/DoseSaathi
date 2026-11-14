@@ -28,9 +28,7 @@ export default function SplashScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.brandContainer}>
-        <View style={styles.logoBadge}>
-          <MedChainLogo size={48} color={Colors.brand} />
-        </View>
+        <MedChainLogo size={76} style={{ marginBottom: Spacing.xl }} />
         <Text style={styles.title}>DoseSaathi</Text>
         <Text style={styles.subtitle}>
           Personal and family medication management, designed to work offline.

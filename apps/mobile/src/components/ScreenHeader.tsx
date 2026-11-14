@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Colors, Spacing, Typography } from '../theme/tokens';
+import { Spacing, Typography } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeContext';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -20,6 +21,7 @@ export function ScreenHeader({
   rightAction,
 }: ScreenHeaderProps) {
   const router = useRouter();
+  const { colors, isGlass } = useTheme();
 
   const handleBack = () => {
     if (onBack) {
@@ -34,22 +36,31 @@ export function ScreenHeader({
       <View style={styles.topRow}>
         {showBack && (
           <TouchableOpacity
-            style={styles.backButton}
+            style={[
+              styles.backButton,
+              isGlass && {
+                backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                borderColor: 'rgba(255, 255, 255, 0.9)',
+                borderWidth: 1,
+                borderRadius: 22,
+              },
+            ]}
             onPress={handleBack}
             accessibilityRole="button"
             accessibilityLabel="Go back"
+            activeOpacity={0.7}
           >
-            <Ionicons name="arrow-back" size={24} color={Colors.ink} />
+            <Ionicons name="arrow-back" size={24} color={colors.ink} />
           </TouchableOpacity>
         )}
         <View style={styles.titleContainer}>
-          <Text style={styles.title} numberOfLines={2}>
+          <Text style={[styles.title, { color: colors.ink }]} numberOfLines={2}>
             {title}
           </Text>
         </View>
         {rightAction && <View style={styles.rightAction}>{rightAction}</View>}
       </View>
-      {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+      {subtitle && <Text style={[styles.subtitle, { color: colors.inkMuted }]}>{subtitle}</Text>}
     </View>
   );
 }
@@ -63,28 +74,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButton: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Spacing.sm,
-    marginLeft: -Spacing.xs,
-  },
-  backArrow: {
-    fontSize: 24,
-    color: Colors.brand,
-    fontWeight: 'bold',
+    marginRight: Spacing.md,
+    marginLeft: 0,
   },
   titleContainer: {
     flex: 1,
   },
   title: {
     ...Typography.headlineLarge,
-    color: Colors.ink,
   },
   subtitle: {
     ...Typography.bodyMedium,
-    color: Colors.inkMuted,
     marginTop: Spacing.xs,
   },
   rightAction: {

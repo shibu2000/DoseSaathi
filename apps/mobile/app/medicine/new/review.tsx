@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AppScreen } from '@/components/AppScreen';
-import { ScreenHeader } from '@/components/ScreenHeader';
-import { PrimaryButton, SecondaryButton } from '@/components/Buttons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { PatientContextBar } from '@/components/PatientContextBar';
-import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { Spacing, Radii, scaleFont, FontFamily } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { DEFAULT_WIZARD_DRAFT, type WizardDraft } from '@/database';
 import { generateUUID } from '@/utils/uuid';
@@ -19,12 +18,15 @@ import {
 } from '@/caregiver/plan-composer';
 import { describeSubmitError, submitComposedPlan } from '@/caregiver/submit';
 import { clearStaged, saveStaged, saveTrackedCommand, type SettingsStore } from '@/caregiver/staged-store';
+import { Ionicons } from '@expo/vector-icons';
+import { StepProgressBar } from '@/components/StepProgressBar';
 
 export default function Step4ReviewConfirmScreen() {
   const router = useRouter();
   const { api, db, createMedicationFromDraft, medications } = useApp();
   const session = useWizardSession();
   const { getDraft, saveDraft, clearDraft } = session;
+  const { colors, isDark } = useTheme();
 
   const [draft, setDraft] = useState<WizardDraft>(DEFAULT_WIZARD_DRAFT);
   const [loading, setLoading] = useState(true);
@@ -149,9 +151,9 @@ export default function Step4ReviewConfirmScreen() {
 
   if (loading) {
     return (
-      <AppScreen>
-        <ActivityIndicator size="large" color={Colors.brand} style={{ marginTop: 40 }} />
-      </AppScreen>
+      <SafeAreaView style={[styles.safeContainer, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </SafeAreaView>
     );
   }
 
@@ -159,12 +161,26 @@ export default function Step4ReviewConfirmScreen() {
     if (session.access.state !== 'ready') return <CheckingScreen title="Review and confirm" />;
     if (!session.access.canEdit) {
       return (
-        <AppScreen>
-          <ScreenHeader title="Review and confirm" showBack={true} />
-          <Notice icon="eye-outline" title="View only">
-            You do not have permission to change {session.access.relationship.patientDisplayName}'s medicines.
-          </Notice>
-        </AppScreen>
+        <SafeAreaView style={[styles.safeContainer, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
+          <View style={styles.topHeader}>
+            <TouchableOpacity
+              style={[styles.backCircle, { backgroundColor: colors.surface, borderColor: colors.border }]}
+              onPress={() => router.back()}
+              accessibilityRole="button"
+              accessibilityLabel="Back"
+            >
+              <Ionicons name="arrow-back" size={20} color={colors.textPrimary} />
+            </TouchableOpacity>
+            <Text style={[styles.screenTitle, { color: colors.textPrimary }]}>
+              Review and confirm
+            </Text>
+          </View>
+          <View style={{ padding: Spacing.xl }}>
+            <Notice icon="eye-outline" title="View only">
+              You do not have permission to change {session.access.relationship.patientDisplayName}'s medicines.
+            </Notice>
+          </View>
+        </SafeAreaView>
       );
     }
   }
@@ -178,6 +194,7 @@ export default function Step4ReviewConfirmScreen() {
   const prereqMed = { name: nameOf(draft.prerequisiteMedicationId) };
   const isCaregiverReady = session.isCaregiver && session.access.state === 'ready';
   const caregiverRel = session.access.state === 'ready' ? session.access.relationship : null;
+  const isEditing = Boolean(draft.editingMedicationId);
   const stagedOthers = session.staged.filter(
     (m) => m.id !== (draft.editingMedicationId ?? draft.id)
   );
@@ -212,210 +229,364 @@ export default function Step4ReviewConfirmScreen() {
   }
 
   return (
-    <AppScreen>
-      <ScreenHeader
-        title="Review and confirm"
-        subtitle="Step 4 of 4: check the details"
-        showBack={true}
-      />
-
-      {isCaregiverReady && caregiverRel && (
-        <PatientContextBar
-          patientName={caregiverRel.patientDisplayName}
-          relationshipLabel={caregiverRel.relationshipLabel}
-        />
-      )}
-
-      {isSaving && isCaregiverReady && (
-        <View style={styles.waitingBanner} accessibilityLiveRegion="polite">
-          <ActivityIndicator size="small" color={Colors.brand} />
-          <Text style={styles.waitingText}>Sending…</Text>
-        </View>
-      )}
-
-      {/* Section 1: Identification & Dose */}
-      <View style={styles.reviewCard}>
-        <View style={styles.cardHeaderRow}>
-          <Text style={styles.cardHeader}>Medicine details</Text>
-          <TouchableOpacity style={styles.editBtn} accessibilityRole="button" accessibilityLabel="Edit this section" onPress={() => navigateToStep(1, '/medicine/new/details')}>
-            <Text style={styles.editLink}>Edit</Text>
+    <SafeAreaView style={[styles.safeContainer, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Top Header matching reference Phone 2 */}
+        <View style={styles.topHeader}>
+          <TouchableOpacity
+            style={[styles.backCircle, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            onPress={() => router.back()}
+            accessibilityRole="button"
+            accessibilityLabel="Back"
+          >
+            <Ionicons name="arrow-back" size={20} color={colors.textPrimary} />
           </TouchableOpacity>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Name</Text>
-          <Text style={styles.detailValue}>{draft.name || 'Unnamed'}</Text>
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Strength</Text>
-          <Text style={styles.detailValue}>{draft.dosageText || 'Not set'}</Text>
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Dose</Text>
-          <Text style={styles.detailValue}>
-            {draft.doseQuantity} {draft.doseUnit}
+          <Text style={[styles.screenTitle, { color: colors.textPrimary }]}>
+            {isEditing ? 'Review Changes' : 'Add Medicine'}
           </Text>
         </View>
 
-        {draft.instructions ? (
-          <>
-            <View style={styles.divider} />
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Instructions</Text>
-              <Text style={styles.detailValue}>{draft.instructions}</Text>
-            </View>
-          </>
-        ) : null}
+        {/* Step Progress Bar */}
+        <StepProgressBar currentStep={4} totalSteps={4} stepName="Review & confirm" />
 
-        {draft.trackStock ? (
-          <>
-            <View style={styles.divider} />
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Stock</Text>
-              <Text style={styles.detailValue}>
-                {draft.currentStock} {draft.doseUnit} (low stock at {draft.lowStockThreshold})
-              </Text>
-            </View>
-          </>
-        ) : null}
-      </View>
-
-      {/* Section 2: Reminder Schedule */}
-      <View style={styles.reviewCard}>
-        <View style={styles.cardHeaderRow}>
-          <Text style={styles.cardHeader}>Reminder schedule</Text>
-          <TouchableOpacity style={styles.editBtn} accessibilityRole="button" accessibilityLabel="Edit this section" onPress={() => navigateToStep(2, '/medicine/new/schedule')}>
-            <Text style={styles.editLink}>Edit</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Repeats</Text>
-          <Text style={styles.detailValue}>{SCHEDULE_TEXT[draft.scheduleType] ?? draft.scheduleType}</Text>
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Timing</Text>
-          <Text style={styles.detailValue}>{scheduleSummary}</Text>
-        </View>
-
-        {draft.scheduleType === 'SAME_DAY_DEPENDENT' && (
-          <>
-            <View style={styles.divider} />
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>If that dose is skipped</Text>
-              <Text style={styles.detailValue}>
-                {draft.sameDayFallbackPolicy === 'SKIP_CHILD'
-                  ? 'Skip this medicine too'
-                  : `Remind at ${draft.sameDayFallbackTime}`}
-              </Text>
-            </View>
-          </>
+        {isEditing && (
+          <View style={[styles.stepTabsRow, { backgroundColor: colors.surfaceSecondary, marginHorizontal: Spacing.xl }]}>
+            <TouchableOpacity
+              style={styles.stepTab}
+              onPress={() => navigateToStep(1, '/medicine/new/details')}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.stepTabText, { color: colors.textSecondary }]}>1. Details</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.stepTab}
+              onPress={() => navigateToStep(2, '/medicine/new/schedule')}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.stepTabText, { color: colors.textSecondary }]}>2. Schedule</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.stepTab}
+              onPress={() => navigateToStep(3, '/medicine/new/treatment')}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.stepTabText, { color: colors.textSecondary }]}>3. Duration</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.stepTab, { backgroundColor: colors.primary }]} activeOpacity={0.8}>
+              <Text style={[styles.stepTabTextActive, { color: colors.surface }]}>4. Review</Text>
+            </TouchableOpacity>
+          </View>
         )}
-      </View>
 
-      {/* Section 3: Treatment Duration */}
-      <View style={styles.reviewCard}>
-        <View style={styles.cardHeaderRow}>
-          <Text style={styles.cardHeader}>Treatment duration</Text>
-          <TouchableOpacity style={styles.editBtn} accessibilityRole="button" accessibilityLabel="Edit this section" onPress={() => navigateToStep(3, '/medicine/new/treatment')}>
-            <Text style={styles.editLink}>Edit</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Length</Text>
-          <Text style={styles.detailValue}>{durationSummary}</Text>
-        </View>
-
-        {draft.hasPrerequisiteCourse && (
-          <>
-            <View style={styles.divider} />
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Starts after this course</Text>
-              <Text style={styles.detailValue}>
-                {prereqMed?.name || 'Another medicine'}
-                {draft.phaseDelayHours > 0 ? ` (plus ${draft.phaseDelayHours} h wait)` : ''}
-              </Text>
-            </View>
-          </>
-        )}
-      </View>
-
-      {isCaregiverReady && stagedOthers.length > 0 && (
-        <Notice icon="layers-outline" title={`Also sending ${stagedOthers.length} other ${stagedOthers.length === 1 ? 'medicine' : 'medicines'}`}>
-          {stagedOthers.map((m) => m.name).join(', ')}. They are sent together as one prescription.
-        </Notice>
-      )}
-
-      {isCaregiverReady && (
-        <Notice icon="information-circle-outline" title="Not applied until the phone confirms">
-          Sending saves this for the phone. You will see its real status on the Medicines screen once it arrives.
-        </Notice>
-      )}
-
-      {errorText ? (
-        <Notice icon="alert-circle-outline" tone="problem" title={isCaregiverReady ? 'Not sent' : 'Not saved'}>
-          {errorText}
-        </Notice>
-      ) : null}
-
-      {/* Action Buttons */}
-      <View style={styles.actions}>
         {isCaregiverReady && caregiverRel && (
-          <Text style={styles.sendingTo} accessibilityRole="header">
-            Sending to {caregiverRel.patientDisplayName} ({caregiverRel.relationshipLabel})
-          </Text>
+          <View style={{ paddingHorizontal: Spacing.xl, marginBottom: Spacing.sm }}>
+            <PatientContextBar
+              patientName={caregiverRel.patientDisplayName}
+              relationshipLabel={caregiverRel.relationshipLabel}
+            />
+          </View>
         )}
-        <PrimaryButton
-          title={
-            isSaving
-              ? isCaregiverReady
-                ? 'Sending…'
-                : 'Saving…'
-              : isCaregiverReady && caregiverRel
-              ? `Send to ${caregiverRel.patientDisplayName}'s phone`
-              : 'Save medicine'
-          }
-          onPress={() => handleSave(false)}
-          disabled={isSaving}
-        />
-        <SecondaryButton
-          title="Save and add a follow-up medicine"
-          onPress={() => handleSave(true)}
-          disabled={isSaving}
-        />
-      </View>
-    </AppScreen>
+
+        {isSaving && isCaregiverReady && (
+          <View style={[styles.waitingBanner, { backgroundColor: colors.primaryLight }]} accessibilityLiveRegion="polite">
+            <ActivityIndicator size="small" color={colors.primary} />
+            <Text style={[styles.waitingText, { color: colors.primaryDark }]}>Sending…</Text>
+          </View>
+        )}
+
+        <View style={{ paddingHorizontal: Spacing.xl }}>
+          {/* Section 1: Identification & Dose */}
+          <View
+            style={[
+              styles.reviewCard,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <View style={styles.cardHeaderRow}>
+              <Text style={[styles.cardHeader, { color: colors.textPrimary }]}>Medicine details</Text>
+              <TouchableOpacity
+                style={styles.editBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Edit this section"
+                onPress={() => navigateToStep(1, '/medicine/new/details')}
+              >
+                <Text style={[styles.editLink, { color: colors.primary }]}>Edit</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.detailRow}>
+              <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Name</Text>
+              <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{draft.name || 'Unnamed'}</Text>
+            </View>
+
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+            <View style={styles.detailRow}>
+              <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Strength</Text>
+              <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{draft.dosageText || 'Not set'}</Text>
+            </View>
+
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+            <View style={styles.detailRow}>
+              <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Dose</Text>
+              <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
+                {draft.doseQuantity} {draft.doseUnit}
+              </Text>
+            </View>
+
+            {draft.instructions ? (
+              <>
+                <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                <View style={styles.detailRow}>
+                  <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Instructions</Text>
+                  <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{draft.instructions}</Text>
+                </View>
+              </>
+            ) : null}
+
+            {draft.trackStock ? (
+              <>
+                <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                <View style={styles.detailRow}>
+                  <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Stock</Text>
+                  <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
+                    {draft.currentStock} {draft.doseUnit} (low stock at {draft.lowStockThreshold})
+                  </Text>
+                </View>
+              </>
+            ) : null}
+          </View>
+
+          {/* Section 2: Reminder Schedule */}
+          <View
+            style={[
+              styles.reviewCard,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <View style={styles.cardHeaderRow}>
+              <Text style={[styles.cardHeader, { color: colors.textPrimary }]}>Reminder schedule</Text>
+              <TouchableOpacity
+                style={styles.editBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Edit this section"
+                onPress={() => navigateToStep(2, '/medicine/new/schedule')}
+              >
+                <Text style={[styles.editLink, { color: colors.primary }]}>Edit</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.detailRow}>
+              <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Repeats</Text>
+              <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
+                {SCHEDULE_TEXT[draft.scheduleType] ?? draft.scheduleType}
+              </Text>
+            </View>
+
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+            <View style={styles.detailRow}>
+              <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Timing</Text>
+              <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{scheduleSummary}</Text>
+            </View>
+
+            {draft.scheduleType === 'SAME_DAY_DEPENDENT' && (
+              <>
+                <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                <View style={styles.detailRow}>
+                  <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>If that dose is skipped</Text>
+                  <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
+                    {draft.sameDayFallbackPolicy === 'SKIP_CHILD'
+                      ? 'Skip this medicine too'
+                      : `Remind at ${draft.sameDayFallbackTime}`}
+                  </Text>
+                </View>
+              </>
+            )}
+          </View>
+
+          {/* Section 3: Treatment Duration */}
+          <View
+            style={[
+              styles.reviewCard,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <View style={styles.cardHeaderRow}>
+              <Text style={[styles.cardHeader, { color: colors.textPrimary }]}>Treatment duration</Text>
+              <TouchableOpacity
+                style={styles.editBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Edit this section"
+                onPress={() => navigateToStep(3, '/medicine/new/treatment')}
+              >
+                <Text style={[styles.editLink, { color: colors.primary }]}>Edit</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.detailRow}>
+              <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Length</Text>
+              <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{durationSummary}</Text>
+            </View>
+
+            {draft.hasPrerequisiteCourse && (
+              <>
+                <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                <View style={styles.detailRow}>
+                  <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Starts after this course</Text>
+                  <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
+                    {prereqMed?.name || 'Another medicine'}
+                    {draft.phaseDelayHours > 0 ? ` (plus ${draft.phaseDelayHours} h wait)` : ''}
+                  </Text>
+                </View>
+              </>
+            )}
+          </View>
+
+          {isCaregiverReady && stagedOthers.length > 0 && (
+            <Notice icon="layers-outline" title={`Also sending ${stagedOthers.length} other ${stagedOthers.length === 1 ? 'medicine' : 'medicines'}`}>
+              {stagedOthers.map((m) => m.name).join(', ')}. They are sent together as one prescription.
+            </Notice>
+          )}
+
+          {isCaregiverReady && (
+            <Notice icon="information-circle-outline" title="Not applied until the phone confirms">
+              Sending saves this for the phone. You will see its real status on the Medicines screen once it arrives.
+            </Notice>
+          )}
+
+          {errorText ? (
+            <Notice icon="alert-circle-outline" tone="problem" title={isCaregiverReady ? 'Not sent' : 'Not saved'}>
+              {errorText}
+            </Notice>
+          ) : null}
+
+          {/* Action Buttons */}
+          <View style={styles.actions}>
+            {isCaregiverReady && caregiverRel && (
+              <Text style={[styles.sendingTo, { color: colors.primary }]} accessibilityRole="header">
+                Sending to {caregiverRel.patientDisplayName} ({caregiverRel.relationshipLabel})
+              </Text>
+            )}
+
+            <TouchableOpacity
+              style={[styles.saveButton, { backgroundColor: colors.primary }]}
+              onPress={() => handleSave(false)}
+              disabled={isSaving}
+              activeOpacity={0.85}
+            >
+              <Text style={[styles.saveButtonText, { color: colors.surface }]}>
+                {isSaving
+                  ? isCaregiverReady
+                    ? 'Sending…'
+                    : 'Saving changes…'
+                  : isCaregiverReady && caregiverRel
+                  ? `Send to ${caregiverRel.patientDisplayName}'s phone`
+                  : isEditing
+                  ? 'Update medicine'
+                  : 'Save medicine'}
+              </Text>
+            </TouchableOpacity>
+
+            {!isEditing && (
+              <TouchableOpacity
+                style={[styles.secondaryActionBtn, { borderColor: colors.border, backgroundColor: colors.surface }]}
+                onPress={() => handleSave(true)}
+                disabled={isSaving}
+                activeOpacity={0.85}
+              >
+                <Text style={[styles.secondaryActionText, { color: colors.textPrimary }]}>
+                  Save and add a follow-up medicine
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: Spacing.huge,
+  },
+  topHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.xs,
+    gap: Spacing.md,
+  },
+  backCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  screenTitle: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(22),
+    letterSpacing: -0.3,
+  },
+  stepTabsRow: {
+    flexDirection: 'row',
+    borderRadius: Radii.md,
+    padding: 3,
+    marginBottom: Spacing.md,
+    gap: 4,
+  },
+  stepTab: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: Radii.sm,
+  },
+  stepTabText: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(11),
+  },
+  stepTabTextActive: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(11),
+  },
   waitingBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    backgroundColor: Colors.brandSoft,
     padding: Spacing.md,
     borderRadius: Radii.card,
+    marginHorizontal: Spacing.xl,
     marginBottom: Spacing.md,
   },
   waitingText: {
-    ...Typography.bodySmall,
-    color: Colors.brand,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(13),
     flex: 1,
   },
   reviewCard: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1,
     borderRadius: Radii.card,
     padding: Spacing.lg,
@@ -425,19 +596,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   cardHeader: {
     flex: 1,
-    ...Typography.labelMedium,
-    color: Colors.ink,
-    fontWeight: '700',
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(16),
   },
-  editBtn: { minHeight: 48, minWidth: 48, alignItems: 'flex-end', justifyContent: 'center' },
+  editBtn: {
+    minHeight: 36,
+    minWidth: 48,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
   editLink: {
-    ...Typography.labelSmall,
-    color: Colors.brand,
-    fontWeight: '700',
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(13.5),
   },
   detailRow: {
     flexDirection: 'row',
@@ -448,29 +622,55 @@ const styles = StyleSheet.create({
   detailLabel: {
     flexShrink: 1,
     marginRight: Spacing.md,
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(13.5),
   },
   detailValue: {
-    ...Typography.bodySmall,
-    color: Colors.ink,
-    fontWeight: '600',
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(13.5),
     flexShrink: 1,
     maxWidth: '62%',
     textAlign: 'right',
   },
   divider: {
     height: 1,
-    backgroundColor: Colors.outline,
     marginVertical: Spacing.xs,
   },
   sendingTo: {
-    ...Typography.labelMedium,
-    color: Colors.primary,
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(14),
+    marginBottom: Spacing.xs,
   },
   actions: {
     gap: Spacing.sm,
     marginTop: Spacing.md,
     marginBottom: Spacing.xxl,
+  },
+  saveButton: {
+    height: 54,
+    borderRadius: Radii.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#006156',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.16,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  saveButtonText: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(16),
+    letterSpacing: 0.2,
+  },
+  secondaryActionBtn: {
+    height: 50,
+    borderRadius: Radii.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  secondaryActionText: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(14.5),
   },
 });

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AppScreen } from '@/components/AppScreen';
 import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { MedChainLogo } from '@/components/MedChainLogo';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
@@ -10,6 +11,7 @@ import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 export default function WelcomeScreen() {
   const router = useRouter();
   const { setMode } = useApp();
+  const { colors, isGlass, glassStyles } = useTheme();
 
   const handlePatientMode = () => {
     setMode('personal');
@@ -26,7 +28,7 @@ export default function WelcomeScreen() {
       <View style={styles.container}>
         {/* Brand Header Mark */}
         <View style={styles.header}>
-          <MedChainLogo size={44} color={Colors.brand} />
+          <MedChainLogo size={56} />
           <Text style={styles.title}>Welcome to DoseSaathi</Text>
           <Text style={styles.subtitle}>
             Medication care, made simpler for you and your family.
@@ -37,7 +39,15 @@ export default function WelcomeScreen() {
         <View style={styles.cardsContainer}>
           {/* Option 1: Personal Medication Pathway */}
           <TouchableOpacity
-            style={styles.modeCard}
+            style={[
+              styles.modeCard,
+              {
+                backgroundColor: isGlass ? colors.cardBackground : colors.surface,
+                borderColor: isGlass ? colors.cardBorder : Colors.outline,
+                borderWidth: isGlass ? 1.5 : 1,
+              },
+              isGlass && glassStyles.card,
+            ]}
             onPress={handlePatientMode}
             activeOpacity={0.88}
             accessibilityRole="button"
@@ -63,7 +73,15 @@ export default function WelcomeScreen() {
 
           {/* Option 2: Family Caregiver Pathway */}
           <TouchableOpacity
-            style={styles.modeCard}
+            style={[
+              styles.modeCard,
+              {
+                backgroundColor: isGlass ? colors.cardBackground : colors.surface,
+                borderColor: isGlass ? colors.cardBorder : Colors.outline,
+                borderWidth: isGlass ? 1.5 : 1,
+              },
+              isGlass && glassStyles.card,
+            ]}
             onPress={handleCaregiverMode}
             activeOpacity={0.88}
             accessibilityRole="button"

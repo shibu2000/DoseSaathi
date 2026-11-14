@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Colors, Radii, Spacing, Typography } from '../theme/tokens';
+import { Colors, Radii, Spacing, scaleFont } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeContext';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export type StatusVariant =
@@ -20,46 +21,48 @@ interface StatusTagProps {
 }
 
 export function StatusTag({ label, variant, icon }: StatusTagProps) {
+  const { colors, isGlass } = useTheme();
+
   const getStyle = () => {
     switch (variant) {
       case 'taken':
       case 'completed':
         return {
-          bg: '#E6FFFA',
-          text: Colors.success,
-          iconNode: <MaterialIcons name="check" size={13} color={Colors.success} />,
+          bg: isGlass ? 'rgba(47, 107, 79, 0.12)' : '#E6FFFA',
+          text: colors.success,
+          iconNode: <MaterialIcons name="check" size={13} color={colors.success} />,
         };
       case 'due':
         return {
-          bg: Colors.brandSoft,
-          text: Colors.brand,
-          iconNode: <MaterialIcons name="schedule" size={13} color={Colors.brand} />,
+          bg: isGlass ? 'rgba(30, 88, 77, 0.14)' : colors.brandSoft,
+          text: colors.brand,
+          iconNode: <MaterialIcons name="schedule" size={13} color={colors.brand} />,
         };
       case 'snoozed':
       case 'lowStock':
       case 'unconfirmed':
         return {
-          bg: '#FDF3E3',
-          text: Colors.warning,
-          iconNode: <MaterialIcons name="warning" size={13} color={Colors.warning} />,
+          bg: isGlass ? 'rgba(215, 154, 53, 0.14)' : '#FDF3E3',
+          text: colors.warning,
+          iconNode: <MaterialIcons name="warning" size={13} color={colors.warning} />,
         };
       case 'skipped':
         return {
-          bg: Colors.surfaceMuted,
-          text: Colors.inkMuted,
-          iconNode: <MaterialIcons name="block" size={13} color={Colors.inkMuted} />,
+          bg: isGlass ? 'rgba(120, 130, 125, 0.14)' : colors.surfaceMuted,
+          text: colors.inkMuted,
+          iconNode: <MaterialIcons name="block" size={13} color={colors.inkMuted} />,
         };
       case 'queued':
         return {
-          bg: Colors.surfaceMuted,
-          text: Colors.brand,
-          iconNode: <MaterialIcons name="hourglass-empty" size={13} color={Colors.brand} />,
+          bg: isGlass ? 'rgba(30, 88, 77, 0.10)' : colors.surfaceMuted,
+          text: colors.brand,
+          iconNode: <MaterialIcons name="hourglass-empty" size={13} color={colors.brand} />,
         };
       default:
         return {
-          bg: Colors.surfaceMuted,
-          text: Colors.ink,
-          iconNode: <MaterialIcons name="circle" size={8} color={Colors.inkMuted} />,
+          bg: isGlass ? 'rgba(120, 130, 125, 0.1)' : colors.surfaceMuted,
+          text: colors.ink,
+          iconNode: <MaterialIcons name="circle" size={8} color={colors.inkMuted} />,
         };
     }
   };
@@ -67,7 +70,16 @@ export function StatusTag({ label, variant, icon }: StatusTagProps) {
   const current = getStyle();
 
   return (
-    <View style={[styles.container, { backgroundColor: current.bg }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: current.bg,
+          borderColor: isGlass ? 'rgba(255, 255, 255, 0.75)' : 'transparent',
+          borderWidth: isGlass ? 1 : 0,
+        },
+      ]}
+    >
       <View style={styles.iconContainer}>
         {icon ? (
           typeof icon === 'string' ? <Text style={styles.rawIcon}>{icon}</Text> : icon
@@ -99,9 +111,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   label: {
-    ...Typography.labelSmall,
-    fontSize: 12,
-    lineHeight: 16,
-    includeFontPadding: false,
+    fontSize: scaleFont(12.5),
+    fontWeight: '700',
+    lineHeight: scaleFont(17),
   },
 });

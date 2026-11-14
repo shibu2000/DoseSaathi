@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Spacing } from '../theme/tokens';
+import { Spacing } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeContext';
+import { GlassBackdrop } from './GlassBackdrop';
 
 interface AppScreenProps {
   children: React.ReactNode;
@@ -10,8 +12,11 @@ interface AppScreenProps {
 }
 
 export function AppScreen({ children, scrollable = true, style }: AppScreenProps) {
+  const { colors, isGlass } = useTheme();
+
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.canvas }]}>
+      {isGlass && <GlassBackdrop />}
       {scrollable ? (
         <ScrollView
           contentContainerStyle={[styles.scrollContent, style]}
@@ -30,7 +35,6 @@ export function AppScreen({ children, scrollable = true, style }: AppScreenProps
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.canvas,
   },
   scrollContent: {
     paddingHorizontal: Spacing.xl,
