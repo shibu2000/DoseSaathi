@@ -36,6 +36,7 @@ export interface CaregiverRelationshipContext {
 export type CaregiverUser = CaregiverSession['caregiver'];
 
 export type AppThemeMode = 'nature' | 'ocean' | 'sunset' | 'lavender' | 'classic' | 'glassmorphism';
+export type AppAppearanceMode = 'light' | 'dark' | 'system';
 
 export interface AppState {
   isReady: boolean;
@@ -75,6 +76,8 @@ export interface AppState {
   exactAlarmPermission: 'granted' | 'denied' | 'prompt';
   themeMode: AppThemeMode;
   setThemeMode: (mode: AppThemeMode) => Promise<void>;
+  appearanceMode: AppAppearanceMode;
+  setAppearanceMode: (scheme: AppAppearanceMode) => Promise<void>;
   setPatientName: (name: string) => Promise<void>;
   setMode: (mode: AppMode) => void;
   setOnboarded: (onboarded: boolean) => void;
@@ -147,6 +150,17 @@ export function AppProvider({
   const [notificationPermission, setNotificationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [exactAlarmPermission, setExactAlarmPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [themeMode, setThemeModeState] = useState<AppThemeMode>('nature');
+  const [appearanceMode, setAppearanceModeState] = useState<AppAppearanceMode>('system');
+
+  const setAppearanceMode = useCallback(
+    async (newScheme: AppAppearanceMode) => {
+      setAppearanceModeState(newScheme);
+      if (db) {
+        await db.settings.set('app_appearance', newScheme);
+      }
+    },
+    [db]
+  );
 
   const setThemeMode = useCallback(async (newMode: AppThemeMode) => {
     setThemeModeState(newMode);
@@ -412,6 +426,11 @@ export function AppProvider({
         if (savedTheme && !isCancelled) {
           setThemeModeState(savedTheme);
           MedchainAlarm?.setAppIcon(savedTheme).catch(() => {});
+        }
+
+        const savedAppearance = (await activeDb.settings.get('app_appearance')) as AppAppearanceMode | null;
+        if (savedAppearance && !isCancelled) {
+          setAppearanceModeState(savedAppearance);
         }
 
         // Query initial data
@@ -761,6 +780,8 @@ export function AppProvider({
         exactAlarmPermission,
         themeMode,
         setThemeMode,
+        appearanceMode,
+        setAppearanceMode,
         setPatientName: updatePatientName,
         setMode,
         setOnboarded,

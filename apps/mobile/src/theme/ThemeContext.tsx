@@ -2,6 +2,16 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import type { ViewStyle, TextStyle } from 'react-native';
 import { Colors, Spacing, Radii, Typography, FontFamily } from './tokens';
 
+let useSystemColorScheme: () => 'light' | 'dark' | null | undefined = () => 'light';
+try {
+  const RN = require('react-native');
+  if (RN && typeof RN.useColorScheme === 'function') {
+    useSystemColorScheme = RN.useColorScheme;
+  }
+} catch {
+  // Fallback for non-RN test runners
+}
+
 export type ThemeMode =
   | 'nature'
   | 'ocean'
@@ -491,7 +501,8 @@ export function ThemeProvider({
     [onSchemeChange]
   );
 
-  const isDark = colorScheme === 'dark';
+  const systemScheme = useSystemColorScheme();
+  const isDark = colorScheme === 'dark' || (colorScheme === 'system' && systemScheme === 'dark');
   const isGlass = themeMode === 'glassmorphism';
 
   const colors = useMemo<ThemeColors>(() => {

@@ -85,7 +85,7 @@ export function TimePickerModal({
     >
       <Pressable style={styles.overlay} onPress={onClose}>
         <Pressable
-          style={[styles.sheet, { backgroundColor: colors.surface }]}
+          style={[styles.sheet, { backgroundColor: colors.surface, borderColor: colors.border }]}
           onPress={(e) => e.stopPropagation()}
         >
           {/* Header */}

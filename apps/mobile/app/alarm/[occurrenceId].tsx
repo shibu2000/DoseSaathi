@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { Spacing, Typography, Radii, FontFamily, scaleFont } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { MaterialIcons, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { MedChainLogo } from '@/components/MedChainLogo';
@@ -23,6 +24,7 @@ export default function MedicationAlarmScreen() {
   const { occurrenceId, action: launchAction } = useLocalSearchParams<{ occurrenceId: string; action?: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
   const {
     db,
     todayOccurrences,
@@ -294,14 +296,31 @@ export default function MedicationAlarmScreen() {
 
   if (!isTestPreview && !med) {
     return (
-      <View style={[styles.root, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 12, justifyContent: 'center', alignItems: 'center', padding: 24 }]}>
-        <Text style={styles.stateHeadline}>{loaded ? 'This reminder is no longer available' : 'Loading reminder'}</Text>
+      <View
+        style={[
+          styles.root,
+          {
+            backgroundColor: colors.canvas,
+            paddingTop: insets.top + 8,
+            paddingBottom: insets.bottom + 12,
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 24,
+          },
+        ]}
+      >
+        <Text style={[styles.stateHeadline, { color: colors.textPrimary }]}>
+          {loaded ? 'This reminder is no longer available' : 'Loading reminder'}
+        </Text>
         {loaded && (
           <>
-            <Text style={[styles.stateDetailText, { textAlign: 'center' }]}>
+            <Text style={[styles.stateDetailText, { textAlign: 'center', color: colors.textSecondary }]}>
               The medicine may have been changed or its course may have ended.
             </Text>
-            <TouchableOpacity style={styles.primaryDoneButton} onPress={() => router.replace('/(patient)/(tabs)/today')}>
+            <TouchableOpacity
+              style={[styles.primaryDoneButton, { backgroundColor: colors.primary, marginTop: Spacing.lg }]}
+              onPress={() => router.replace('/(patient)/(tabs)/today')}
+            >
               <Text style={styles.primaryDoneText}>Go to Today</Text>
             </TouchableOpacity>
           </>
@@ -311,9 +330,24 @@ export default function MedicationAlarmScreen() {
   }
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 12 }]}>
+    <View
+      style={[
+        styles.root,
+        {
+          backgroundColor: colors.canvas,
+          paddingTop: insets.top + 8,
+          paddingBottom: insets.bottom + 12,
+        },
+      ]}
+    >
       {/* Subtle ambient warm glow in center */}
-      <View style={styles.ambientGlow} pointerEvents="none" />
+      <View
+        style={[
+          styles.ambientGlow,
+          { backgroundColor: isDark ? 'rgba(30, 142, 128, 0.12)' : colors.primaryLight },
+        ]}
+        pointerEvents="none"
+      />
 
       {/* 1. MAIN ALARM VIEW: DUE NOW */}
       {alarmState === 'DUE' && (
@@ -325,67 +359,140 @@ export default function MedicationAlarmScreen() {
         >
           {/* Top Brand & Schedule Context */}
           <View style={styles.topSection}>
-            <View style={styles.brandBadge}>
+            <View
+              style={[
+                styles.brandBadge,
+                {
+                  backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : colors.surfaceSecondary,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
               <MedChainLogo size={18} />
-              <Text style={styles.brandBadgeText}>DoseSaathi</Text>
+              <Text style={[styles.brandBadgeText, { color: colors.primary }]}>DoseSaathi</Text>
             </View>
 
-            <Text style={styles.categoryTrackerText}>MEDICATION REMINDER</Text>
+            <Text style={[styles.categoryTrackerText, { color: colors.textSecondary }]}>
+              MEDICATION REMINDER
+            </Text>
 
             {/* Glowing DUE NOW beacon */}
             <View style={styles.beaconRow}>
-              <View style={styles.beaconOuter}>
-                <View style={styles.beaconInner} />
+              <View
+                style={[
+                  styles.beaconOuter,
+                  { backgroundColor: isDark ? 'rgba(30, 142, 128, 0.35)' : colors.primaryLight },
+                ]}
+              >
+                <View style={[styles.beaconInner, { backgroundColor: colors.primary }]} />
               </View>
-              <View style={styles.dueNowBadge}>
+              <View style={[styles.dueNowBadge, { backgroundColor: colors.primary }]}>
                 <Text style={styles.dueNowText}>DUE NOW</Text>
               </View>
             </View>
 
             <View style={styles.scheduleRow}>
-              <MaterialIcons name="schedule" size={15} color={Colors.inkMuted} />
-              <Text style={styles.scheduleText}>Scheduled for {scheduledTimeStr} • {scheduledDayLabel}</Text>
+              <MaterialIcons name="schedule" size={15} color={colors.textSecondary} />
+              <Text style={[styles.scheduleText, { color: colors.textSecondary }]}>
+                Scheduled for {scheduledTimeStr} • {scheduledDayLabel}
+              </Text>
             </View>
           </View>
 
           {/* Center Medication Hero & Radiating Rings */}
           <View style={styles.centerHeroSection}>
             <View style={styles.pulseContainer}>
-              <View style={styles.pulseRingOuter} />
-              <View style={styles.pulseRingInner} />
-              <View style={styles.pillIconCircle}>
-                <MaterialCommunityIcons name="pill" size={36} color={Colors.brand} />
+              <View
+                style={[
+                  styles.pulseRingOuter,
+                  { backgroundColor: isDark ? 'rgba(30, 142, 128, 0.14)' : colors.primaryLight },
+                ]}
+              />
+              <View
+                style={[
+                  styles.pulseRingInner,
+                  { backgroundColor: isDark ? 'rgba(30, 142, 128, 0.26)' : 'rgba(0, 97, 86, 0.18)' },
+                ]}
+              />
+              <View
+                style={[
+                  styles.pillIconCircle,
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: colors.primary,
+                  },
+                ]}
+              >
+                <MaterialCommunityIcons name="pill" size={36} color={colors.primary} />
               </View>
             </View>
 
-            <Text style={styles.medNameText}>{activeMed.name}</Text>
-            <Text style={styles.medDosageText}>{activeMed.dosageText}</Text>
+            <Text style={[styles.medNameText, { color: colors.textPrimary }]}>{activeMed.name}</Text>
+            <Text style={[styles.medDosageText, { color: colors.primary }]}>{activeMed.dosageText}</Text>
 
             {/* Intake Instructions Card with Badges */}
-            <View style={styles.instructionsCard}>
-              <Text style={styles.instructionBodyText}>
+            <View
+              style={[
+                styles.instructionsCard,
+                {
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
+              <Text style={[styles.instructionBodyText, { color: colors.textPrimary }]}>
                 {activeMed.instructions || `Take ${activeMed.doseQuantity} ${activeMed.doseUnit}.`}
               </Text>
 
               <View style={styles.badgesWrap}>
                 {courseBadge && (
-                  <View style={styles.badgeMuted}>
-                    <MaterialIcons name="calendar-today" size={13} color={Colors.inkMuted} />
-                    <Text style={styles.badgeMutedText}>{courseBadge}</Text>
+                  <View
+                    style={[
+                      styles.badgeMuted,
+                      {
+                        backgroundColor: colors.surfaceSecondary,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                  >
+                    <MaterialIcons name="calendar-today" size={13} color={colors.textSecondary} />
+                    <Text style={[styles.badgeMutedText, { color: colors.textSecondary }]}>
+                      {courseBadge}
+                    </Text>
                   </View>
                 )}
 
                 {activeMed.trackStock && (
-                  <View style={styles.badgeMuted}>
-                    <MaterialIcons name="inventory-2" size={13} color={Colors.inkMuted} />
-                    <Text style={styles.badgeMutedText}>Stock: {activeMed.currentStock} left</Text>
+                  <View
+                    style={[
+                      styles.badgeMuted,
+                      {
+                        backgroundColor: colors.surfaceSecondary,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                  >
+                    <MaterialIcons name="inventory-2" size={13} color={colors.textSecondary} />
+                    <Text style={[styles.badgeMutedText, { color: colors.textSecondary }]}>
+                      Stock: {activeMed.currentStock} left
+                    </Text>
                   </View>
                 )}
 
                 {(childDeps.length > 0 || isTestPreview) && (
-                  <View style={styles.badgePaired}>
-                    <MaterialIcons name="link" size={13} color={Colors.warning} />
-                    <Text style={styles.badgePairedText}>Paired follow-up</Text>
+                  <View
+                    style={[
+                      styles.badgePaired,
+                      {
+                        backgroundColor: isDark ? 'rgba(230, 168, 69, 0.16)' : '#FFECCF',
+                        borderColor: colors.warning,
+                      },
+                    ]}
+                  >
+                    <MaterialIcons name="link" size={13} color={colors.warning} />
+                    <Text style={[styles.badgePairedText, { color: colors.warning }]}>
+                      Paired follow-up
+                    </Text>
                   </View>
                 )}
               </View>
@@ -396,7 +503,13 @@ export default function MedicationAlarmScreen() {
           <View style={styles.actionCenter}>
             {/* Primary Action: Mark as Taken */}
             <TouchableOpacity
-              style={styles.markTakenButton}
+              style={[
+                styles.markTakenButton,
+                {
+                  backgroundColor: colors.primary,
+                  shadowColor: colors.primary,
+                },
+              ]}
               onPress={handleTake}
               activeOpacity={0.88}
               accessibilityRole="button"
@@ -408,30 +521,52 @@ export default function MedicationAlarmScreen() {
                 </View>
                 <View style={styles.btnTextCol}>
                   <Text style={styles.takenBtnTitle}>Mark as taken</Text>
-                  <Text style={styles.takenBtnSubtitle}>Confirms intake & stops alarm</Text>
+                  <Text
+                    style={[
+                      styles.takenBtnSubtitle,
+                      { color: isDark ? '#E0F2EE' : colors.primaryLight },
+                    ]}
+                  >
+                    Confirms intake & stops alarm
+                  </Text>
                 </View>
               </View>
-              <MaterialIcons name="arrow-forward" size={24} color={Colors.brandSoft} />
+              <MaterialIcons name="arrow-forward" size={24} color="#FFFFFF" />
             </TouchableOpacity>
 
             {/* Secondary Action: Snooze 10 minutes */}
             <TouchableOpacity
-              style={styles.snoozeButton}
+              style={[
+                styles.snoozeButton,
+                {
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                },
+              ]}
               onPress={handleSnooze}
               activeOpacity={0.88}
               accessibilityRole="button"
               accessibilityLabel="Snooze 10 minutes"
             >
               <View style={styles.snoozeBtnLeft}>
-                <View style={styles.snoozeIconCircle}>
-                  <MaterialIcons name="snooze" size={20} color={Colors.inkMuted} />
+                <View
+                  style={[
+                    styles.snoozeIconCircle,
+                    { backgroundColor: colors.surfaceSecondary },
+                  ]}
+                >
+                  <MaterialIcons name="snooze" size={20} color={colors.textSecondary} />
                 </View>
                 <View style={styles.btnTextCol}>
-                  <Text style={styles.snoozeBtnTitle}>Remind me in 10 minutes</Text>
-                  <Text style={styles.snoozeBtnSubtitle}>Rings again at {snoozeTimeStr}</Text>
+                  <Text style={[styles.snoozeBtnTitle, { color: colors.textPrimary }]}>
+                    Remind me in 10 minutes
+                  </Text>
+                  <Text style={[styles.snoozeBtnSubtitle, { color: colors.textSecondary }]}>
+                    Rings again at {snoozeTimeStr}
+                  </Text>
                 </View>
               </View>
-              <MaterialIcons name="notifications-paused" size={20} color={Colors.inkMuted} />
+              <MaterialIcons name="notifications-paused" size={20} color={colors.textSecondary} />
             </TouchableOpacity>
 
             {/* Tertiary Action: Skip Dose */}
@@ -442,20 +577,25 @@ export default function MedicationAlarmScreen() {
               accessibilityRole="button"
               accessibilityLabel="Skip this dose"
             >
-              <MaterialIcons name="cancel" size={18} color={Colors.inkMuted} />
-              <Text style={styles.skipButtonText}>Skip this dose</Text>
+              <MaterialIcons name="cancel" size={18} color={colors.textSecondary} />
+              <Text style={[styles.skipButtonText, { color: colors.textSecondary }]}>
+                Skip this dose
+              </Text>
             </TouchableOpacity>
 
             {actionError && (
-              <Text accessibilityRole="alert" style={{ color: Colors.danger, textAlign: 'center', marginTop: 8 }}>
+              <Text
+                accessibilityRole="alert"
+                style={{ color: colors.error, textAlign: 'center', marginTop: 8 }}
+              >
                 {actionError}
               </Text>
             )}
 
             {/* Reliability Footnote */}
             <View style={styles.reliabilityFootnote}>
-              <MaterialIcons name="cloud-off" size={14} color={Colors.inkMuted} />
-              <Text style={styles.reliabilityText}>
+              <MaterialIcons name="cloud-off" size={14} color={colors.textSecondary} />
+              <Text style={[styles.reliabilityText, { color: colors.textSecondary }]}>
                 Works without internet
               </Text>
             </View>
@@ -467,20 +607,39 @@ export default function MedicationAlarmScreen() {
       {alarmState === 'TAKEN' && (
         <View style={styles.stateContainer}>
           <View style={styles.stateTopBlock}>
-            <View style={styles.stampCircle}>
-              <MaterialIcons name="task-alt" size={44} color={Colors.brand} />
+            <View
+              style={[
+                styles.stampCircle,
+                { backgroundColor: isDark ? 'rgba(52, 168, 119, 0.20)' : colors.primaryLight },
+              ]}
+            >
+              <MaterialIcons name="task-alt" size={44} color={colors.success} />
             </View>
-            <Text style={styles.stateHeadline}>Dose marked as taken</Text>
-            <Text style={styles.stateTimestamp}>Recorded at {takenAtTimeStr} • Today</Text>
+            <Text style={[styles.stateHeadline, { color: colors.textPrimary }]}>
+              Dose marked as taken
+            </Text>
+            <Text style={[styles.stateTimestamp, { color: colors.success }]}>
+              Recorded at {takenAtTimeStr} • Today
+            </Text>
 
             {/* Medical Chain Link Status Card */}
-            <View style={styles.chainStatusCard}>
+            <View
+              style={[
+                styles.chainStatusCard,
+                {
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
               {activeMed.trackStock && (
                 <View style={styles.chainStatusRow}>
-                  <MaterialIcons name="inventory-2" size={22} color={Colors.brand} />
+                  <MaterialIcons name="inventory-2" size={22} color={colors.primary} />
                   <View style={styles.chainTextCol}>
-                    <Text style={styles.chainRowTitle}>Inventory Updated</Text>
-                    <Text style={styles.chainRowSub}>
+                    <Text style={[styles.chainRowTitle, { color: colors.textPrimary }]}>
+                      Inventory Updated
+                    </Text>
+                    <Text style={[styles.chainRowSub, { color: colors.textSecondary }]}>
                       {remainingStock} {activeMed.doseUnit} left.
                     </Text>
                   </View>
@@ -489,12 +648,16 @@ export default function MedicationAlarmScreen() {
 
               {(childDeps.length > 0 || isTestPreview) && (
                 <>
-                  {activeMed.trackStock && <View style={styles.chainDivider} />}
+                  {activeMed.trackStock && (
+                    <View style={[styles.chainDivider, { backgroundColor: colors.border }]} />
+                  )}
                   <View style={styles.chainStatusRow}>
-                    <MaterialIcons name="hourglass-top" size={22} color={Colors.warning} />
+                    <MaterialIcons name="hourglass-top" size={22} color={colors.warning} />
                     <View style={styles.chainTextCol}>
-                      <Text style={styles.chainRowTitle}>Follow-up reminder set</Text>
-                      <Text style={styles.chainRowSub}>
+                      <Text style={[styles.chainRowTitle, { color: colors.textPrimary }]}>
+                        Follow-up reminder set
+                      </Text>
+                      <Text style={[styles.chainRowSub, { color: colors.textSecondary }]}>
                         {childDeps.find((d) => d.dependencyType === 'SAME_DAY_AFTER_TAKEN')
                           ? `Rings ${childDeps.find((d) => d.dependencyType === 'SAME_DAY_AFTER_TAKEN')!.delayMinutes} minutes after you took this dose.`
                           : 'A follow-up reminder has been scheduled.'}
@@ -508,13 +671,15 @@ export default function MedicationAlarmScreen() {
 
           <View style={styles.stateBottomBlock}>
             <TouchableOpacity
-              style={styles.primaryDoneButton}
+              style={[styles.primaryDoneButton, { backgroundColor: colors.primary }]}
               onPress={() => closeScreen()}
               activeOpacity={0.88}
             >
               <Text style={styles.primaryDoneText}>Done & Return to Schedule</Text>
             </TouchableOpacity>
-            <Text style={styles.stateFootnote}>Audio alarm disarmed successfully</Text>
+            <Text style={[styles.stateFootnote, { color: colors.textSecondary }]}>
+              Audio alarm disarmed successfully
+            </Text>
           </View>
         </View>
       )}
@@ -523,19 +688,38 @@ export default function MedicationAlarmScreen() {
       {alarmState === 'SNOOZED' && (
         <View style={styles.stateContainer}>
           <View style={styles.stateTopBlock}>
-            <View style={styles.snoozeStateCircle}>
-              <MaterialIcons name="notifications-paused" size={44} color={Colors.inkMuted} />
+            <View
+              style={[
+                styles.snoozeStateCircle,
+                { backgroundColor: colors.surfaceSecondary },
+              ]}
+            >
+              <MaterialIcons name="notifications-paused" size={44} color={colors.textSecondary} />
             </View>
-            <Text style={styles.stateHeadline}>Alarm Postponed</Text>
-            <Text style={styles.stateSubtitleBrand}>Snoozed for 10 minutes</Text>
-            <Text style={styles.stateDetailText}>This alarm will ring again at {snoozeTimeStr}.</Text>
+            <Text style={[styles.stateHeadline, { color: colors.textPrimary }]}>Alarm Postponed</Text>
+            <Text style={[styles.stateSubtitleBrand, { color: colors.primary }]}>
+              Snoozed for 10 minutes
+            </Text>
+            <Text style={[styles.stateDetailText, { color: colors.textSecondary }]}>
+              This alarm will ring again at {snoozeTimeStr}.
+            </Text>
 
-            <View style={styles.chainStatusCard}>
+            <View
+              style={[
+                styles.chainStatusCard,
+                {
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
               <View style={styles.chainStatusRow}>
-                <MaterialIcons name="info" size={22} color={Colors.inkMuted} />
+                <MaterialIcons name="info" size={22} color={colors.textSecondary} />
                 <View style={styles.chainTextCol}>
-                  <Text style={styles.chainRowTitle}>No Changes to Plan</Text>
-                  <Text style={styles.chainRowSub}>
+                  <Text style={[styles.chainRowTitle, { color: colors.textPrimary }]}>
+                    No Changes to Plan
+                  </Text>
+                  <Text style={[styles.chainRowSub, { color: colors.textSecondary }]}>
                     Dose has not been logged as taken. Follow-up medicine timers remain on hold.
                   </Text>
                 </View>
@@ -545,11 +729,19 @@ export default function MedicationAlarmScreen() {
 
           <View style={styles.stateBottomBlock}>
             <TouchableOpacity
-              style={styles.secondaryDoneButton}
+              style={[
+                styles.secondaryDoneButton,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                },
+              ]}
               onPress={() => closeScreen()}
               activeOpacity={0.88}
             >
-              <Text style={styles.secondaryDoneText}>Close Screen</Text>
+              <Text style={[styles.secondaryDoneText, { color: colors.textPrimary }]}>
+                Close Screen
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -559,19 +751,38 @@ export default function MedicationAlarmScreen() {
       {alarmState === 'SKIPPED' && (
         <View style={styles.stateContainer}>
           <View style={styles.stateTopBlock}>
-            <View style={styles.snoozeStateCircle}>
-              <MaterialIcons name="event-busy" size={44} color={Colors.inkMuted} />
+            <View
+              style={[
+                styles.snoozeStateCircle,
+                { backgroundColor: colors.surfaceSecondary },
+              ]}
+            >
+              <MaterialIcons name="event-busy" size={44} color={colors.textSecondary} />
             </View>
-            <Text style={styles.stateHeadline}>Dose Skipped</Text>
-            <Text style={styles.stateSubtitleMuted}>Logged as skipped for today</Text>
-            <Text style={styles.stateDetailText}>Inventory untouched. Audio alarm stopped.</Text>
+            <Text style={[styles.stateHeadline, { color: colors.textPrimary }]}>Dose Skipped</Text>
+            <Text style={[styles.stateSubtitleMuted, { color: colors.textSecondary }]}>
+              Logged as skipped for today
+            </Text>
+            <Text style={[styles.stateDetailText, { color: colors.textSecondary }]}>
+              Inventory untouched. Audio alarm stopped.
+            </Text>
 
-            <View style={styles.chainStatusCard}>
+            <View
+              style={[
+                styles.chainStatusCard,
+                {
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
               <View style={styles.chainStatusRow}>
-                <MaterialIcons name="check-circle" size={22} color={Colors.inkMuted} />
+                <MaterialIcons name="check-circle" size={22} color={colors.success} />
                 <View style={styles.chainTextCol}>
-                  <Text style={styles.chainRowTitle}>Schedule Preserved</Text>
-                  <Text style={styles.chainRowSub}>
+                  <Text style={[styles.chainRowTitle, { color: colors.textPrimary }]}>
+                    Schedule Preserved
+                  </Text>
+                  <Text style={[styles.chainRowSub, { color: colors.textSecondary }]}>
                     Your routine will resume at your next regular dosage window.
                   </Text>
                 </View>
@@ -581,11 +792,19 @@ export default function MedicationAlarmScreen() {
 
           <View style={styles.stateBottomBlock}>
             <TouchableOpacity
-              style={styles.secondaryDoneButton}
+              style={[
+                styles.secondaryDoneButton,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                },
+              ]}
               onPress={() => closeScreen()}
               activeOpacity={0.88}
             >
-              <Text style={styles.secondaryDoneText}>Done & Close Screen</Text>
+              <Text style={[styles.secondaryDoneText, { color: colors.textPrimary }]}>
+                Done & Close Screen
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -595,23 +814,42 @@ export default function MedicationAlarmScreen() {
       {alarmState === 'COURSE_COMPLETED' && (
         <View style={styles.stateContainer}>
           <View style={styles.stateTopBlock}>
-            <View style={styles.stampCircleBrand}>
-              <MaterialIcons name="verified" size={48} color={Colors.brand} />
+            <View
+              style={[
+                styles.stampCircleBrand,
+                { backgroundColor: isDark ? 'rgba(230, 168, 69, 0.20)' : colors.primaryLight },
+              ]}
+            >
+              <MaterialIcons name="verified" size={48} color={colors.warning} />
             </View>
-            <Text style={styles.stateHeadline}>Course Completed!</Text>
-            <Text style={styles.stateSubtitleBrand}>{activeMed.name}</Text>
-            <Text style={styles.stateDetailText}>
+            <Text style={[styles.stateHeadline, { color: colors.textPrimary }]}>
+              Course Completed!
+            </Text>
+            <Text style={[styles.stateSubtitleBrand, { color: colors.primary }]}>
+              {activeMed.name}
+            </Text>
+            <Text style={[styles.stateDetailText, { color: colors.textSecondary }]}>
               {followUpNames.length > 0
                 ? `${activeMed.name} has ended. Reminders for ${followUpNames.join(', ')} are now active.`
                 : `${activeMed.name} has ended. No further reminders for it will ring.`}
             </Text>
 
-            <View style={styles.chainStatusCard}>
+            <View
+              style={[
+                styles.chainStatusCard,
+                {
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
               <View style={styles.chainStatusRow}>
-                <MaterialIcons name="check-circle" size={20} color={Colors.brand} />
+                <MaterialIcons name="check-circle" size={20} color={colors.primary} />
                 <View style={styles.chainTextCol}>
-                  <Text style={styles.chainRowTitle}>Treatment course finished</Text>
-                  <Text style={styles.chainRowSub}>
+                  <Text style={[styles.chainRowTitle, { color: colors.textPrimary }]}>
+                    Treatment course finished
+                  </Text>
+                  <Text style={[styles.chainRowSub, { color: colors.textSecondary }]}>
                     You can undo this for the next 5 minutes if it was a mistake.
                   </Text>
                 </View>
@@ -620,19 +858,27 @@ export default function MedicationAlarmScreen() {
 
             {undoActive && (
               <TouchableOpacity
-                style={styles.undoButton}
+                style={[
+                  styles.undoButton,
+                  {
+                    backgroundColor: isDark ? 'rgba(30, 142, 128, 0.20)' : colors.primaryLight,
+                    borderColor: colors.primary,
+                  },
+                ]}
                 onPress={handleUndo}
                 activeOpacity={0.85}
               >
-                <Ionicons name="arrow-undo" size={16} color={Colors.brand} />
-                <Text style={styles.undoButtonText}>Undo Course Completion (5m)</Text>
+                <Ionicons name="arrow-undo" size={16} color={colors.primary} />
+                <Text style={[styles.undoButtonText, { color: colors.primary }]}>
+                  Undo Course Completion (5m)
+                </Text>
               </TouchableOpacity>
             )}
           </View>
 
           <View style={styles.stateBottomBlock}>
             <TouchableOpacity
-              style={styles.primaryDoneButton}
+              style={[styles.primaryDoneButton, { backgroundColor: colors.primary }]}
               onPress={() => closeScreen()}
               activeOpacity={0.88}
             >
@@ -650,14 +896,29 @@ export default function MedicationAlarmScreen() {
         onRequestClose={() => setShowSkipModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalSheet}>
+          <View
+            style={[
+              styles.modalSheet,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+              },
+            ]}
+          >
             <View style={styles.modalHeader}>
-              <View style={styles.modalIconBox}>
-                <MaterialIcons name="link-off" size={22} color={Colors.warning} />
+              <View
+                style={[
+                  styles.modalIconBox,
+                  { backgroundColor: isDark ? 'rgba(230, 168, 69, 0.20)' : '#FFECCF' },
+                ]}
+              >
+                <MaterialIcons name="link-off" size={22} color={colors.warning} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.modalTitle}>This dose has a follow-up reminder</Text>
-                <Text style={styles.modalDesc}>
+                <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>
+                  This dose has a follow-up reminder
+                </Text>
+                <Text style={[styles.modalDesc, { color: colors.textSecondary }]}>
                   You have a follow-up medicine scheduled after this dose. How would you like to handle it?
                 </Text>
               </View>
@@ -665,32 +926,52 @@ export default function MedicationAlarmScreen() {
 
             {/* Option 1: Skip both */}
             <TouchableOpacity
-              style={styles.modalChoiceBtn}
+              style={[
+                styles.modalChoiceBtn,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                },
+              ]}
               onPress={() => confirmSkipWithPolicy('SKIP_CHILD')}
               activeOpacity={0.85}
             >
               <View>
-                <Text style={styles.choiceTitle}>Skip the follow-up dose too</Text>
-                <Text style={styles.choiceSub}>Cancels the paired reminder for today</Text>
+                <Text style={[styles.choiceTitle, { color: colors.textPrimary }]}>
+                  Skip the follow-up dose too
+                </Text>
+                <Text style={[styles.choiceSub, { color: colors.textSecondary }]}>
+                  Cancels the paired reminder for today
+                </Text>
               </View>
-              <MaterialIcons name="chevron-right" size={22} color={Colors.inkMuted} />
+              <MaterialIcons name="chevron-right" size={22} color={colors.textSecondary} />
             </TouchableOpacity>
 
             {/* Option 2: only when a fallback time was entered from the prescription */}
             {fallbackDep && (
-            <TouchableOpacity
-              style={styles.modalChoiceBtn}
-              onPress={() => confirmSkipWithPolicy('USE_FALLBACK_TIME')}
-              activeOpacity={0.85}
-            >
-              <View>
-                <Text style={styles.choiceTitle}>Ring at prescribed fallback time</Text>
-                <Text style={styles.choiceSub}>
-                  {fallbackDep ? `Rings at ${fallbackDep.fallbackTime} today` : 'No fallback time was set for this medicine'}
-                </Text>
-              </View>
-              <MaterialIcons name="chevron-right" size={22} color={Colors.inkMuted} />
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.modalChoiceBtn,
+                  {
+                    backgroundColor: colors.surfaceSecondary,
+                    borderColor: colors.border,
+                  },
+                ]}
+                onPress={() => confirmSkipWithPolicy('USE_FALLBACK_TIME')}
+                activeOpacity={0.85}
+              >
+                <View>
+                  <Text style={[styles.choiceTitle, { color: colors.textPrimary }]}>
+                    Ring at prescribed fallback time
+                  </Text>
+                  <Text style={[styles.choiceSub, { color: colors.textSecondary }]}>
+                    {fallbackDep
+                      ? `Rings at ${fallbackDep.fallbackTime} today`
+                      : 'No fallback time was set for this medicine'}
+                  </Text>
+                </View>
+                <MaterialIcons name="chevron-right" size={22} color={colors.textSecondary} />
+              </TouchableOpacity>
             )}
 
             {/* Cancel Modal */}
@@ -698,7 +979,9 @@ export default function MedicationAlarmScreen() {
               style={styles.modalCancelBtn}
               onPress={() => setShowSkipModal(false)}
             >
-              <Text style={styles.modalCancelText}>Keep Alarm Active</Text>
+              <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>
+                Keep Alarm Active
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -719,18 +1002,16 @@ function formatTime(date: Date) {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: Colors.canvas,
     position: 'relative',
   },
   ambientGlow: {
     position: 'absolute',
     top: 60,
     alignSelf: 'center',
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: Colors.brandSoft,
-    opacity: 0.45,
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    opacity: 0.5,
   },
   scrollContainer: {
     flex: 1,
@@ -752,23 +1033,19 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 12,
     paddingVertical: 4,
-    backgroundColor: 'rgba(236,239,233,0.85)',
     borderRadius: Radii.full,
+    borderWidth: 1,
     marginBottom: 2,
   },
   brandBadgeText: {
-    ...Typography.labelSmall,
-    color: Colors.brand,
-    fontWeight: '700',
-    fontSize: 12,
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(12),
     letterSpacing: 0.5,
   },
   categoryTrackerText: {
-    ...Typography.labelSmall,
-    fontSize: 12,
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(11.5),
     letterSpacing: 1.5,
-    color: Colors.inkMuted,
-    fontWeight: '600',
     textTransform: 'uppercase',
   },
   beaconRow: {
@@ -781,7 +1058,6 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderRadius: 7,
-    backgroundColor: Colors.brandSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -789,30 +1065,27 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.primary,
   },
   dueNowBadge: {
-    backgroundColor: Colors.primary,
     paddingHorizontal: 10,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: Radii.full,
   },
   dueNowText: {
-    ...Typography.labelSmall,
     color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 12,
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(11.5),
+    letterSpacing: 0.5,
   },
   scheduleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     marginTop: 4,
   },
   scheduleText: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
-    fontSize: 13,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(13),
   },
   centerHeroSection: {
     alignItems: 'center',
@@ -831,20 +1104,18 @@ const styles = StyleSheet.create({
     width: 112,
     height: 112,
     borderRadius: 56,
-    backgroundColor: 'rgba(220, 233, 226, 0.45)',
   },
   pulseRingInner: {
     position: 'absolute',
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: 'rgba(220, 233, 226, 0.85)',
+    width: 88,
+    height: 88,
+    borderRadius: 44,
   },
   pillIconCircle: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: Colors.surface,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -854,22 +1125,20 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   medNameText: {
-    ...Typography.display,
-    color: Colors.ink,
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(26),
+    lineHeight: scaleFont(32),
     textAlign: 'center',
-    fontWeight: '700',
   },
   medDosageText: {
-    ...Typography.headlineSmall,
-    color: Colors.brand,
-    marginTop: 2,
-    fontWeight: '600',
-    fontSize: 16,
+    fontFamily: FontFamily.semiBold,
+    marginTop: 3,
+    fontSize: scaleFont(16),
   },
   instructionsCard: {
     width: '100%',
-    backgroundColor: Colors.surface,
     borderRadius: Radii.card,
+    borderWidth: 1,
     padding: Spacing.md,
     marginTop: Spacing.md,
     alignItems: 'center',
@@ -881,10 +1150,10 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   instructionBodyText: {
-    ...Typography.bodyMedium,
-    color: Colors.ink,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(14.5),
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: scaleFont(21),
   },
   badgesWrap: {
     flexDirection: 'row',
@@ -900,25 +1169,12 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    backgroundColor: Colors.surfaceMuted,
     borderRadius: Radii.full,
+    borderWidth: 1,
   },
   badgeMutedText: {
-    ...Typography.labelSmall,
-    fontSize: 11,
-    color: Colors.inkMuted,
-  },
-  badgeBrand: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    backgroundColor: Colors.brandSoft,
-    borderRadius: Radii.full,
-  },
-  badgeBrandText: {
-    ...Typography.labelSmall,
-    fontSize: 11,
-    color: Colors.brand,
-    fontWeight: '600',
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(11),
   },
   badgePaired: {
     flexDirection: 'row',
@@ -926,14 +1182,12 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    backgroundColor: '#FFECCF',
     borderRadius: Radii.full,
+    borderWidth: 1,
   },
   badgePairedText: {
-    ...Typography.labelSmall,
-    fontSize: 11,
-    color: Colors.warning,
-    fontWeight: '600',
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(11),
   },
   actionCenter: {
     width: '100%',
@@ -945,15 +1199,13 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     gap: Spacing.sm,
     borderRadius: Radii.card,
-    backgroundColor: Colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.lg,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.22,
+    shadowRadius: 6,
     elevation: 3,
   },
   takenBtnLeft: {
@@ -967,7 +1219,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: 'rgba(255,255,255,0.18)',
+    backgroundColor: 'rgba(255,255,255,0.20)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -977,28 +1229,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   takenBtnTitle: {
-    ...Typography.headlineSmall,
     color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 17,
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(17),
   },
   takenBtnSubtitle: {
-    ...Typography.bodySmall,
-    color: Colors.brandSoft,
-    fontSize: 12,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(12),
   },
   snoozeButton: {
     minHeight: 56,
     paddingVertical: Spacing.sm,
     gap: Spacing.sm,
     borderRadius: Radii.card,
-    backgroundColor: Colors.surface,
+    borderWidth: 1.5,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.lg,
-    borderColor: Colors.outline,
-    borderWidth: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -1016,20 +1264,16 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: Colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
   },
   snoozeBtnTitle: {
-    ...Typography.labelMedium,
-    color: Colors.ink,
-    fontWeight: '600',
-    fontSize: 15,
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(15),
   },
   snoozeBtnSubtitle: {
-    ...Typography.labelSmall,
-    color: Colors.inkMuted,
-    fontSize: 11,
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(11.5),
   },
   skipButton: {
     minHeight: 48,
@@ -1039,21 +1283,19 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   skipButtonText: {
-    ...Typography.labelMedium,
-    color: Colors.inkMuted,
-    fontSize: 14,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(14),
   },
   reliabilityFootnote: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 5,
     marginTop: 2,
   },
   reliabilityText: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
-    fontSize: 12,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(12),
   },
   // Confirmed Views Styles
   stateContainer: {
@@ -1070,7 +1312,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.brandSoft,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.sm,
@@ -1079,7 +1320,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.brandSoft,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.sm,
@@ -1088,42 +1328,38 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.sm,
   },
   stateHeadline: {
-    ...Typography.headlineLarge,
-    color: Colors.ink,
-    fontWeight: '700',
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(22),
+    textAlign: 'center',
   },
   stateTimestamp: {
-    ...Typography.bodyMedium,
-    color: Colors.brand,
-    fontWeight: '600',
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(15),
   },
   stateSubtitleBrand: {
-    ...Typography.labelLarge,
-    color: Colors.brand,
-    fontWeight: '600',
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(15),
   },
   stateSubtitleMuted: {
-    ...Typography.labelLarge,
-    color: Colors.inkMuted,
-    fontWeight: '600',
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(15),
   },
   stateDetailText: {
-    ...Typography.bodyMedium,
-    color: Colors.inkMuted,
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(14),
     textAlign: 'center',
     paddingHorizontal: Spacing.md,
     marginTop: 2,
   },
   chainStatusCard: {
     width: '100%',
-    backgroundColor: Colors.surface,
     borderRadius: Radii.card,
+    borderWidth: 1,
     padding: Spacing.md,
     marginTop: Spacing.lg,
     gap: Spacing.sm,
@@ -1142,18 +1378,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   chainRowTitle: {
-    ...Typography.labelMedium,
-    color: Colors.ink,
-    fontWeight: '700',
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(14),
   },
   chainRowSub: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(12.5),
     marginTop: 2,
   },
   chainDivider: {
     height: 1,
-    backgroundColor: Colors.surfaceMuted,
   },
   stateBottomBlock: {
     gap: Spacing.xs,
@@ -1161,38 +1395,34 @@ const styles = StyleSheet.create({
   },
   primaryDoneButton: {
     height: 54,
-    backgroundColor: Colors.primary,
     borderRadius: Radii.card,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 2,
   },
   primaryDoneText: {
-    ...Typography.labelLarge,
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(16),
   },
   secondaryDoneButton: {
     height: 54,
-    backgroundColor: Colors.surfaceMuted,
     borderRadius: Radii.card,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   secondaryDoneText: {
-    ...Typography.labelLarge,
-    color: Colors.ink,
-    fontWeight: '600',
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(16),
   },
   stateFootnote: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
+    fontFamily: FontFamily.regular,
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: scaleFont(12),
     marginTop: 2,
   },
   undoButton: {
@@ -1201,30 +1431,29 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: Spacing.md,
     paddingVertical: 8,
-    backgroundColor: Colors.brandSoft,
     borderRadius: Radii.full,
+    borderWidth: 1,
     marginTop: Spacing.md,
   },
   undoButtonText: {
-    ...Typography.labelSmall,
-    color: Colors.brand,
-    fontWeight: '700',
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(12),
   },
   // Modal Sheet Styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(32,43,40,0.45)',
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
     justifyContent: 'flex-end',
     padding: Spacing.sm,
   },
   modalSheet: {
-    backgroundColor: Colors.surface,
     borderRadius: Radii.card,
+    borderWidth: 1,
     padding: Spacing.xl,
     gap: Spacing.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 5,
   },
@@ -1237,18 +1466,16 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FFECCF',
     alignItems: 'center',
     justifyContent: 'center',
   },
   modalTitle: {
-    ...Typography.headlineSmall,
-    color: Colors.ink,
-    fontSize: 17,
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(16.5),
   },
   modalDesc: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(12.5),
     lineHeight: 18,
     marginTop: 2,
   },
@@ -1257,18 +1484,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: Spacing.md,
-    backgroundColor: Colors.surfaceMuted,
     borderRadius: Radii.md,
+    borderWidth: 1,
   },
   choiceTitle: {
-    ...Typography.labelMedium,
-    color: Colors.ink,
-    fontWeight: '600',
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(14),
   },
   choiceSub: {
-    ...Typography.bodySmall,
-    color: Colors.inkMuted,
-    fontSize: 12,
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(12),
+    marginTop: 2,
   },
   modalCancelBtn: {
     height: 48,
@@ -1276,7 +1502,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   modalCancelText: {
-    ...Typography.labelMedium,
-    color: Colors.ink,
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(14),
   },
 });

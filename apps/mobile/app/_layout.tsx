@@ -142,10 +142,10 @@ export function ErrorBoundary({ retry }: { error: Error; retry: () => void }) {
 }
 
 function ThemedNavigation() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   return (
     <NotificationLifecycleManager>
-      <StatusBar style="dark" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -167,9 +167,14 @@ function ThemedNavigation() {
 }
 
 function ThemedRoot() {
-  const { themeMode, setThemeMode } = useApp();
+  const { themeMode, setThemeMode, appearanceMode, setAppearanceMode } = useApp();
   return (
-    <ThemeProvider initialMode={themeMode} onThemeChange={setThemeMode}>
+    <ThemeProvider
+      initialMode={themeMode}
+      initialScheme={appearanceMode}
+      onThemeChange={setThemeMode}
+      onSchemeChange={setAppearanceMode}
+    >
       <ThemedNavigation />
     </ThemeProvider>
   );
