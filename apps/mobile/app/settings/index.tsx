@@ -703,7 +703,66 @@ export default function SettingsScreen() {
           </View>
 
           {/* ========================================================
-              4. DATA & PRIVACY CARD
+              4. ABOUT DOSESAATHI CARD
+          ======================================================== */}
+          <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={styles.sectionHeaderRow}>
+              <View style={[styles.iconCircleBadge, { backgroundColor: colors.primaryLight }]}>
+                <Ionicons name="information-circle-outline" size={20} color={colors.primary} />
+              </View>
+              <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>About DoseSaathi</Text>
+            </View>
+
+            <Text style={[styles.aboutMissionText, { color: colors.textSecondary }]}>
+              DoseSaathi is a warm, trustworthy, and offline-first medicine reminder companion built to bridge clinical precision with elderly-friendly accessibility.
+            </Text>
+
+            <View style={[styles.aboutMetaRow, { borderTopColor: colors.border }]}>
+              <Text style={[styles.aboutMetaLabel, { color: colors.textSecondary }]}>App version</Text>
+              <Text style={[styles.aboutMetaVal, { color: colors.textPrimary }]}>
+                v{Constants.expoConfig?.version ?? '1.0.3'}
+              </Text>
+            </View>
+
+            <View style={[styles.aboutMetaRow, { borderTopColor: colors.border }]}>
+              <Text style={[styles.aboutMetaLabel, { color: colors.textSecondary }]}>Architecture</Text>
+              <Text style={[styles.aboutMetaVal, { color: colors.textPrimary }]}>
+                100% Offline-First (SQLite)
+              </Text>
+            </View>
+
+            <View style={[styles.aboutMetaRow, { borderTopColor: colors.border }]}>
+              <Text style={[styles.aboutMetaLabel, { color: colors.textSecondary }]}>License</Text>
+              <Text style={[styles.aboutMetaVal, { color: colors.textPrimary }]}>
+                MIT Open Source
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.actionRowBtn, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border, marginTop: Spacing.sm }]}
+              onPress={() => Linking.openURL('https://github.com/shibu2000/DoseSaathi').catch(() => {})}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="logo-github" size={18} color={colors.primary} />
+              <Text style={[styles.actionRowText, { color: colors.primary }]}>
+                Source code & GitHub Repository
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionRowBtn, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
+              onPress={() => Linking.openURL('https://github.com/shibu2000/DoseSaathi/releases/latest').catch(() => {})}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="cloud-download-outline" size={18} color={colors.primary} />
+              <Text style={[styles.actionRowText, { color: colors.primary }]}>
+                Release notes & Latest APKs
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* ========================================================
+              5. DATA & PRIVACY CARD
           ======================================================== */}
           <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={styles.sectionHeaderRow}>
@@ -1022,6 +1081,26 @@ const styles = StyleSheet.create({
   switchUserText: {
     fontFamily: FontFamily.semiBold,
     fontSize: scaleFont(14.5),
+  },
+  aboutMissionText: {
+    fontFamily: FontFamily.regular,
+    fontSize: scaleFont(13.5),
+    lineHeight: scaleFont(19),
+    marginBottom: Spacing.md,
+  },
+  aboutMetaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.sm,
+    borderTopWidth: 1,
+  },
+  aboutMetaLabel: {
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(13.5),
+  },
+  aboutMetaVal: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(13.5),
   },
   privacyDesc: {
     fontFamily: FontFamily.regular,
