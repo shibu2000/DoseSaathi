@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { MedicationRow } from '@/components/MedicationRow';
 import { EmptyState } from '@/components/EmptyState';
 import { PrimaryButton } from '@/components/Buttons';
@@ -16,10 +16,18 @@ type FilterType = 'all' | 'active' | 'queued' | 'completed';
 export default function MedicinesListScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { medications, schedules, refreshMedications, clearDraft } = useApp();
+  const { medications, schedules, refreshMedications, clearDraft, sharingActive, syncNow } = useApp();
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<FilterType>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  useFocusEffect(
+    useCallback(() => {
+      if (sharingActive) {
+        void syncNow();
+      }
+    }, [sharingActive, syncNow])
+  );
 
   const getScheduleDisplay = (med: (typeof medications)[number]) => {
     const sched = schedules.find((s) => s.medicationId === med.id);
@@ -30,6 +38,9 @@ export default function MedicinesListScreen() {
     setRefreshing(true);
     try {
       await refreshMedications();
+      if (sharingActive) {
+        await syncNow();
+      }
     } catch {
       // Keep the current list if refreshing fails.
     } finally {

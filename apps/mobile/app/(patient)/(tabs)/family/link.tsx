@@ -464,6 +464,24 @@ export default function PatientLinkFamilyScreen() {
             </>
           ) : session ? (
             <>
+              <View style={[styles.instructionBox, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+                <View style={styles.instructionHeader}>
+                  <MaterialIcons name="devices" size={20} color={colors.primary} />
+                  <Text style={[styles.instructionTitle, { color: colors.textPrimary }]}>
+                    How to connect your caregiver:
+                  </Text>
+                </View>
+                <Text style={[styles.instructionStep, { color: colors.textSecondary }]}>
+                  <Text style={{ fontWeight: '700', color: colors.textPrimary }}>1.</Text> On your caregiver's phone, open DoseSaathi and choose <Text style={{ fontWeight: '700', color: colors.textPrimary }}>"I am a family caregiver"</Text>.
+                </Text>
+                <Text style={[styles.instructionStep, { color: colors.textSecondary }]}>
+                  <Text style={{ fontWeight: '700', color: colors.textPrimary }}>2.</Text> Tap <Text style={{ fontWeight: '700', color: colors.textPrimary }}>"Continue with this device"</Text> and enter the 6 numbers (or scan the QR code) below.
+                </Text>
+                <Text style={[styles.instructionStep, { color: colors.textSecondary }]}>
+                  <Text style={{ fontWeight: '700', color: colors.textPrimary }}>3.</Text> Keep this screen open! An <Text style={{ fontWeight: '700', color: colors.primary }}>"Approve"</Text> button will appear here once they request connection.
+                </Text>
+              </View>
+
               <View style={[styles.tabs, { backgroundColor: colors.surfaceSecondary }]} accessibilityRole="tablist">
                 {(['code', 'qr'] as const).map((t) => (
                   <TouchableOpacity
@@ -650,4 +668,25 @@ const styles = StyleSheet.create({
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs, marginVertical: Spacing.sm },
   statusText: { ...Typography.labelMedium },
   permLine: { ...Typography.bodyMedium, marginLeft: Spacing.sm },
+  instructionBox: {
+    padding: Spacing.md,
+    borderRadius: Radii.md,
+    borderWidth: 1,
+    marginBottom: Spacing.md,
+    gap: 6,
+  },
+  instructionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    marginBottom: 2,
+  },
+  instructionTitle: {
+    ...Typography.labelMedium,
+    fontFamily: FontFamily.bold,
+  },
+  instructionStep: {
+    ...Typography.bodySmall,
+    lineHeight: 18,
+  },
 });

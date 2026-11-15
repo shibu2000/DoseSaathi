@@ -30,7 +30,12 @@ export function describeRejectionReason(code?: string | null): string {
 export function describeCommandState(state: CommandStateInput): CommandStateView {
   switch (state.status) {
     case 'PENDING_DEVICE':
-      return { label: 'Waiting for the phone to connect', detail: 'The change is saved and will reach the phone when it is online.', tone: 'waiting', terminal: false };
+      return {
+        label: 'Waiting for the phone to connect',
+        detail: 'The change is saved on the server. When the patient opens DoseSaathi or pulls down to refresh, it applies automatically.',
+        tone: 'waiting',
+        terminal: false,
+      };
     case 'RECEIVED':
       return { label: 'Phone received it', detail: 'The phone is applying the change.', tone: 'progress', terminal: false };
     case 'APPLIED':

@@ -447,6 +447,11 @@ export function AppProvider({
           setAppearanceModeState(savedAppearance);
         }
 
+        const savedSharing = await activeDb.settings.getBoolean('family_sharing_active', false);
+        if (!isCancelled && savedSharing) {
+          setSharingActive(true);
+        }
+
         // Query initial data
         const [meds, scheds] = await Promise.all([
           activeDb.medications.getAll(),
@@ -644,6 +649,28 @@ export function AppProvider({
     });
     return () => sub.remove();
   }, [api, refreshPermissions]);
+
+  // Periodic foreground sync for family sharing: keeps patient device in sync with caregiver commands in real-time without relying solely on push doorbells
+  useEffect(() => {
+    if (!sharingActive || !db) return;
+    const interval = setInterval(() => {
+      if (RNAppState.currentState === 'active') {
+        void syncNow();
+      }
+    }, 15_000);
+    return () => clearInterval(interval);
+  }, [sharingActive, db, syncNow]);
+
+  // Initial background sync whenever family sharing is active
+  useEffect(() => {
+    if (!db || !sharingActive) return;
+    void (async () => {
+      try {
+        await refreshPatientRelationships();
+        await syncNow();
+      } catch {}
+    })();
+  }, [db, sharingActive, refreshPatientRelationships, syncNow]);
 
   const recordDoseTaken = useCallback(
     async (medicationId: string, occurrenceId: string) => {

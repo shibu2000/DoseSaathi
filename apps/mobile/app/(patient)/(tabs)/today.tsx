@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   Pressable,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { Colors, Radii, Spacing, Typography, scaleFont, FontFamily } from '@/theme/tokens';
@@ -39,6 +39,8 @@ export default function PatientTodayScreen() {
     recordDoseSnooze,
     undoCourseCompletion,
     clearDraft,
+    sharingActive,
+    syncNow,
   } = useApp();
 
   const [refreshing, setRefreshing] = useState(false);
@@ -87,10 +89,21 @@ export default function PatientTodayScreen() {
     return () => clearTimeout(t);
   }, [transition]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (sharingActive) {
+        void syncNow();
+      }
+    }, [sharingActive, syncNow])
+  );
+
   const onRefresh = async () => {
     setRefreshing(true);
     try {
       await refreshTodayOccurrences();
+      if (sharingActive) {
+        await syncNow();
+      }
     } catch {
       setError('We could not refresh. Please try again.');
     } finally {

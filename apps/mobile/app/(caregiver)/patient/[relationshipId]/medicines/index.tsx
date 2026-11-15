@@ -187,8 +187,14 @@ export default function PatientMedicinesCaregiverViewScreen() {
       ) : null}
 
       {waitingForPhone && !tracked.tracked ? (
-        <Notice icon="time-outline" tone="waiting" title="Waiting for the phone to connect">
-          It will be applied when {patientName}'s phone connects.
+        <Notice
+          icon="time-outline"
+          tone="waiting"
+          title="Waiting for phone to sync"
+          actionLabel="Check now"
+          onAction={onRefresh}
+        >
+          Changes will apply automatically when {patientName}'s phone opens DoseSaathi or pulls down to refresh.
         </Notice>
       ) : null}
 

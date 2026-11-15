@@ -9,7 +9,7 @@ import { AppScreen } from '@/components/AppScreen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PrimaryButton, SecondaryButton, DestructiveButton } from '@/components/Buttons';
 import { FormField } from '@/components/FormField';
-import { Spacing, Typography, Radii } from '@/theme/tokens';
+import { Spacing, Typography, Radii, FontFamily } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { Notice } from '@/pairing/Notice';
@@ -424,6 +424,22 @@ export default function CaregiverConnectScreen() {
       {header}
       {account}
 
+      <View style={[styles.instructionBox, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+        <View style={styles.instructionHeader}>
+          <MaterialIcons name="devices" size={20} color={colors.primary} />
+          <Text style={[styles.instructionTitle, { color: colors.textPrimary }]}>How to connect:</Text>
+        </View>
+        <Text style={[styles.instructionStep, { color: colors.textSecondary }]}>
+          <Text style={{ fontWeight: '700', color: colors.textPrimary }}>1.</Text> On your family member's phone (e.g. Mother's phone), open DoseSaathi and tap the <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Family</Text> tab.
+        </Text>
+        <Text style={[styles.instructionStep, { color: colors.textSecondary }]}>
+          <Text style={{ fontWeight: '700', color: colors.textPrimary }}>2.</Text> Enter the 6-digit code shown on her screen below (or switch to <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Scan QR</Text> to scan her screen).
+        </Text>
+        <Text style={[styles.instructionStep, { color: colors.textSecondary }]}>
+          <Text style={{ fontWeight: '700', color: colors.textPrimary }}>3.</Text> Tap Connect, then ask your family member to tap <Text style={{ fontWeight: '700', color: colors.primary }}>Approve</Text> on their screen!
+        </Text>
+      </View>
+
       <View style={[styles.tabs, { backgroundColor: colors.surfaceSecondary }]} accessibilityRole="tablist">
         {(['code', 'scan'] as const).map((m) => (
           <TouchableOpacity
@@ -628,4 +644,25 @@ const styles = StyleSheet.create({
   linkBtn: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
   linkText: { ...Typography.labelMedium, fontWeight: '600', flexShrink: 1 },
   cameraBox: { height: 300, borderRadius: Radii.card, overflow: 'hidden', backgroundColor: '#000000', marginTop: Spacing.md },
+  instructionBox: {
+    padding: Spacing.md,
+    borderRadius: Radii.md,
+    borderWidth: 1,
+    marginVertical: Spacing.sm,
+    gap: 6,
+  },
+  instructionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    marginBottom: 2,
+  },
+  instructionTitle: {
+    ...Typography.labelMedium,
+    fontFamily: FontFamily.bold,
+  },
+  instructionStep: {
+    ...Typography.bodySmall,
+    lineHeight: 18,
+  },
 });
