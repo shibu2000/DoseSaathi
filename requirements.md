@@ -1,6 +1,6 @@
 # MedChain — Mobile & Backend Development Blueprint
 
-**Audience:** Claude Code, Antigravity, and the developers implementing MedChain  
+**Audience:** Antigravity and the developers implementing DoseSaathi  
 **Product:** Offline-first Personal & Remote Family Medication Manager  
 **Mobile:** React Native + Expo + TypeScript  
 **Backend:** Hono on Cloudflare Workers + Cloudflare D1  
@@ -1299,7 +1299,7 @@ The current fixtures use `rel_el_9482` and `rel_ar_3819` in some places, but tho
 
 ---
 
-## 16. Claude Code / Antigravity execution protocol
+## 16. Antigravity execution protocol
 
 Use the following operating loop:
 
