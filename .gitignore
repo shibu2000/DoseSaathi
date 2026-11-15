@@ -20,3 +20,8 @@ DoseSaathi-*.zip
 
 # Gradle output of the in-repo native module
 apps/mobile/modules/*/android/build/
+
+# Firebase & FCM secrets
+*google-services*.json
+*service-account*.json
+*firebase-adminsdk*.json
