@@ -170,4 +170,56 @@ describe('E2E: caregiver <-> API <-> patient device (no mocks of our own code)',
     expect((await w.syncAll()).skippedReason).toBe('NOT_SHARING');
     expect(calls).toBe(0);
   });
+
+  it('1-tap quick device pairing: caregiver registers with device-level token, pairs via code, patient masks email', async () => {
+    // 1. Patient registers device and creates pairing session
+    await patientApi.registerDevice({ displayName: 'Grandma', appVersion: '1.0.0' });
+    const session = await patientApi.createPairingSession();
+    expect(session.pairingCode).toBeDefined();
+
+    // 2. Caregiver uses 1-tap quick pairing: device-generated anonymous identity
+    const deviceUuid = crypto.randomUUID();
+    const deviceEmail = `device_${deviceUuid}@dosesaathi.app`;
+    const devicePassword = 'device-random-secure-password-32char!';
+    const caregiverName = 'Ananya (Phone)';
+    await caregiverApi.register({ email: deviceEmail, password: devicePassword, displayName: caregiverName });
+
+    // 3. Caregiver submits pairing request using 6-digit code
+    const req = await caregiverApi.createPairingRequest({ code: session.pairingCode }, [
+      'VIEW_SCHEDULE',
+      'VIEW_DOSE_LOGS',
+    ]);
+    expect(req.requestId).toBeDefined();
+
+    // 4. Patient polls pairing session and sees incoming request
+    const sessionView = await patientApi.getPairingSession(session.sessionId);
+    expect(sessionView.incomingRequest).toBeDefined();
+    expect(sessionView.incomingRequest?.caregiverDisplayName).toBe('Ananya (Phone)');
+    expect(sessionView.incomingRequest?.caregiverEmail).toBe(deviceEmail);
+
+    // Verify patient display logic: technical email is correctly detected and masked
+    const isDeviceIdentity = (email: string) => email.endsWith('@dosesaathi.app') && email.startsWith('device_');
+    const displayCaregiverContact = (email: string) => isDeviceIdentity(email) ? 'Paired mobile device' : email;
+    expect(isDeviceIdentity(sessionView.incomingRequest!.caregiverEmail)).toBe(true);
+    expect(displayCaregiverContact(sessionView.incomingRequest!.caregiverEmail)).toBe('Paired mobile device');
+
+    // 5. Patient approves request
+    await patientApi.approvePairingRequest(req.requestId, {
+      approvedPermissions: ['VIEW_SCHEDULE', 'VIEW_DOSE_LOGS'],
+      relationshipLabel: 'Daughter',
+    });
+
+    // 6. Caregiver gets approved status and relationship ID
+    const status = await caregiverApi.getPairingRequestStatus(req.requestId);
+    expect(status.status).toBe('APPROVED');
+    expect(status.relationshipId).toBeDefined();
+
+    // 7. Caregiver can view patient relationship and plan
+    const rel = await caregiverApi.getRelationship(status.relationshipId!);
+    expect(rel.relationship.permissions).toEqual(['VIEW_SCHEDULE', 'VIEW_DOSE_LOGS']);
+    expect(rel.relationship.patientDisplayName).toBe('Grandma');
+
+    const plan = await caregiverApi.getPlan(status.relationshipId!);
+    expect(plan.latestPlanVersion).toBe(0);
+  });
 });
