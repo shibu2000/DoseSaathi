@@ -224,7 +224,7 @@ export function AppProvider({
   }, []);
 
   const scheduleTestAlarm = useCallback(async (delaySeconds: number = 5) => {
-    const v = (await db?.settings.get('alarm_voice')) === 'male' ? 'male' : 'female';
+    const v = (await db?.settings.get('alarm_voice')) || 'companion_female';
     return await schedTestAlarm(delaySeconds, v);
   }, [db]);
 

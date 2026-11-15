@@ -51,7 +51,7 @@ export class SchedulerService {
 
     const soundEnabled = await this.db.settings.getBoolean('alarm_sound_enabled', true);
     const vibrationEnabled = await this.db.settings.getBoolean('alarm_vibration_enabled', true);
-    const voice = (await this.db.settings.get('alarm_voice')) === 'male' ? 'male' : 'female';
+    const voice = (await this.db.settings.get('alarm_voice')) || 'companion_female';
 
     const requests: NativeAlarmRequest[] = [];
     const build = (med: { id: string; name: string; doseQuantity: number; doseUnit: string; dosageText: string; instructions?: string }, occurrenceId: string, atUtc: string): NativeAlarmRequest => ({

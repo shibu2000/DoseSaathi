@@ -23,6 +23,32 @@ import { ThemeThumbnail } from '@/components/ThemeThumbnail';
 import { MedChainLogo } from '@/components/MedChainLogo';
 import { FormField } from '@/components/FormField';
 
+const SOUND_STYLES: Array<{
+  id: 'companion' | 'melodic' | 'classic';
+  name: string;
+  badge: string;
+  description: string;
+}> = [
+  {
+    id: 'companion',
+    name: 'Warm Companion',
+    badge: 'Recommended',
+    description: 'Upbeat acoustic guitar & marimba groove with caring hydration & wellness check-ins.',
+  },
+  {
+    id: 'melodic',
+    name: 'Melodic Pop Ringtone',
+    badge: 'Catchy & Musical',
+    description: '124 BPM glockenspiel bells & acoustic pop arpeggio with concise voice reminder.',
+  },
+  {
+    id: 'classic',
+    name: 'Classic Jingle',
+    badge: 'Calm Chime',
+    description: 'Gentle acoustic chime with crisp spoken announcement.',
+  },
+];
+
 export default function SettingsScreen() {
   const router = useRouter();
   const {
@@ -43,8 +69,9 @@ export default function SettingsScreen() {
   const { colors, colorScheme, setColorScheme, isDark } = useTheme();
 
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [voice, setVoice] = useState<'female' | 'male'>('female');
-  const [playing, setPlaying] = useState<'female' | 'male' | null>(null);
+  const [soundStyle, setSoundStyle] = useState<'companion' | 'melodic' | 'classic'>('companion');
+  const [voiceGender, setVoiceGender] = useState<'female' | 'male'>('female');
+  const [playingKey, setPlayingKey] = useState<string | null>(null);
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [vibrationEnabled, setVibrationEnabled] = useState(true);
   const [diagnostics, setDiagnostics] = useState<SchedulerDiagnostics | null>(null);
@@ -68,13 +95,36 @@ export default function SettingsScreen() {
   // Accordion section states
   const [expandedSection, setExpandedSection] = useState<'notifications' | 'backup' | 'language' | 'accessibility' | null>(null);
 
+  const getFullSoundKey = (style: 'companion' | 'melodic' | 'classic', gender: 'female' | 'male') => {
+    if (style === 'companion') return `companion_${gender}`;
+    if (style === 'melodic') return `melodic_${gender}`;
+    return gender;
+  };
+
   const loadSettings = useCallback(async () => {
     if (db) {
       const sound = await db.settings.getBoolean('alarm_sound_enabled', true);
       const vib = await db.settings.getBoolean('alarm_vibration_enabled', true);
       setSoundEnabled(sound);
-      setVoice((await db.settings.get('alarm_voice')) === 'male' ? 'male' : 'female');
       setVibrationEnabled(vib);
+
+      const savedVoice = await db.settings.get('alarm_voice');
+      if (savedVoice?.startsWith('companion_')) {
+        setSoundStyle('companion');
+        setVoiceGender(savedVoice.endsWith('male') && !savedVoice.endsWith('female') ? 'male' : 'female');
+      } else if (savedVoice?.startsWith('melodic_')) {
+        setSoundStyle('melodic');
+        setVoiceGender(savedVoice.endsWith('male') && !savedVoice.endsWith('female') ? 'male' : 'female');
+      } else if (savedVoice === 'male') {
+        setSoundStyle('classic');
+        setVoiceGender('male');
+      } else if (savedVoice === 'female') {
+        setSoundStyle('classic');
+        setVoiceGender('female');
+      } else {
+        setSoundStyle('companion');
+        setVoiceGender('female');
+      }
     }
     if (scheduler) {
       const diag = await scheduler.getDiagnostics();
@@ -147,32 +197,34 @@ export default function SettingsScreen() {
     );
   };
 
-  const handleVoiceChange = async (v: 'female' | 'male') => {
-    setVoice(v);
+  const handleSelectSound = async (newStyle: 'companion' | 'melodic' | 'classic', newGender: 'female' | 'male') => {
+    setSoundStyle(newStyle);
+    setVoiceGender(newGender);
     setVoiceError(null);
-    if (db) await db.settings.set('alarm_voice', v);
+    const key = getFullSoundKey(newStyle, newGender);
+    if (db) await db.settings.set('alarm_voice', key);
     try {
       await scheduler?.reconcileAlarms();
     } catch {}
   };
 
-  const handlePlaySample = async (v: 'female' | 'male') => {
+  const handleTogglePlaySample = async (sampleKey: string) => {
     setVoiceError(null);
     try {
-      if (playing === v) {
+      if (playingKey === sampleKey) {
         await MedchainAlarm?.stopSample();
-        setPlaying(null);
+        setPlayingKey(null);
         return;
       }
-      setPlaying(v);
+      setPlayingKey(sampleKey);
       if (MedchainAlarm) {
-        await MedchainAlarm.playSample(v);
-        setTimeout(() => setPlaying((cur) => (cur === v ? null : cur)), 28500);
+        await MedchainAlarm.playSample(sampleKey);
+        setTimeout(() => setPlayingKey((cur) => (cur === sampleKey ? null : cur)), 24000);
       } else {
-        setTimeout(() => setPlaying((cur) => (cur === v ? null : cur)), 2500);
+        setTimeout(() => setPlayingKey((cur) => (cur === sampleKey ? null : cur)), 2500);
       }
     } catch (e: any) {
-      setPlaying(null);
+      setPlayingKey(null);
       setVoiceError('Could not play the sample on this device.');
     }
   };
@@ -415,57 +467,107 @@ export default function SettingsScreen() {
             {/* Notifications Sub-Panel */}
             {expandedSection === 'notifications' && (
               <View style={[styles.expandedPanel, { backgroundColor: colors.surfaceSecondary, borderTopColor: colors.border }]}>
-                {/* Voice Selection */}
-                <Text style={[styles.subpanelHeader, { color: colors.textPrimary }]}>Reminder voice</Text>
+                {/* Alarm Ringtone & Style */}
+                <Text style={[styles.subpanelHeader, { color: colors.textPrimary }]}>Alarm ringtone & melody</Text>
                 <Text style={[styles.subpanelDesc, { color: colors.textSecondary }]}>
-                  Spoken announcement: "It's time for your medicine."
+                  Choose your favorite musical ringtone and caring voice companion.
                 </Text>
 
-                {(['female', 'male'] as const).map((v) => {
-                  const selected = voice === v;
+                {SOUND_STYLES.map((st) => {
+                  const isSelected = soundStyle === st.id;
+                  const sampleKey = getFullSoundKey(st.id, voiceGender);
+                  const isPlaying = playingKey === sampleKey;
                   return (
-                    <View key={v} style={styles.voiceRow}>
+                    <View
+                      key={st.id}
+                      style={[
+                        styles.soundCardOption,
+                        {
+                          backgroundColor: isSelected ? colors.primaryLight : colors.surface,
+                          borderColor: isSelected ? colors.primary : colors.border,
+                        },
+                      ]}
+                    >
                       <TouchableOpacity
-                        style={[
-                          styles.voiceOption,
-                          {
-                            backgroundColor: selected ? colors.primaryLight : colors.surface,
-                            borderColor: selected ? colors.primary : colors.border,
-                          },
-                        ]}
-                        onPress={() => handleVoiceChange(v)}
-                        accessibilityRole="radio"
-                        accessibilityState={{ selected }}
+                        style={styles.soundCardLeft}
+                        onPress={() => handleSelectSound(st.id, voiceGender)}
                         activeOpacity={0.85}
                       >
                         <MaterialIcons
-                          name={selected ? 'radio-button-checked' : 'radio-button-unchecked'}
-                          size={20}
-                          color={selected ? colors.primary : colors.textSecondary}
+                          name={isSelected ? 'radio-button-checked' : 'radio-button-unchecked'}
+                          size={22}
+                          color={isSelected ? colors.primary : colors.textSecondary}
                         />
-                        <View style={styles.voiceTextCol}>
-                          <Text style={[styles.voiceTitle, { color: colors.textPrimary }]}>
-                            {v === 'female' ? 'Female voice' : 'Male voice'}
-                          </Text>
-                          <Text style={[styles.voiceSubtitle, { color: colors.textSecondary }]}>
-                            {v === 'female' ? 'Warm & clear' : 'Calm & steady'}
+                        <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.xs, flexWrap: 'wrap' }}>
+                            <Text style={[styles.voiceTitle, { color: colors.textPrimary }]}>{st.name}</Text>
+                            <View style={[styles.soundBadge, { backgroundColor: isSelected ? colors.primary : colors.surfaceSecondary }]}>
+                              <Text style={[styles.soundBadgeText, { color: isSelected ? '#FFFFFF' : colors.textSecondary }]}>
+                                {st.badge}
+                              </Text>
+                            </View>
+                          </View>
+                          <Text style={[styles.voiceSubtitle, { color: colors.textSecondary, marginTop: 3 }]}>
+                            {st.description}
                           </Text>
                         </View>
                       </TouchableOpacity>
+
                       <TouchableOpacity
-                        style={[styles.voicePlayBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
-                        onPress={() => handlePlaySample(v)}
+                        style={[
+                          styles.voicePlayBtn,
+                          {
+                            backgroundColor: isPlaying ? colors.primary : colors.surface,
+                            borderColor: isPlaying ? colors.primary : colors.border,
+                          },
+                        ]}
+                        onPress={() => handleTogglePlaySample(sampleKey)}
                         accessibilityRole="button"
                         activeOpacity={0.85}
                       >
-                        <MaterialIcons name={playing === v ? 'stop' : 'play-arrow'} size={18} color={colors.primary} />
-                        <Text style={[styles.voicePlayText, { color: colors.primary }]}>
-                          {playing === v ? 'Stop' : 'Listen'}
+                        <MaterialIcons
+                          name={isPlaying ? 'stop' : 'play-arrow'}
+                          size={18}
+                          color={isPlaying ? '#FFFFFF' : colors.primary}
+                        />
+                        <Text style={[styles.voicePlayText, { color: isPlaying ? '#FFFFFF' : colors.primary }]}>
+                          {isPlaying ? 'Stop' : 'Listen'}
                         </Text>
                       </TouchableOpacity>
                     </View>
                   );
                 })}
+
+                {/* Voice Gender Selection */}
+                <Text style={[styles.subpanelHeader, { color: colors.textPrimary, marginTop: Spacing.md }]}>Voice tone</Text>
+                <View style={styles.voiceGenderRow}>
+                  {(['female', 'male'] as const).map((g) => {
+                    const isSelected = voiceGender === g;
+                    return (
+                      <TouchableOpacity
+                        key={g}
+                        style={[
+                          styles.voiceGenderOption,
+                          {
+                            backgroundColor: isSelected ? colors.primaryLight : colors.surface,
+                            borderColor: isSelected ? colors.primary : colors.border,
+                          },
+                        ]}
+                        onPress={() => handleSelectSound(soundStyle, g)}
+                        activeOpacity={0.85}
+                      >
+                        <MaterialIcons
+                          name={isSelected ? 'radio-button-checked' : 'radio-button-unchecked'}
+                          size={18}
+                          color={isSelected ? colors.primary : colors.textSecondary}
+                        />
+                        <Text style={[styles.voiceGenderText, { color: isSelected ? colors.primary : colors.textPrimary }]}>
+                          {g === 'female' ? '🌸 Female voice' : '🎙️ Male voice'}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
 
                 {voiceError && <Text style={[styles.subpanelDesc, { color: colors.error, marginTop: 4 }]}>{voiceError}</Text>}
 
@@ -720,7 +822,7 @@ export default function SettingsScreen() {
             <View style={[styles.aboutMetaRow, { borderTopColor: colors.border }]}>
               <Text style={[styles.aboutMetaLabel, { color: colors.textSecondary }]}>App version</Text>
               <Text style={[styles.aboutMetaVal, { color: colors.textPrimary }]}>
-                v{Constants.expoConfig?.version ?? '1.0.3'}
+                v{Constants.expoConfig?.version ?? '1.0.4'}
               </Text>
             </View>
 
@@ -972,6 +1074,49 @@ const styles = StyleSheet.create({
     fontSize: scaleFont(13),
     lineHeight: scaleFont(18),
     marginBottom: Spacing.md,
+  },
+  soundCardOption: {
+    borderWidth: 1.5,
+    borderRadius: Radii.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.sm,
+  },
+  soundCardLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  soundBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: Radii.full,
+  },
+  soundBadgeText: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(11),
+  },
+  voiceGenderRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  voiceGenderOption: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    paddingVertical: Spacing.md - 2,
+    borderRadius: Radii.md,
+    borderWidth: 1.5,
+  },
+  voiceGenderText: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(13.5),
   },
   voiceRow: {
     flexDirection: 'row',

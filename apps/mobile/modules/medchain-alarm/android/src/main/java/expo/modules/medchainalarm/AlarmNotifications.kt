@@ -14,13 +14,17 @@ import org.json.JSONObject
 import androidx.core.app.NotificationCompat
 
 object AlarmNotifications {
-  // v2: the channel sound is immutable once created, so the custom jingle needs new channel ids
+  // v4: each voice/ringtone has its own immutable notification channel so user changes apply immediately
   private fun channelId(sound: Boolean, vibrate: Boolean, voice: String) =
-    "medchain_dose_alarm_v3_" + voice + "_" + (if (sound) "s" else "x") + (if (vibrate) "v" else "x")
+    "medchain_dose_alarm_v4_" + voice + "_" + (if (sound) "s" else "x") + (if (vibrate) "v" else "x")
 
   /** The recorded reminder (res/raw/medchain_reminder_<voice>), or the system alarm tone if it is missing. */
   private fun reminderSound(c: Context, voice: String): android.net.Uri {
-    val res = c.resources.getIdentifier("medchain_reminder_" + voice, "raw", c.packageName)
+    var res = c.resources.getIdentifier("medchain_reminder_" + voice, "raw", c.packageName)
+    if (res == 0) {
+      val fallback = if (voice.contains("male")) "male" else "female"
+      res = c.resources.getIdentifier("medchain_reminder_" + fallback, "raw", c.packageName)
+    }
     return if (res != 0) android.net.Uri.parse("android.resource://" + c.packageName + "/" + res)
     else RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
   }

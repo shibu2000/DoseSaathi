@@ -19,7 +19,7 @@ export interface NativeAlarm {
   body: string;
   soundEnabled: boolean;
   vibrationEnabled: boolean;
-  voice: 'female' | 'male';
+  voice: string;
 }
 
 export interface WidgetDosePayload {
@@ -40,7 +40,7 @@ interface MedchainAlarmNative {
   cancelAll(): Promise<void>;
   dismiss(id: string): Promise<void>;
   listScheduled(): Array<Omit<NativeAlarm, 'soundEnabled' | 'vibrationEnabled' | 'voice'>>;
-  playSample(voice: 'female' | 'male'): Promise<void>;
+  playSample(voice: string): Promise<void>;
   stopSample(): Promise<void>;
   /** JSON describing the most recent alarm the OS delivered (what was allowed, screen/lock state), or null. */
   getLastFire(): string | null;

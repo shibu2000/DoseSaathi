@@ -113,9 +113,12 @@ class MedchainAlarmModule : Module() {
     /** Plays the recorded reminder so the user can hear a voice before choosing it. */
     AsyncFunction("playSample") { voice: String ->
       stopSampleInternal()
-      val safe = if (voice == "male") "male" else "female"
-      val res = context.resources.getIdentifier("medchain_reminder_" + safe, "raw", context.packageName)
-      if (res == 0) throw IllegalStateException("The reminder recording is missing from this build")
+      var res = context.resources.getIdentifier("medchain_reminder_" + voice, "raw", context.packageName)
+      if (res == 0) {
+        val safe = if (voice.contains("male")) "male" else "female"
+        res = context.resources.getIdentifier("medchain_reminder_" + safe, "raw", context.packageName)
+      }
+      if (res == 0) throw IllegalStateException("The reminder recording ($voice) is missing from this build")
       val mp = MediaPlayer.create(context, res) ?: throw IllegalStateException("Could not start the player")
       mp.setOnCompletionListener {
         it.release()

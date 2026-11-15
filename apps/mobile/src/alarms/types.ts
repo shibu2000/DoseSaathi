@@ -31,8 +31,8 @@ export interface NativeAlarmRequest {
   /** User preferences from Settings; the native channel/sound honours them. */
   soundEnabled?: boolean;
   vibrationEnabled?: boolean;
-  /** Recorded reminder voice (Settings). */
-  voice?: 'female' | 'male';
+  /** Recorded reminder voice / ringtone sound (Settings). */
+  voice?: string;
 }
 
 export interface AlarmAdapter {

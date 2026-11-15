@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/shibu2000/DoseSaathi/releases/latest"><img src="https://img.shields.io/badge/Release-v1.0.3-006156.svg?style=for-the-badge&logo=android&logoColor=white" alt="Release v1.0.3" /></a>
+  <a href="https://github.com/shibu2000/DoseSaathi/releases/latest"><img src="https://img.shields.io/badge/Release-v1.0.4-006156.svg?style=for-the-badge&logo=android&logoColor=white" alt="Release v1.0.4" /></a>
   <a href="https://github.com/shibu2000/DoseSaathi/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-teal.svg?style=for-the-badge" alt="License MIT" /></a>
   <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS-25845D.svg?style=for-the-badge&logo=apple&logoColor=white" alt="Platforms" />
   <img src="https://img.shields.io/badge/Offline--First-SQLite%20%2B%20Exact%20Alarms-1E8E80.svg?style=for-the-badge" alt="Offline First" />
@@ -53,7 +53,7 @@ Most medication apps today are designed either as soulless clinical alarms or cl
 
 ---
 
-## 📥 Direct Downloads & Latest Builds (v1.0.3)
+## 📥 Direct Downloads & Latest Builds (v1.0.4)
 
 Download the pre-compiled production packages directly from [GitHub Releases](https://github.com/shibu2000/DoseSaathi/releases/latest):
 
@@ -104,7 +104,8 @@ DoseSaathi includes four bespoke visual palettes created to reflect healing, cal
 ### ⏰ Mission-Critical Offline Alarms & Full-Screen Alerts
 - **100% Offline-First Architecture**: Your medicines, schedules, and dose records are stored safely in an encrypted local SQLite database.
 - **Reliable Wake-Lock Alarms**: Uses Android's `AlarmManager.setExactAndAllowWhileIdle()` and Full-Screen Intents (`USE_FULL_SCREEN_INTENT`) to ring over the lock screen even during battery optimization, Doze mode, or offline conditions.
-- **Gentle Spoken Announcements**: Voice announcements in warm female or calm male voice (*"It's time for your medicine."*) paired with gentle chimes and vibration patterns.
+- **Selectable Musical Ringtones & Caring Voice Prompts**: Choose between 3 distinct alarm styles (**Warm Companion** with 124 BPM acoustic groove and conversational hydration check-ins, **Melodic Pop Ringtone** with catchy glockenspiel bells, or **Classic Jingle** chime) paired with female or male voices and full in-app audio previews.
+- **Gentle Spoken Announcements**: Caring voice announcements in warm female or calm male voice paired with vibration patterns.
 - **Device Reboot Resilience**: Native `BOOT_COMPLETED` receiver automatically restores and reconciles all scheduled alarms upon phone reboot without opening the app or needing an internet connection.
 - **Atomic 5-Minute Undo Window**: Dose confirmations and course completion transitions provide a safe 5-minute atomic rollback window to prevent accidental taps.
 
