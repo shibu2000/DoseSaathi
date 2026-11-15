@@ -2,7 +2,7 @@
   <img src="assets/icon.png" width="128" height="128" alt="DoseSaathi App Icon" style="border-radius: 28px; box-shadow: 0 8px 28px rgba(0, 97, 86, 0.25);" />
 </p>
 
-<h1 align="center">DoseSaathi · दोस साथी</h1>
+<h1 align="center">DoseSaathi</h1>
 
 <p align="center">
   <strong>A Warm, Trustworthy & Offline-First Family-Connected Medicine Companion</strong>
