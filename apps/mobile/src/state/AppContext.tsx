@@ -56,6 +56,7 @@ export interface AppState {
   caregiverLoading: boolean;
   signInCaregiver: (email: string, password: string) => Promise<void>;
   signUpCaregiver: (email: string, password: string, displayName: string) => Promise<void>;
+  quickRegisterCaregiver: (displayName?: string) => Promise<void>;
   signOutCaregiver: () => Promise<void>;
   /** Permanently deletes the caregiver account and its server data. Throws ApiError on a wrong password. */
   deleteCaregiverAccount: (password: string) => Promise<void>;
@@ -293,6 +294,19 @@ export function AppProvider({
   const signUpCaregiver = useCallback(
     async (email: string, password: string, displayName: string) => {
       const s = await api.register({ email, password, displayName });
+      setCaregiver(s.caregiver);
+      await refreshRelationships();
+    },
+    [api, refreshRelationships]
+  );
+
+  const quickRegisterCaregiver = useCallback(
+    async (displayName?: string) => {
+      const name = displayName?.trim() || 'Family Caregiver';
+      const randHex = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+      const email = `device_${randHex}@dosesaathi.app`;
+      const password = `DoseSaathi_${Math.random().toString(36).substring(2, 12)}_${Date.now().toString(36)}!`;
+      const s = await api.register({ email, password, displayName: name });
       setCaregiver(s.caregiver);
       await refreshRelationships();
     },
@@ -763,6 +777,7 @@ export function AppProvider({
         caregiverLoading,
         signInCaregiver,
         signUpCaregiver,
+        quickRegisterCaregiver,
         signOutCaregiver,
         deleteCaregiverAccount,
         stopSharingAndEraseServerData,

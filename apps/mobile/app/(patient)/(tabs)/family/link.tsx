@@ -36,6 +36,14 @@ function statusText(status: string): string {
   return status;
 }
 
+function isDeviceIdentity(email: string): boolean {
+  return email.endsWith('@dosesaathi.app') && email.startsWith('device_');
+}
+
+function displayCaregiverContact(email: string): string {
+  return isDeviceIdentity(email) ? 'Paired mobile device' : email;
+}
+
 export default function PatientLinkFamilyScreen() {
   const router = useRouter();
   const { colors } = useTheme();
@@ -425,7 +433,7 @@ export default function PatientLinkFamilyScreen() {
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]} accessibilityLabel="Family request">
           <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Someone wants to connect</Text>
           <Text style={[styles.personName, { color: colors.textPrimary }]}>{incoming.caregiverDisplayName}</Text>
-          <Text style={[styles.bodyMuted, { color: colors.textSecondary }]}>{incoming.caregiverEmail}</Text>
+          <Text style={[styles.bodyMuted, { color: colors.textSecondary }]}>{displayCaregiverContact(incoming.caregiverEmail)}</Text>
           <Text style={[styles.body, { color: colors.textSecondary, marginTop: Spacing.md }]}>
             Check that you know this person. Choose what they may do:
           </Text>
@@ -560,7 +568,7 @@ export default function PatientLinkFamilyScreen() {
           <View key={r.relationshipId} style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={[styles.personName, { color: colors.textPrimary }]}>{r.caregiverDisplayName}</Text>
             <Text style={[styles.bodyMuted, { color: colors.textSecondary }]}>
-              {r.relationshipLabel} · {r.caregiverEmail}
+              {r.relationshipLabel}{isDeviceIdentity(r.caregiverEmail) ? ' · Paired device' : ` · ${r.caregiverEmail}`}
             </Text>
             <View style={styles.statusRow}>
               <MaterialIcons name="check-circle" size={18} color={colors.success} />

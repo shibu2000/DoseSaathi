@@ -11,13 +11,15 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { Spacing, Typography, Radii } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 
 export default function ReminderSetupScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const {
     setOnboarded,
     notificationPermission,
@@ -105,7 +107,6 @@ export default function ReminderSetupScreen() {
       setTestCountdown(5);
       await scheduleTestAlarm(5);
 
-      if (testTimers.current.interval) clearInterval(testTimers.current.interval);
       const interval = setInterval(() => {
         setTestCountdown((prev) => {
           if (prev === null || prev <= 1) {
@@ -113,7 +114,7 @@ export default function ReminderSetupScreen() {
             testTimers.current.reset = setTimeout(() => {
               setTestSent(false);
               setTestCountdown(null);
-            }, 3000);
+            }, 6000);
             return null;
           }
           return prev - 1;
@@ -155,20 +156,20 @@ export default function ReminderSetupScreen() {
   const isAlarmGranted = exactAlarmPermission === 'granted';
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
+    <View style={[styles.screen, { paddingTop: insets.top, backgroundColor: colors.canvas }]}>
       {/* Pinned Top Header Bar */}
-      <View style={styles.headerBar}>
+      <View style={[styles.headerBar, { backgroundColor: colors.canvas }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >
-          <Ionicons name="arrow-back" size={24} color={Colors.ink} />
+          <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Reminder setup</Text>
-          <Text style={styles.headerStep}>Last step</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Reminder setup</Text>
+          <Text style={[styles.headerStep, { color: colors.textSecondary }]}>Last step</Text>
         </View>
         <View style={styles.headerSpacer} />
       </View>
@@ -179,61 +180,82 @@ export default function ReminderSetupScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-
         {/* Narrative Headline */}
         <View style={styles.titleSection}>
-          <Text style={styles.mainTitle}>
+          <Text style={[styles.mainTitle, { color: colors.textPrimary }]}>
             Make sure reminders reach you
           </Text>
-          <Text style={styles.mainSubtitle}>
+          <Text style={[styles.mainSubtitle, { color: colors.textSecondary }]}>
             Allow these settings so dose reminders ring on time, even when your phone is asleep or in battery saver.
           </Text>
         </View>
 
         {/* Live Permission Group */}
-        <View style={styles.permissionList}>
+        <View style={[styles.permissionList, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           {/* Item 1: Notifications */}
           <View style={styles.permissionRow}>
             <View style={styles.rowLeft}>
-              <View style={[styles.iconCircle, isNotifGranted && styles.iconCircleActive]}>
+              <View style={[styles.iconCircle, { backgroundColor: isNotifGranted ? colors.brandSoft : colors.surfaceSecondary }]}>
                 <MaterialIcons
                   name={isNotifGranted ? 'notifications-active' : 'notifications'}
                   size={22}
-                  color={isNotifGranted ? Colors.brand : Colors.ink}
+                  color={isNotifGranted ? colors.primary : colors.textPrimary}
                 />
               </View>
               <View style={styles.textCol}>
                 <View style={styles.titleBadgeRow}>
-                  <Text style={styles.permTitle}>Notifications</Text>
-                  <View style={isNotifGranted ? styles.enabledBadge : styles.notConfiguredBadge}>
-                    <Text style={isNotifGranted ? styles.enabledBadgeText : styles.notConfiguredText}>
+                  <Text style={[styles.permTitle, { color: colors.textPrimary }]}>Notifications</Text>
+                  <View
+                    style={[
+                      styles.badgePill,
+                      {
+                        backgroundColor: isNotifGranted
+                          ? colors.brandSoft
+                          : notificationPermission === 'denied'
+                          ? 'rgba(204, 102, 91, 0.15)'
+                          : colors.surfaceSecondary,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.badgeText,
+                        {
+                          color: isNotifGranted
+                            ? colors.primary
+                            : notificationPermission === 'denied'
+                            ? colors.error
+                            : colors.textSecondary,
+                        },
+                      ]}
+                    >
                       {isNotifGranted ? 'Enabled' : notificationPermission === 'denied' ? 'Blocked' : 'Required'}
                     </Text>
                   </View>
                 </View>
-                <Text style={styles.permDesc}>
+                <Text style={[styles.permDesc, { color: colors.textSecondary }]}>
                   Get dose reminders with sound and buttons to mark a dose as taken.
                 </Text>
               </View>
             </View>
 
             {isNotifGranted ? (
-              <View style={styles.actionGrantedPill}>
-                <MaterialIcons name="check-circle" size={18} color={Colors.brand} />
-                <Text style={styles.actionGrantedText}>Allowed</Text>
+              <View style={[styles.actionGrantedPill, { backgroundColor: colors.brandSoft }]}>
+                <MaterialIcons name="check-circle" size={18} color={colors.primary} />
+                <Text style={[styles.actionGrantedText, { color: colors.primary }]}>Allowed</Text>
               </View>
             ) : (
               <TouchableOpacity
-                style={styles.actionBtnPrimary}
+                style={[styles.actionBtnPrimary, { backgroundColor: colors.primary }]}
                 onPress={handleRequestNotifications}
                 disabled={requestingNotif}
                 accessibilityRole="button"
                 accessibilityLabel="Enable notification permissions"
               >
                 {requestingNotif ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
+                  <ActivityIndicator size="small" color={colors.white} />
                 ) : (
-                  <Text style={styles.actionBtnPrimaryText}>
+                  <Text style={[styles.actionBtnPrimaryText, { color: colors.white }]}>
                     {notificationPermission === 'denied' ? 'Settings' : 'Enable'}
                   </Text>
                 )}
@@ -241,105 +263,115 @@ export default function ReminderSetupScreen() {
             )}
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
           {/* Item 2: Reliable Exact Alarms */}
           <View style={styles.permissionRow}>
             <View style={styles.rowLeft}>
-              <View style={[styles.iconCircle, isAlarmGranted && styles.iconCircleActive]}>
+              <View style={[styles.iconCircle, { backgroundColor: isAlarmGranted ? colors.brandSoft : colors.surfaceSecondary }]}>
                 <MaterialIcons
                   name="alarm"
                   size={22}
-                  color={isAlarmGranted ? Colors.brand : Colors.ink}
+                  color={isAlarmGranted ? colors.primary : colors.textPrimary}
                 />
               </View>
               <View style={styles.textCol}>
                 <View style={styles.titleBadgeRow}>
-                  <Text style={styles.permTitle}>Reliable exact alarms</Text>
-                  <View style={isAlarmGranted ? styles.enabledBadge : styles.notConfiguredBadge}>
-                    <Text style={isAlarmGranted ? styles.enabledBadgeText : styles.notConfiguredText}>
+                  <Text style={[styles.permTitle, { color: colors.textPrimary }]}>Reliable exact alarms</Text>
+                  <View
+                    style={[
+                      styles.badgePill,
+                      { backgroundColor: isAlarmGranted ? colors.brandSoft : colors.surfaceSecondary },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.badgeText,
+                        { color: isAlarmGranted ? colors.primary : colors.warning },
+                      ]}
+                    >
                       {isAlarmGranted ? 'Enabled' : 'Recommended'}
                     </Text>
                   </View>
                 </View>
-                <Text style={styles.permDesc}>
+                <Text style={[styles.permDesc, { color: colors.textSecondary }]}>
                   Lets Android ring your reminders at the exact time.
                 </Text>
               </View>
             </View>
 
             {isAlarmGranted ? (
-              <View style={styles.actionGrantedPill}>
-                <MaterialIcons name="check-circle" size={18} color={Colors.brand} />
-                <Text style={styles.actionGrantedText}>Allowed</Text>
+              <View style={[styles.actionGrantedPill, { backgroundColor: colors.brandSoft }]}>
+                <MaterialIcons name="check-circle" size={18} color={colors.primary} />
+                <Text style={[styles.actionGrantedText, { color: colors.primary }]}>Allowed</Text>
               </View>
             ) : (
               <TouchableOpacity
-                style={styles.actionBtn}
+                style={[styles.actionBtn, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border, borderWidth: 1 }]}
                 onPress={handleRequestExactAlarm}
                 disabled={requestingAlarm}
                 accessibilityRole="button"
                 accessibilityLabel="Configure exact alarm permission"
               >
                 {requestingAlarm ? (
-                  <ActivityIndicator size="small" color={Colors.brand} />
+                  <ActivityIndicator size="small" color={colors.primary} />
                 ) : (
-                  <Text style={styles.actionBtnText}>Configure</Text>
+                  <Text style={[styles.actionBtnText, { color: colors.textPrimary }]}>Configure</Text>
                 )}
               </TouchableOpacity>
             )}
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
           {/* Item 3: Background Battery Exemption */}
           <View style={styles.permissionRow}>
             <View style={styles.rowLeft}>
-              <View style={styles.iconCircle}>
-                <MaterialIcons name="battery-charging-full" size={22} color={Colors.ink} />
+              <View style={[styles.iconCircle, { backgroundColor: colors.surfaceSecondary }]}>
+                <MaterialIcons name="battery-charging-full" size={22} color={colors.textPrimary} />
               </View>
               <View style={styles.textCol}>
                 <View style={styles.titleBadgeRow}>
-                  <Text style={styles.permTitle}>Background activity</Text>
-                  <View style={styles.neutralBadge}>
-                    <Text style={styles.neutralBadgeText}>Optional</Text>
+                  <Text style={[styles.permTitle, { color: colors.textPrimary }]}>Background activity</Text>
+                  <View style={[styles.badgePill, { backgroundColor: colors.surfaceSecondary }]}>
+                    <Text style={[styles.badgeText, { color: colors.textSecondary }]}>Optional</Text>
                   </View>
                 </View>
-                <Text style={styles.permDesc}>
+                <Text style={[styles.permDesc, { color: colors.textSecondary }]}>
                   Stops battery saver from delaying your reminders.
                 </Text>
               </View>
             </View>
 
             <TouchableOpacity
-              style={styles.actionBtn}
+              style={[styles.actionBtn, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border, borderWidth: 1 }]}
               onPress={openBatteryOptimizationSettings}
               accessibilityRole="button"
               accessibilityLabel="Open battery optimization settings"
             >
-              <Text style={styles.actionBtnText}>Battery settings</Text>
+              <Text style={[styles.actionBtnText, { color: colors.textPrimary }]}>Battery settings</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Interactive Real Device Test Card */}
-        <View style={styles.testCard}>
+        <View style={[styles.testCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.testCardHeader}>
-            <View style={styles.testIconBox}>
-              <Ionicons name="notifications-outline" size={20} color={Colors.brand} />
+            <View style={[styles.testIconBox, { backgroundColor: colors.brandSoft }]}>
+              <Ionicons name="notifications-outline" size={20} color={colors.primary} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.testCardTitle}>Test a reminder</Text>
-              <Text style={styles.testCardDesc}>
+              <Text style={[styles.testCardTitle, { color: colors.textPrimary }]}>Test a reminder</Text>
+              <Text style={[styles.testCardDesc, { color: colors.textSecondary }]}>
                 Send yourself a reminder to check the sound, vibration, and full-screen alert on this phone.
               </Text>
             </View>
           </View>
 
           {testSent ? (
-            <View style={styles.testSuccessBanner}>
-              <MaterialIcons name="check-circle" size={18} color={Colors.brand} />
-              <Text style={styles.testSuccessText}>
+            <View style={[styles.testSuccessBanner, { backgroundColor: colors.brandSoft }]}>
+              <MaterialIcons name="check-circle" size={18} color={colors.primary} />
+              <Text style={[styles.testSuccessText, { color: colors.primary }]}>
                 {testCountdown !== null
                   ? `Reminder will ring in ${testCountdown} seconds.`
                   : 'Reminder sent. The alert should open now.'}
@@ -348,36 +380,36 @@ export default function ReminderSetupScreen() {
           ) : (
             <View style={{ gap: Spacing.xs }}>
               <TouchableOpacity
-                style={styles.testActionBtn}
+                style={[styles.testActionBtn, { backgroundColor: colors.brandSoft }]}
                 onPress={handleSendTestAlarm}
                 activeOpacity={0.85}
                 accessibilityRole="button"
                 accessibilityLabel="Send test medication reminder in 5 seconds"
               >
-                <MaterialIcons name="play-arrow" size={18} color={Colors.brand} />
-                <Text style={styles.testActionText}>Send a test reminder in 5 seconds</Text>
+                <MaterialIcons name="play-arrow" size={18} color={colors.primary} />
+                <Text style={[styles.testActionText, { color: colors.primary }]}>Send a test reminder in 5 seconds</Text>
               </TouchableOpacity>
 
               {__DEV__ && (
-<TouchableOpacity
-                style={styles.previewAlarmBtn}
-                onPress={() => router.push('/alarm/test_occurrence_preview')}
-                activeOpacity={0.85}
-                accessibilityRole="button"
-                accessibilityLabel="Open entire screen alarm preview"
-              >
-                <MaterialIcons name="fullscreen" size={20} color={Colors.brand} />
-                <Text style={styles.previewAlarmText}>Preview full-screen alert</Text>
-              </TouchableOpacity>
-)}
+                <TouchableOpacity
+                  style={[styles.previewAlarmBtn, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
+                  onPress={() => router.push('/alarm/test_occurrence_preview')}
+                  activeOpacity={0.85}
+                  accessibilityRole="button"
+                  accessibilityLabel="Open entire screen alarm preview"
+                >
+                  <MaterialIcons name="fullscreen" size={20} color={colors.primary} />
+                  <Text style={[styles.previewAlarmText, { color: colors.textPrimary }]}>Preview full-screen alert</Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
         </View>
 
         {/* Local Reassurance Banner */}
-        <View style={styles.shieldBanner}>
-          <MaterialIcons name="cloud-off" size={20} color={Colors.brand} />
-          <Text style={styles.shieldText}>
+        <View style={[styles.shieldBanner, { backgroundColor: colors.surfaceSecondary }]}>
+          <MaterialIcons name="cloud-off" size={20} color={colors.primary} />
+          <Text style={[styles.shieldText, { color: colors.textSecondary }]}>
             Reminders are set on this phone and work without internet. No account is needed.
           </Text>
         </View>
@@ -385,13 +417,13 @@ export default function ReminderSetupScreen() {
         {/* Bottom Primary Actions */}
         <View style={styles.footerActions}>
           <TouchableOpacity
-            style={styles.continueBtn}
+            style={[styles.continueBtn, { backgroundColor: colors.primary }]}
             onPress={handleFinish}
             activeOpacity={0.88}
             accessibilityRole="button"
             accessibilityLabel="Continue to DoseSaathi dashboard"
           >
-            <Text style={styles.continueText}>
+            <Text style={[styles.continueText, { color: colors.white }]}>
               {isNotifGranted ? 'Continue to DoseSaathi' : 'Continue'}
             </Text>
           </TouchableOpacity>
@@ -405,7 +437,7 @@ export default function ReminderSetupScreen() {
             accessibilityRole="button"
             accessibilityLabel="Set up later"
           >
-            <Text style={styles.laterText}>Set up later</Text>
+            <Text style={[styles.laterText, { color: colors.textSecondary }]}>Set up later</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -416,7 +448,6 @@ export default function ReminderSetupScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: Colors.canvas,
   },
   headerBar: {
     flexDirection: 'row',
@@ -424,7 +455,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.xl,
     height: 52,
-    backgroundColor: Colors.canvas,
   },
   scrollView: {
     flex: 1,
@@ -450,11 +480,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     ...Typography.headlineSmall,
-    color: Colors.ink,
   },
   headerStep: {
     ...Typography.bodySmall,
-    color: Colors.inkMuted,
     fontSize: 12,
   },
   titleSection: {
@@ -462,18 +490,14 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     ...Typography.headlineLarge,
-    color: Colors.ink,
     lineHeight: 34,
     marginBottom: Spacing.xs,
   },
   mainSubtitle: {
     ...Typography.bodyMedium,
-    color: Colors.inkMuted,
     lineHeight: 22,
   },
   permissionList: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1,
     borderRadius: Radii.card,
     padding: Spacing.sm,
@@ -501,13 +525,9 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: Colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
-  },
-  iconCircleActive: {
-    backgroundColor: Colors.brandSoft,
   },
   textCol: {
     flex: 1,
@@ -522,71 +542,36 @@ const styles = StyleSheet.create({
   permTitle: {
     ...Typography.headlineSmall,
     fontSize: 16,
-    color: Colors.ink,
   },
   permDesc: {
     ...Typography.bodySmall,
-    color: Colors.inkMuted,
     lineHeight: 18,
   },
-  enabledBadge: {
-    backgroundColor: Colors.brandSoft,
+  badgePill: {
     paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: Radii.full,
     alignSelf: 'flex-start',
     flexShrink: 0,
   },
-  enabledBadgeText: {
+  badgeText: {
     ...Typography.labelSmall,
     fontSize: 12,
     lineHeight: 16,
-    color: Colors.brand,
     includeFontPadding: false,
-  },
-  notConfiguredBadge: {
-    backgroundColor: Colors.surfaceMuted,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: Radii.full,
-    alignSelf: 'flex-start',
-    flexShrink: 0,
-  },
-  notConfiguredText: {
-    ...Typography.labelSmall,
-    fontSize: 12,
-    lineHeight: 16,
-    color: Colors.warning,
-    includeFontPadding: false,
-  },
-  neutralBadge: {
-    backgroundColor: Colors.surfaceMuted,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: Radii.full,
-    alignSelf: 'flex-start',
-    flexShrink: 0,
-  },
-  neutralBadgeText: {
-    ...Typography.labelSmall,
-    fontSize: 12,
-    lineHeight: 16,
-    color: Colors.inkMuted,
-    includeFontPadding: false,
+    fontWeight: '600',
   },
   actionBtn: {
     alignSelf: 'flex-start',
     marginLeft: 48,
     minHeight: 48,
     paddingHorizontal: Spacing.md,
-    backgroundColor: Colors.surfaceMuted,
     borderRadius: Radii.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
   actionBtnText: {
     ...Typography.labelSmall,
-    color: Colors.ink,
     fontWeight: '600',
   },
   actionBtnPrimary: {
@@ -595,14 +580,12 @@ const styles = StyleSheet.create({
     minHeight: 48,
     minWidth: 96,
     paddingHorizontal: Spacing.md,
-    backgroundColor: Colors.brand,
     borderRadius: Radii.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
   actionBtnPrimaryText: {
     ...Typography.labelSmall,
-    color: Colors.white,
     fontWeight: '600',
   },
   actionGrantedPill: {
@@ -613,24 +596,18 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 6,
-    backgroundColor: Colors.brandSoft,
     borderRadius: Radii.full,
   },
   actionGrantedText: {
     ...Typography.labelSmall,
-    color: Colors.brand,
     fontWeight: '600',
     fontSize: 12,
   },
   divider: {
     height: 1,
-    backgroundColor: Colors.surfaceMuted,
     marginHorizontal: Spacing.sm,
   },
-  // Test Card Styles
   testCard: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1,
     borderRadius: Radii.card,
     padding: Spacing.md,
@@ -651,20 +628,17 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: Colors.brandSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
   testCardTitle: {
     ...Typography.labelMedium,
-    color: Colors.ink,
     fontWeight: '700',
     fontSize: 14,
     lineHeight: 20,
   },
   testCardDesc: {
     ...Typography.bodySmall,
-    color: Colors.inkMuted,
     lineHeight: 18,
     marginTop: 2,
   },
@@ -673,7 +647,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: Colors.brandSoft,
     minHeight: 48,
     paddingVertical: 10,
     paddingHorizontal: Spacing.md,
@@ -682,16 +655,13 @@ const styles = StyleSheet.create({
   testActionText: {
     textAlign: 'center',
     ...Typography.labelMedium,
-    color: Colors.brand,
   },
   previewAlarmBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: Colors.surfaceMuted,
     borderWidth: 1,
-    borderColor: Colors.outline,
     minHeight: 48,
     paddingVertical: 10,
     paddingHorizontal: Spacing.md,
@@ -700,25 +670,21 @@ const styles = StyleSheet.create({
   previewAlarmText: {
     textAlign: 'center',
     ...Typography.labelMedium,
-    color: Colors.ink,
   },
   testSuccessBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: Colors.brandSoft,
     paddingVertical: 10,
     paddingHorizontal: Spacing.md,
     borderRadius: Radii.sm,
   },
   testSuccessText: {
     ...Typography.bodySmall,
-    color: Colors.brand,
     fontWeight: '600',
     flex: 1,
   },
   shieldBanner: {
-    backgroundColor: Colors.surfaceMuted,
     borderRadius: Radii.card,
     padding: Spacing.md,
     flexDirection: 'row',
@@ -728,7 +694,6 @@ const styles = StyleSheet.create({
   },
   shieldText: {
     ...Typography.bodySmall,
-    color: Colors.inkMuted,
     flex: 1,
     lineHeight: 18,
   },
@@ -740,11 +705,9 @@ const styles = StyleSheet.create({
     minHeight: 52,
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.lg,
-    backgroundColor: Colors.brand,
     borderRadius: Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.brand,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -753,7 +716,6 @@ const styles = StyleSheet.create({
   continueText: {
     textAlign: 'center',
     ...Typography.labelLarge,
-    color: Colors.white,
     fontWeight: '600',
   },
   laterBtn: {
@@ -764,6 +726,5 @@ const styles = StyleSheet.create({
   },
   laterText: {
     ...Typography.labelMedium,
-    color: Colors.inkMuted,
   },
 });

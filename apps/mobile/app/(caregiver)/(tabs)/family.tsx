@@ -5,7 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PrimaryButton, SecondaryButton } from '@/components/Buttons';
 import { EmptyState } from '@/components/EmptyState';
-import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { Spacing, Typography, Radii } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { Notice, RefreshableScreen } from '@/caregiver/ui';
 import { describeDeviceStatus, formatRelativeTime } from '@/caregiver/command-state';
@@ -25,6 +26,7 @@ function initialsOf(name: string): string {
 
 export default function FamilyHubScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const { relationships, refreshRelationships, setSelectedRelationship, relationshipsStale, relationshipsSyncedAt, caregiver } = useApp();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -43,7 +45,7 @@ export default function FamilyHubScreen() {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await refreshRelationships(); // a real request, not a timer
+      await refreshRelationships();
     } finally {
       setIsRefreshing(false);
     }
@@ -68,7 +70,7 @@ export default function FamilyHubScreen() {
           description={
             caregiver
               ? "Connect with a family member's phone to see their schedule and help manage their medicines. They stay in control and approve what you can see."
-              : 'Sign in and connect with a family member to see their schedule and help manage their medicines.'
+              : 'Connect with a family member to see their schedule and help manage their medicines. No account required.'
           }
           buttonTitle="Connect a family member"
           onButtonPress={() => router.push('/(caregiver)/connect')}
@@ -82,43 +84,46 @@ export default function FamilyHubScreen() {
           return (
             <TouchableOpacity
               key={rel.relationshipId}
-              style={styles.memberCard}
+              style={[
+                styles.memberCard,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
               onPress={() => handleOpenPatient(rel)}
               activeOpacity={0.8}
               accessibilityRole="button"
               accessibilityLabel={`${rel.patientDisplayName}, ${rel.relationshipLabel}. ${accessText}. Phone: ${device.text}.${waiting ? ' A change is waiting for the phone to connect.' : ''} Opens their schedule.`}
             >
               <View style={styles.topRow}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>{initialsOf(rel.patientDisplayName)}</Text>
+                <View style={[styles.avatar, { backgroundColor: colors.brandSoft }]}>
+                  <Text style={[styles.avatarText, { color: colors.primary }]}>{initialsOf(rel.patientDisplayName)}</Text>
                 </View>
                 <View style={styles.memberInfo}>
-                  <Text style={styles.memberName}>{rel.patientDisplayName}</Text>
-                  <Text style={styles.relationshipLabel}>{rel.relationshipLabel}</Text>
+                  <Text style={[styles.memberName, { color: colors.textPrimary }]}>{rel.patientDisplayName}</Text>
+                  <Text style={[styles.relationshipLabel, { color: colors.textSecondary }]}>{rel.relationshipLabel}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={22} color={Colors.inkMuted} />
+                <Ionicons name="chevron-forward" size={22} color={colors.textSecondary} />
               </View>
 
               <View style={styles.statusRow}>
                 <Ionicons
                   name={device.state === 'recent' ? 'phone-portrait-outline' : device.state === 'never' ? 'help-circle-outline' : 'time-outline'}
                   size={18}
-                  color={device.state === 'recent' ? Colors.success : Colors.warning}
+                  color={device.state === 'recent' ? colors.success : colors.warning}
                 />
-                <Text style={[styles.statusText, { color: device.state === 'recent' ? Colors.success : Colors.warning }]}>{device.text}</Text>
+                <Text style={[styles.statusText, { color: device.state === 'recent' ? colors.success : colors.warning }]}>{device.text}</Text>
               </View>
 
               {waiting ? (
                 <View style={styles.statusRow}>
-                  <Ionicons name="hourglass-outline" size={18} color={Colors.brand} />
-                  <Text style={[styles.statusText, { color: Colors.brand }]}>Waiting for the phone to connect</Text>
+                  <Ionicons name="hourglass-outline" size={18} color={colors.primary} />
+                  <Text style={[styles.statusText, { color: colors.primary }]}>Waiting for the phone to connect</Text>
                 </View>
               ) : null}
 
-              <View style={styles.divider} />
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
               <View style={styles.statusRow}>
-                <Ionicons name={canEdit ? 'create-outline' : 'eye-outline'} size={18} color={Colors.inkMuted} />
-                <Text style={styles.accessText}>{accessText}</Text>
+                <Ionicons name={canEdit ? 'create-outline' : 'eye-outline'} size={18} color={colors.textSecondary} />
+                <Text style={[styles.accessText, { color: colors.textSecondary }]}>{accessText}</Text>
               </View>
             </TouchableOpacity>
           );
@@ -126,7 +131,7 @@ export default function FamilyHubScreen() {
       )}
 
       <View style={styles.actionsBlock}>
-        <SecondaryButton title="Refresh" onPress={handleRefresh} loading={isRefreshing} icon={<Ionicons name="refresh" size={18} color={Colors.brand} />} />
+        <SecondaryButton title="Refresh" onPress={handleRefresh} loading={isRefreshing} icon={<Ionicons name="refresh" size={18} color={colors.primary} />} />
         {active.length > 0 ? <PrimaryButton title="Connect another family member" onPress={() => router.push('/(caregiver)/connect')} icon="+" /> : null}
         <SecondaryButton title="Manage connections" onPress={() => router.push('/(caregiver)/connections')} />
       </View>
@@ -136,8 +141,6 @@ export default function FamilyHubScreen() {
 
 const styles = StyleSheet.create({
   memberCard: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1.5,
     borderRadius: Radii.card,
     padding: Spacing.xl,
@@ -149,18 +152,17 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: Colors.brandSoft,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: Spacing.md,
   },
-  avatarText: { ...Typography.labelMedium, color: Colors.primary, fontWeight: '700' },
+  avatarText: { ...Typography.labelMedium, fontWeight: '700' },
   memberInfo: { flex: 1 },
-  memberName: { ...Typography.headlineSmall, color: Colors.ink },
-  relationshipLabel: { ...Typography.bodySmall, color: Colors.inkMuted },
+  memberName: { ...Typography.headlineSmall },
+  relationshipLabel: { ...Typography.bodySmall },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs, marginBottom: Spacing.xs },
   statusText: { ...Typography.bodySmall, fontWeight: '600', flexShrink: 1 },
-  divider: { height: 1, backgroundColor: Colors.outline, marginVertical: Spacing.sm },
-  accessText: { ...Typography.bodySmall, color: Colors.inkMuted },
+  divider: { height: 1, marginVertical: Spacing.sm },
+  accessText: { ...Typography.bodySmall },
   actionsBlock: { gap: Spacing.xs, marginTop: Spacing.md },
 });

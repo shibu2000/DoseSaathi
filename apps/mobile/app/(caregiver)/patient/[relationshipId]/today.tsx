@@ -6,6 +6,7 @@ import { PatientContextBar } from '@/components/PatientContextBar';
 import { StatusTag } from '@/components/StatusTag';
 import { SecondaryButton, PrimaryButton } from '@/components/Buttons';
 import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { CheckingScreen, Notice, RefreshableScreen } from '@/caregiver/ui';
@@ -158,6 +159,7 @@ function TodayBody(props: {
   relationshipsSyncedAt: string | null;
   onOpenMedicines: () => void;
 }) {
+  const { colors } = useTheme();
   const { rel, plan, events, eventsOk, now } = props;
   const patientName = rel.patientDisplayName;
   const device = describeDeviceStatus(rel.deviceLastSeenAt, rel.lastSyncedAt, now);
@@ -193,7 +195,7 @@ function TodayBody(props: {
   return (
     <RefreshableScreen refreshing={props.refreshing} onRefresh={props.onRefresh}>
       {props.header}
-      <Text style={styles.dateLabel}>{dateLabel}</Text>
+      <Text style={[styles.dateLabel, { color: colors.textSecondary }]}>{dateLabel}</Text>
 
       <View style={styles.syncRow} accessible accessibilityLabel={`Phone status: ${device.text}`}>
         <Ionicons
@@ -227,24 +229,24 @@ function TodayBody(props: {
       ) : null}
 
       {!fromPhone && view.rows.length > 0 ? (
-        <Text style={styles.tzNote}>Times use your phone's time zone because {patientName}'s zone is not known yet.</Text>
+        <Text style={[styles.tzNote, { color: colors.textSecondary }]}>Times use your phone's time zone because {patientName}'s zone is not known yet.</Text>
       ) : null}
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Today's schedule (read-only)</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Today's schedule (read-only)</Text>
         {plan.loading && !plan.raw ? (
-          <ActivityIndicator size="small" color={Colors.brand} style={{ marginVertical: 20 }} accessibilityLabel="Loading" />
+          <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 20 }} accessibilityLabel="Loading" />
         ) : plan.error && !plan.raw ? (
           <Notice icon="cloud-offline-outline" tone="problem" title="Couldn't load the schedule" actionLabel="Try again" onAction={plan.reload}>
             {plan.error}
           </Notice>
         ) : !report ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyText}>{patientName}'s phone has not shared its schedule yet.</Text>
+          <View style={[styles.emptyCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{patientName}'s phone has not shared its schedule yet.</Text>
           </View>
         ) : view.rows.length === 0 && view.dependents.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyText}>No doses are scheduled for today.</Text>
+          <View style={[styles.emptyCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No doses are scheduled for today.</Text>
           </View>
         ) : (
           <>
@@ -253,42 +255,42 @@ function TodayBody(props: {
               return (
                 <View
                   key={row.key}
-                  style={styles.doseCard}
+                  style={[styles.doseCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
                   accessible
                   accessibilityLabel={`${row.timeLocal}. ${row.name}. ${row.dosageText}. ${st.label}`}
                 >
                   <View style={styles.doseHeader}>
-                    <Text style={styles.doseTime}>{row.timeLocal}</Text>
+                    <Text style={[styles.doseTime, { color: colors.primary }]}>{row.timeLocal}</Text>
                     <StatusTag label={st.label} variant={st.variant} />
                   </View>
-                  <Text style={styles.doseName}>{row.name}</Text>
-                  {row.dosageText ? <Text style={styles.doseDosage}>{row.dosageText}</Text> : null}
-                  {row.instructions ? <Text style={styles.doseDosage}>{row.instructions}</Text> : null}
+                  <Text style={[styles.doseName, { color: colors.textPrimary }]}>{row.name}</Text>
+                  {row.dosageText ? <Text style={[styles.doseDosage, { color: colors.textSecondary }]}>{row.dosageText}</Text> : null}
+                  {row.instructions ? <Text style={[styles.doseDosage, { color: colors.textSecondary }]}>{row.instructions}</Text> : null}
                 </View>
               );
             })}
             {view.dependents.map((d) => (
-              <View key={d.medicationId} style={styles.dependentCard} accessible accessibilityLabel={`${d.name}: ${d.text}`}>
-                <Text style={styles.dependentName}>{d.name}</Text>
-                <Text style={styles.dependentText}>{d.text}</Text>
+              <View key={d.medicationId} style={[styles.dependentCard, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]} accessible accessibilityLabel={`${d.name}: ${d.text}`}>
+                <Text style={[styles.dependentName, { color: colors.textPrimary }]}>{d.name}</Text>
+                <Text style={[styles.dependentText, { color: colors.textSecondary }]}>{d.text}</Text>
               </View>
             ))}
           </>
         )}
-        <Text style={styles.readOnly}>Doses are confirmed on {patientName}'s phone. This is a read-only view.</Text>
+        <Text style={[styles.readOnly, { color: colors.textSecondary }]}>Doses are confirmed on {patientName}'s phone. This is a read-only view.</Text>
       </View>
 
       <View style={styles.actionBlock}>
         <PrimaryButton
           title={medicinesButtonLabel(rel)}
           onPress={props.onOpenMedicines}
-          icon={<MaterialCommunityIcons name="pill" size={20} color={Colors.white} />}
+          icon={<MaterialCommunityIcons name="pill" size={20} color={colors.surface} />}
         />
         <SecondaryButton
           title="Refresh"
           onPress={props.onRefresh}
           loading={props.refreshing}
-          icon={<Ionicons name="refresh" size={18} color={Colors.brand} />}
+          icon={<Ionicons name="refresh" size={18} color={colors.primary} />}
         />
       </View>
     </RefreshableScreen>

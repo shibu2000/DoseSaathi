@@ -5,7 +5,8 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { StatusTag, type StatusVariant } from '@/components/StatusTag';
 import { SecondaryButton } from '@/components/Buttons';
 import { EmptyState } from '@/components/EmptyState';
-import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { Spacing, Typography, Radii } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { ApiError, type ActivityResponse } from '@/sync/api-client';
 import { Notice, RefreshableScreen } from '@/caregiver/ui';
@@ -55,97 +56,97 @@ function formatInZone(iso: string | null, tz: string): string | null {
   }
 }
 
-function errorText(err: unknown): string {
-  if (err instanceof ApiError) {
-    if (err.isNetwork) return "Couldn't reach DoseSaathi. Check your connection.";
-    if (err.code === 'PERMISSION_DENIED') return 'You do not have permission to see this activity.';
-    if (err.code === 'RELATIONSHIP_INACTIVE') return 'This connection has ended.';
-  }
-  return "Couldn't load activity.";
-}
-
-export default function FamilyActivityScreen() {
-  const { api, relationships, selectedRelationship } = useApp();
+export default function CaregiverActivityTabScreen() {
+  const { colors } = useTheme();
+  const { api, relationships, refreshRelationships } = useApp();
   const members = useMemo(
     () => relationships.filter((r) => r.status === 'ACTIVE' && r.permissions.includes('VIEW_DOSE_LOGS')),
     [relationships]
   );
-  const [filter, setFilter] = useState<string>('all');
+
+  const [filter, setFilter] = useState<'all' | string>('all');
   const [feeds, setFeeds] = useState<Record<string, Feed>>({});
   const [refreshing, setRefreshing] = useState(false);
-  const alive = useRef(true);
+
+  const mounted = useRef(true);
   useEffect(() => {
-    alive.current = true;
+    mounted.current = true;
     return () => {
-      alive.current = false;
+      mounted.current = false;
     };
   }, []);
 
-  // Start on the selected person when there is one, but only until the user picks a chip.
-  const initialised = useRef(false);
-  useEffect(() => {
-    if (initialised.current || members.length === 0) return;
-    initialised.current = true;
-    if (selectedRelationship && members.some((m) => m.relationshipId === selectedRelationship.relationshipId)) {
-      setFilter(selectedRelationship.relationshipId);
-    }
-  }, [members, selectedRelationship]);
-
-  // If the chosen person disappears (revoked), fall back to everyone
-  useEffect(() => {
-    if (filter !== 'all' && !members.some((m) => m.relationshipId === filter)) setFilter('all');
-  }, [members, filter]);
-
-  const memberKey = members.map((m) => m.relationshipId).join(',');
-  const visibleIds = useMemo(
-    () => (filter === 'all' ? members.map((m) => m.relationshipId) : members.filter((m) => m.relationshipId === filter).map((m) => m.relationshipId)),
-    [filter, memberKey] // eslint-disable-line react-hooks/exhaustive-deps
-  );
-
-  const feedsRef = useRef(feeds);
-  feedsRef.current = feeds;
-
   const fetchPage = useCallback(
-    async (relId: string, reset: boolean) => {
-      const cur = feedsRef.current[relId] ?? EMPTY_FEED;
-      const cursor = reset ? undefined : cur.nextCursor ?? undefined;
-      if (!reset && !cur.nextCursor) return;
-      setFeeds((p) => ({ ...p, [relId]: { ...(reset ? EMPTY_FEED : cur), loading: true, error: null } }));
+    async (relationshipId: string, reset = false) => {
+      const cur = feeds[relationshipId] ?? EMPTY_FEED;
+      if (cur.loading) return;
+      if (!reset && !cur.nextCursor && cur.items.length > 0) return;
+
+      setFeeds((prev) => ({
+        ...prev,
+        [relationshipId]: { ...(prev[relationshipId] ?? EMPTY_FEED), loading: true, error: null },
+      }));
+
       try {
-        const res = await api.getActivity(relId, { limit: PAGE, cursor });
-        if (!alive.current) return;
-        setFeeds((p) => {
-          const base = reset ? [] : (p[relId]?.items ?? []);
-          return { ...p, [relId]: { items: [...base, ...res.items], nextCursor: res.nextCursor, loading: false, error: null } };
+        const cursor = reset ? undefined : cur.nextCursor ?? undefined;
+        const res = await api.getActivity(relationshipId, { cursor, limit: PAGE });
+        if (!mounted.current) return;
+        setFeeds((prev) => {
+          const prior = reset ? [] : (prev[relationshipId]?.items ?? []);
+          return {
+            ...prev,
+            [relationshipId]: {
+              items: [...prior, ...res.items],
+              nextCursor: res.nextCursor,
+              loading: false,
+              error: null,
+            },
+          };
         });
-      } catch (err) {
-        if (!alive.current) return;
-        setFeeds((p) => ({ ...p, [relId]: { ...(p[relId] ?? EMPTY_FEED), loading: false, error: errorText(err) } }));
+      } catch (e) {
+        if (!mounted.current) return;
+        const msg =
+          e instanceof ApiError && e.isNetwork
+            ? "Couldn't reach DoseSaathi. Pull down to try again."
+            : 'Could not load activity for this person.';
+        setFeeds((prev) => ({
+          ...prev,
+          [relationshipId]: { ...(prev[relationshipId] ?? EMPTY_FEED), loading: false, error: msg },
+        }));
       }
     },
-    [api]
+    [api, feeds]
   );
 
-  // First load for anyone not loaded yet
   useEffect(() => {
-    for (const id of visibleIds) {
-      if (!feedsRef.current[id]) void fetchPage(id, true);
+    for (const m of members) {
+      if (!feeds[m.relationshipId]) void fetchPage(m.relationshipId, true);
     }
-  }, [visibleIds, fetchPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [members]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all(visibleIds.map((id) => fetchPage(id, true)));
-    if (alive.current) setRefreshing(false);
+    try {
+      await refreshRelationships();
+      await Promise.all(members.map((m) => fetchPage(m.relationshipId, true)));
+    } finally {
+      if (mounted.current) setRefreshing(false);
+    }
   };
 
-  const shownFeeds = visibleIds.map((id) => feeds[id] ?? EMPTY_FEED);
-  const merged = mergeFeeds(shownFeeds.map((f) => ({ items: f.items, nextCursor: f.nextCursor })));
-  const anyLoading = shownFeeds.some((f) => f.loading);
+  const visibleIds = filter === 'all' ? members.map((m) => m.relationshipId) : [filter];
+  const merged = useMemo(() => {
+    const activeFeeds = visibleIds.map((id) => feeds[id] ?? EMPTY_FEED);
+    return mergeFeeds(activeFeeds);
+  }, [visibleIds, feeds]);
+
+  const anyLoading = visibleIds.some((id) => feeds[id]?.loading);
+
   const loadMore = () => {
     for (const id of visibleIds) {
       const f = feeds[id];
-      if (f?.nextCursor && !f.loading) void fetchPage(id, false);
+      if (f?.nextCursor && !f.loading) void fetchPage(id);
     }
   };
   const nameOfRel = (id: string) => relationships.find((r) => r.relationshipId === id)?.patientDisplayName;
@@ -169,9 +170,9 @@ export default function FamilyActivityScreen() {
       ) : (
         <>
           <View style={styles.filterRow} accessibilityRole="tablist">
-            <Chip label={`Everyone (${members.length})`} selected={filter === 'all'} onPress={() => setFilter('all')} />
+            <Chip label={`Everyone (${members.length})`} selected={filter === 'all'} onPress={() => setFilter('all')} colors={colors} />
             {members.map((m) => (
-              <Chip key={m.relationshipId} label={m.patientDisplayName} selected={filter === m.relationshipId} onPress={() => setFilter(m.relationshipId)} />
+              <Chip key={m.relationshipId} label={m.patientDisplayName} selected={filter === m.relationshipId} onPress={() => setFilter(m.relationshipId)} colors={colors} />
             ))}
           </View>
 
@@ -189,7 +190,7 @@ export default function FamilyActivityScreen() {
           ))}
 
           {merged.items.length === 0 && anyLoading ? (
-            <ActivityIndicator size="small" color={Colors.brand} style={{ marginVertical: 30 }} accessibilityLabel="Loading activity" />
+            <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 30 }} accessibilityLabel="Loading activity" />
           ) : merged.items.length === 0 && failed.length === 0 ? (
             <EmptyState icon="📋" title="No activity yet" description="Dose updates will appear here after the phone syncs." />
           ) : (
@@ -202,21 +203,21 @@ export default function FamilyActivityScreen() {
                 return (
                   <View
                     key={item.eventId}
-                    style={styles.eventCard}
+                    style={[styles.eventCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
                     accessible
                     accessibilityLabel={`${item.patientDisplayName}. ${item.medicationName ?? 'Medicine'}. ${gentleLabel(item.statusLabel)}. ${action ? `Recorded ${action}.` : ''} ${sched ? `Scheduled ${sched}.` : ''}`}
                   >
                     <View style={styles.eventHeader}>
-                      <Text style={styles.patientTag}>{item.patientDisplayName}</Text>
+                      <Text style={[styles.patientTag, { color: colors.primary }]}>{item.patientDisplayName}</Text>
                       <StatusTag label={gentleLabel(item.statusLabel)} variant={variantFor(item.eventType)} />
                     </View>
-                    <Text style={styles.medName}>
+                    <Text style={[styles.medName, { color: colors.textPrimary }]}>
                       {item.medicationName ?? 'Medicine'}
                       {item.dosageText ? ` • ${item.dosageText}` : ''}
                     </Text>
-                    {action ? <Text style={styles.timeLabel}>Recorded {action}</Text> : null}
-                    {sched ? <Text style={styles.timeLabel}>Scheduled for {sched}</Text> : null}
-                    {showTz ? <Text style={styles.tzLabel}>Times in {tz.replace(/_/g, ' ')} (their phone's time zone)</Text> : null}
+                    {action ? <Text style={[styles.timeLabel, { color: colors.textSecondary }]}>Recorded {action}</Text> : null}
+                    {sched ? <Text style={[styles.timeLabel, { color: colors.textSecondary }]}>Scheduled for {sched}</Text> : null}
+                    {showTz ? <Text style={[styles.tzLabel, { color: colors.textSecondary }]}>Times in {tz.replace(/_/g, ' ')} (their phone's time zone)</Text> : null}
                   </View>
                 );
               })}
@@ -228,7 +229,7 @@ export default function FamilyActivityScreen() {
               <SecondaryButton title="Load more" onPress={loadMore} loading={anyLoading} />
             </View>
           ) : merged.items.length > 0 ? (
-            <Text style={styles.endText}>That's everything so far.</Text>
+            <Text style={[styles.endText, { color: colors.textSecondary }]}>That's everything so far.</Text>
           ) : null}
         </>
       )}
@@ -236,17 +237,25 @@ export default function FamilyActivityScreen() {
   );
 }
 
-function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+function Chip({ label, selected, onPress, colors }: { label: string; selected: boolean; onPress: () => void; colors: any }) {
   return (
     <TouchableOpacity
-      style={[styles.chip, selected && styles.chipActive]}
+      style={[
+        styles.chip,
+        {
+          backgroundColor: selected ? colors.primary : colors.surface,
+          borderColor: selected ? colors.primary : colors.border,
+        },
+      ]}
       onPress={onPress}
       accessibilityRole="tab"
       accessibilityState={{ selected }}
       accessibilityLabel={selected ? `${label}, selected` : label}
     >
-      {selected ? <Ionicons name="checkmark" size={16} color={Colors.white} /> : null}
-      <Text style={[styles.chipText, selected && styles.chipTextActive]}>{label}</Text>
+      {selected ? <Ionicons name="checkmark" size={16} color={colors.white} /> : null}
+      <Text style={[styles.chipText, { color: selected ? colors.white : colors.textPrimary }, selected && styles.chipTextActive]}>
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -262,25 +271,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     borderRadius: Radii.full,
     borderWidth: 1,
-    borderColor: Colors.outline,
-    backgroundColor: Colors.surface,
   },
-  chipActive: { backgroundColor: Colors.brand, borderColor: Colors.brand },
-  chipText: { ...Typography.labelSmall, color: Colors.ink, flexShrink: 1 },
-  chipTextActive: { color: Colors.white, fontWeight: '700' },
+  chipText: { ...Typography.labelSmall, flexShrink: 1 },
+  chipTextActive: { fontWeight: '700' },
   list: { gap: Spacing.md },
   eventCard: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1,
     borderRadius: Radii.card,
     padding: Spacing.lg,
   },
   eventHeader: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.xs, gap: Spacing.sm },
-  patientTag: { ...Typography.labelSmall, color: Colors.brand, fontWeight: '700', flexShrink: 1 },
-  medName: { ...Typography.bodyLarge, fontWeight: '700', color: Colors.ink, marginBottom: Spacing.xs },
-  timeLabel: { ...Typography.bodySmall, color: Colors.inkMuted },
-  tzLabel: { ...Typography.bodySmall, color: Colors.inkMuted, fontStyle: 'italic', marginTop: Spacing.xs },
+  patientTag: { ...Typography.labelSmall, fontWeight: '700', flexShrink: 1 },
+  medName: { ...Typography.bodyLarge, fontWeight: '700', marginBottom: Spacing.xs },
+  timeLabel: { ...Typography.bodySmall },
+  tzLabel: { ...Typography.bodySmall, fontStyle: 'italic', marginTop: Spacing.xs },
   moreBlock: { marginTop: Spacing.lg, marginBottom: Spacing.xxl },
-  endText: { ...Typography.bodySmall, color: Colors.inkMuted, textAlign: 'center', marginVertical: Spacing.xl },
+  endText: { ...Typography.bodySmall, textAlign: 'center', marginVertical: Spacing.xl },
 });

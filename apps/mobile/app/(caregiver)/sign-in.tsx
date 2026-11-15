@@ -2,14 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { PrimaryButton } from '@/components/Buttons';
+import { PrimaryButton, SecondaryButton } from '@/components/Buttons';
 import { FormField } from '@/components/FormField';
-import { Colors, Spacing, Typography } from '@/theme/tokens';
+import { Spacing, Typography, Radii } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { Notice } from '@/pairing/Notice';
 import { FormScreen } from '@/caregiver/ui';
 import { describeError } from '@/pairing/errors';
 import { validateEmail, validatePassword } from '@/pairing/format';
+import { MaterialIcons } from '@expo/vector-icons';
 
 type Mode = 'signin' | 'signup';
 
@@ -23,6 +25,7 @@ function safeNext(next: string | string[] | undefined): string {
 export default function CaregiverSignInScreen() {
   const router = useRouter();
   const { next } = useLocalSearchParams<{ next?: string }>();
+  const { colors } = useTheme();
   const { api, signInCaregiver, signUpCaregiver } = useApp();
 
   const [mode, setMode] = useState<Mode>('signin');
@@ -86,9 +89,25 @@ export default function CaregiverSignInScreen() {
       <View>
         <ScreenHeader
           title={mode === 'signin' ? 'Caregiver sign in' : 'Create caregiver account'}
-          subtitle="An account lets you connect to a family member's medicine schedule."
+          subtitle="Optional account for syncing your family member connections across devices."
           showBack
         />
+
+        {/* Quick Connect Callout */}
+        <View style={[styles.quickBox, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+          <View style={styles.quickHeader}>
+            <MaterialIcons name="bolt" size={22} color={colors.primary} />
+            <Text style={[styles.quickTitle, { color: colors.textPrimary }]}>No account needed to pair</Text>
+          </View>
+          <Text style={[styles.quickBody, { color: colors.textSecondary }]}>
+            If you have a 6-digit code or QR code from your family member, you can pair immediately using device authentication without creating an account.
+          </Text>
+          <SecondaryButton
+            title="Use 1-tap quick pair"
+            onPress={() => router.replace('/(caregiver)/connect')}
+            icon={<MaterialIcons name="qr-code-scanner" size={18} color={colors.primary} />}
+          />
+        </View>
 
         {!api.isConfigured && (
           <Notice tone="warning">This build has no DoseSaathi server configured, so you cannot sign in. Personal medicine reminders still work.</Notice>
@@ -145,14 +164,13 @@ export default function CaregiverSignInScreen() {
           onPress={() => switchMode(mode === 'signin' ? 'signup' : 'signin')}
           accessibilityRole="button"
         >
-          <Text style={styles.switchText}>
+          <Text style={[styles.switchText, { color: colors.primary }]}>
             {mode === 'signin' ? 'New here? Create an account' : 'Already have an account? Sign in'}
           </Text>
         </TouchableOpacity>
 
-        <Text style={styles.note}>
-          This account exists only to link you with family members. You do not need one to use DoseSaathi for your own medicines.
-          Your details are sent to the DoseSaathi server over HTTPS.
+        <Text style={[styles.note, { color: colors.textSecondary }]}>
+          This account is optional and exists only to backup your caregiver links. You never need an account to use DoseSaathi for your own medicines.
         </Text>
       </View>
     </FormScreen>
@@ -160,7 +178,28 @@ export default function CaregiverSignInScreen() {
 }
 
 const styles = StyleSheet.create({
+  quickBox: {
+    padding: Spacing.lg,
+    borderRadius: Radii.card,
+    borderWidth: 1,
+    marginBottom: Spacing.lg,
+  },
+  quickHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    marginBottom: Spacing.xs,
+  },
+  quickTitle: {
+    ...Typography.labelMedium,
+    fontWeight: '700',
+  },
+  quickBody: {
+    ...Typography.bodySmall,
+    marginBottom: Spacing.md,
+    lineHeight: 18,
+  },
   switch: { minHeight: 48, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.sm },
-  switchText: { ...Typography.labelMedium, color: Colors.brand },
-  note: { ...Typography.bodySmall, marginTop: Spacing.lg },
+  switchText: { ...Typography.labelMedium, fontWeight: '600' },
+  note: { ...Typography.bodySmall, marginTop: Spacing.lg, textAlign: 'center', lineHeight: 18 },
 });

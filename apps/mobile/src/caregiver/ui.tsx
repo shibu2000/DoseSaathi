@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radii, Spacing, Typography } from '@/theme/tokens';
+import { useTheme, type ThemeColors } from '@/theme/ThemeContext';
 import { AppScreen } from '@/components/AppScreen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { describeCommandState, type CommandTone } from './command-state';
@@ -16,6 +17,20 @@ const toneIcon: Record<CommandTone, keyof typeof Ionicons.glyphMap> = {
   problem: 'alert-circle-outline',
   neutral: 'information-circle-outline',
 };
+
+export function getToneColors(tone: CommandTone, colors: ThemeColors) {
+  switch (tone) {
+    case 'success':
+      return { fg: colors.success, bg: colors.surfaceSecondary, border: colors.border };
+    case 'problem':
+      return { fg: colors.error, bg: colors.surfaceSecondary, border: colors.border };
+    case 'waiting':
+    case 'progress':
+      return { fg: colors.primary, bg: colors.brandSoft, border: colors.border };
+    default:
+      return { fg: colors.textSecondary, bg: colors.surfaceSecondary, border: colors.border };
+  }
+}
 
 export function toneColors(tone: CommandTone) {
   switch (tone) {
@@ -41,12 +56,14 @@ export function RefreshableScreen({
   refreshing: boolean;
   onRefresh: () => void;
 }) {
+  const { colors } = useTheme();
+
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.canvas }]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.brand} colors={[Colors.brand]} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} colors={[colors.primary]} />}
       >
         {children}
       </ScrollView>
@@ -59,8 +76,10 @@ export function RefreshableScreen({
  * lets a tap on a button work on the first try while the keyboard is open.
  */
 export function FormScreen({ children }: { children: React.ReactNode }) {
+  const { colors } = useTheme();
+
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.canvas }]}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -76,10 +95,12 @@ export function FormScreen({ children }: { children: React.ReactNode }) {
 }
 
 export function CheckingScreen({ title = 'Opening' }: { title?: string }) {
+  const { colors } = useTheme();
+
   return (
     <AppScreen>
       <ScreenHeader title={title} />
-      <ActivityIndicator size="large" color={Colors.brand} style={{ marginTop: 40 }} accessibilityLabel="Loading" />
+      <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} accessibilityLabel="Loading" />
     </AppScreen>
   );
 }
@@ -100,13 +121,15 @@ export function Notice({
   actionLabel?: string;
   onAction?: () => void;
 }) {
-  const c = toneColors(tone);
+  const { colors } = useTheme();
+  const c = getToneColors(tone, colors);
+
   return (
-    <View style={[styles.notice, { backgroundColor: c.bg }]} accessible accessibilityRole="summary">
+    <View style={[styles.notice, { backgroundColor: c.bg, borderColor: c.border }]} accessible accessibilityRole="summary">
       <Ionicons name={icon} size={22} color={c.fg} style={{ marginTop: 2 }} />
       <View style={{ flex: 1 }}>
         <Text style={[styles.noticeTitle, { color: c.fg }]}>{title}</Text>
-        {children ? <Text style={styles.noticeBody}>{children}</Text> : null}
+        {children ? <Text style={[styles.noticeBody, { color: colors.textPrimary }]}>{children}</Text> : null}
         {actionLabel && onAction ? (
           <TouchableOpacity
             onPress={onAction}
@@ -136,6 +159,7 @@ export function CommandStatusCard({
   onDismiss: () => void;
   onStateChange?: (status: string) => void;
 }) {
+  const { colors } = useTheme();
   const { state, checkFailed } = useCommandTracker(relationshipId, tracked.commandId);
   const status = state?.status;
   React.useEffect(() => {
@@ -144,31 +168,33 @@ export function CommandStatusCard({
 
   const view = state ? describeCommandState(state) : null;
   const names = tracked.medicineNames.length ? tracked.medicineNames.join(', ') : 'your changes';
+  const c = view ? getToneColors(view.tone, colors) : { fg: colors.textSecondary, bg: colors.surfaceSecondary, border: colors.border };
+
   return (
     <View
-      style={[styles.statusCard, { backgroundColor: view ? toneColors(view.tone).bg : Colors.surfaceMuted }]}
+      style={[styles.statusCard, { backgroundColor: c.bg, borderColor: c.border }]}
       accessible
       accessibilityLiveRegion="polite"
       accessibilityLabel={`Change for ${patientName}: ${view?.label ?? 'checking'}`}
     >
-      <Text style={styles.statusKicker}>Last change sent to {patientName}</Text>
-      <Text style={styles.statusNames}>{names}</Text>
+      <Text style={[styles.statusKicker, { color: colors.textSecondary }]}>Last change sent to {patientName}</Text>
+      <Text style={[styles.statusNames, { color: colors.textPrimary }]}>{names}</Text>
       {view ? (
         <View style={styles.statusRow}>
-          <Ionicons name={toneIcon[view.tone]} size={22} color={toneColors(view.tone).fg} />
-          <Text style={[styles.statusLabel, { color: toneColors(view.tone).fg }]}>{view.label}</Text>
+          <Ionicons name={toneIcon[view.tone]} size={22} color={c.fg} />
+          <Text style={[styles.statusLabel, { color: c.fg }]}>{view.label}</Text>
         </View>
       ) : (
         <View style={styles.statusRow}>
-          <ActivityIndicator size="small" color={Colors.brand} />
-          <Text style={styles.statusLabel}>Checking with the phone…</Text>
+          <ActivityIndicator size="small" color={colors.primary} />
+          <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>Checking with the phone…</Text>
         </View>
       )}
-      {view?.detail ? <Text style={styles.noticeBody}>{view.detail}</Text> : null}
-      {checkFailed ? <Text style={styles.noticeBody}>Can't check right now. Showing the last known status.</Text> : null}
+      {view?.detail ? <Text style={[styles.noticeBody, { color: colors.textPrimary }]}>{view.detail}</Text> : null}
+      {checkFailed ? <Text style={[styles.noticeBody, { color: colors.textSecondary }]}>Can't check right now. Showing the last known status.</Text> : null}
       {view?.terminal ? (
         <TouchableOpacity onPress={onDismiss} style={styles.noticeAction} accessibilityRole="button" accessibilityLabel="Dismiss status">
-          <Text style={[styles.noticeActionText, { color: Colors.brand }]}>Dismiss</Text>
+          <Text style={[styles.noticeActionText, { color: colors.primary }]}>Dismiss</Text>
         </TouchableOpacity>
       ) : null}
     </View>
@@ -176,7 +202,7 @@ export function CommandStatusCard({
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Colors.canvas },
+  safeArea: { flex: 1 },
   scrollContent: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: Spacing.xxxl },
   notice: {
     flexDirection: 'row',
@@ -184,22 +210,20 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
     borderRadius: Radii.card,
     borderWidth: 1,
-    borderColor: Colors.outline,
     marginBottom: Spacing.md,
   },
   noticeTitle: { ...Typography.labelMedium },
-  noticeBody: { ...Typography.bodySmall, color: Colors.ink, marginTop: 2 },
+  noticeBody: { ...Typography.bodySmall, marginTop: 2 },
   noticeAction: { minHeight: 48, justifyContent: 'center' },
   noticeActionText: { ...Typography.labelMedium, textDecorationLine: 'underline' },
   statusCard: {
     padding: Spacing.lg,
     borderRadius: Radii.card,
     borderWidth: 1,
-    borderColor: Colors.outline,
     marginBottom: Spacing.md,
   },
-  statusKicker: { ...Typography.labelSmall, color: Colors.inkMuted },
-  statusNames: { ...Typography.labelMedium, color: Colors.ink, marginVertical: Spacing.xs },
+  statusKicker: { ...Typography.labelSmall },
+  statusNames: { ...Typography.labelMedium, marginVertical: Spacing.xs },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: Spacing.xs },
   statusLabel: { ...Typography.labelMedium, flexShrink: 1 },
 });

@@ -5,7 +5,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { AppScreen } from '@/components/AppScreen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PrimaryButton, DestructiveButton } from '@/components/Buttons';
-import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { Spacing, Typography, Radii } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { Notice } from '@/pairing/Notice';
 import { describeError } from '@/pairing/errors';
@@ -19,6 +20,7 @@ function formatDate(iso: string): string {
 
 export default function CaregiverConnectionsScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const { api, caregiver, relationships, selectedRelationship, setSelectedRelationship, refreshRelationships, relationshipsStale, relationshipsSyncedAt } = useApp();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -40,7 +42,7 @@ export default function CaregiverConnectionsScreen() {
       return rest;
     });
     try {
-      await api.disconnectRelationship(id); // the row stays until the server confirms
+      await api.disconnectRelationship(id);
       if (selectedRelationship?.relationshipId === id) setSelectedRelationship(null);
       try {
         await refreshRelationships();
@@ -71,11 +73,11 @@ export default function CaregiverConnectionsScreen() {
 
       {!caregiver && (
         <Notice tone="info">
-          Sign in to see your connections.
+          Connect with a family member to see your connections.
         </Notice>
       )}
       {!caregiver && (
-        <PrimaryButton title="Sign in" onPress={() => router.push('/(caregiver)/sign-in?next=/(caregiver)/connections' as any)} />
+        <PrimaryButton title="Connect a family member" onPress={() => router.push('/(caregiver)/connect')} />
       )}
 
       {caregiver && relationshipsStale && (
@@ -86,23 +88,23 @@ export default function CaregiverConnectionsScreen() {
       {listError && <Notice tone="error">{listError}</Notice>}
 
       {caregiver && active.length === 0 && (
-        <View style={styles.card}>
-          <Text style={styles.name}>No connections yet</Text>
-          <Text style={styles.muted}>Connect to a family member to see their medicine schedule.</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.name, { color: colors.textPrimary }]}>No connections yet</Text>
+          <Text style={[styles.muted, { color: colors.textSecondary }]}>Connect to a family member to see their medicine schedule.</Text>
         </View>
       )}
 
       {active.map((r) => (
-        <View key={r.relationshipId} style={styles.card}>
-          <Text style={styles.name}>{r.patientDisplayName}</Text>
-          <Text style={styles.muted}>
+        <View key={r.relationshipId} style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.name, { color: colors.textPrimary }]}>{r.patientDisplayName}</Text>
+          <Text style={[styles.muted, { color: colors.textSecondary }]}>
             {r.relationshipLabel ? `${r.relationshipLabel} · ` : ''}Connected {formatDate(r.confirmedAt)}
           </Text>
-          <Text style={styles.sectionLabel}>What you can do</Text>
+          <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>What you can do</Text>
           {describePermissions(r.permissions, 'caregiver').map((t) => (
             <View key={t} style={styles.permRow}>
-              <MaterialIcons name="check" size={18} color={Colors.success} />
-              <Text style={styles.body}>{t}</Text>
+              <MaterialIcons name="check" size={18} color={colors.success} />
+              <Text style={[styles.body, { color: colors.textPrimary }]}>{t}</Text>
             </View>
           ))}
           {errors[r.relationshipId] && (
@@ -120,7 +122,7 @@ export default function CaregiverConnectionsScreen() {
       {caregiver && (
         <PrimaryButton title="Connect another family member" icon="add" onPress={() => router.push('/(caregiver)/connect')} />
       )}
-      <Text style={styles.footnote}>
+      <Text style={[styles.footnote, { color: colors.textSecondary }]}>
         Disconnecting only ends your access. It does not delete or change the patient's own medicines.
       </Text>
     </AppScreen>
@@ -129,17 +131,15 @@ export default function CaregiverConnectionsScreen() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1,
     borderRadius: Radii.card,
     padding: Spacing.xl,
     marginVertical: Spacing.sm,
   },
   name: { ...Typography.headlineSmall },
-  muted: { ...Typography.bodyMedium, color: Colors.inkMuted, marginTop: Spacing.xs },
+  muted: { ...Typography.bodyMedium, marginTop: Spacing.xs },
   body: { ...Typography.bodyMedium, flex: 1 },
   sectionLabel: { ...Typography.labelSmall, marginTop: Spacing.lg, marginBottom: Spacing.xs },
   permRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, minHeight: 32 },
-  footnote: { ...Typography.bodySmall, marginTop: Spacing.md },
+  footnote: { ...Typography.bodySmall, marginTop: Spacing.md, textAlign: 'center' },
 });

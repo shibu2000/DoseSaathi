@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { Spacing, Typography, Radii } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { MedChainLogo } from '@/components/MedChainLogo';
 
 export default function SplashScreen() {
   const router = useRouter();
   const { isOnboarded, mode, isReady } = useApp();
+  const { colors } = useTheme();
 
   useEffect(() => {
     if (!isReady) return;
@@ -23,20 +25,20 @@ export default function SplashScreen() {
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [isOnboarded, mode, isReady]);
+  }, [isOnboarded, mode, isReady, router]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.canvas }]}>
       <View style={styles.brandContainer}>
         <MedChainLogo size={76} style={{ marginBottom: Spacing.xl }} />
-        <Text style={styles.title}>DoseSaathi</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.primary }]}>DoseSaathi</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           Personal and family medication management, designed to work offline.
         </Text>
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Works offline</Text>
+        <Text style={[styles.footerText, { color: colors.textSecondary }]}>Works offline</Text>
       </View>
     </View>
   );
@@ -45,7 +47,6 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.canvas,
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: Spacing.huge,
@@ -56,24 +57,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  logoBadge: {
-    width: 80,
-    height: 80,
-    borderRadius: Radii.card,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.xl,
-  },
   title: {
     ...Typography.display,
-    color: Colors.primary,
     marginBottom: Spacing.sm,
     letterSpacing: -0.5,
   },
   subtitle: {
     ...Typography.bodyLarge,
-    color: Colors.inkMuted,
     textAlign: 'center',
     maxWidth: 280,
     lineHeight: 26,
@@ -83,7 +73,6 @@ const styles = StyleSheet.create({
   },
   footerText: {
     ...Typography.labelSmall,
-    color: Colors.inkMuted,
     letterSpacing: 0.5,
   },
 });

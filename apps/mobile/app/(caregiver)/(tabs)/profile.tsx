@@ -4,7 +4,8 @@ import { useRouter } from 'expo-router';
 import { AppScreen } from '@/components/AppScreen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PrimaryButton, SecondaryButton, DestructiveButton } from '@/components/Buttons';
-import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { Spacing, Typography, Radii } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { Notice } from '@/pairing/Notice';
 import { FormField } from '@/components/FormField';
@@ -18,6 +19,7 @@ function initials(name: string): string {
 
 export default function CaregiverProfileScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const { caregiver, caregiverLoading, signOutCaregiver, deleteCaregiverAccount } = useApp();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
@@ -33,7 +35,6 @@ export default function CaregiverProfileScreen() {
       setDeletePassword('');
       router.replace('/welcome');
     } catch (e) {
-      // The account is only reported as deleted once the server has confirmed it
       if (e instanceof ApiError && e.code === 'INVALID_CREDENTIALS') setDeleteError('That password is not correct.');
       else if (e instanceof ApiError && e.code === 'RATE_LIMITED') setDeleteError('Too many attempts. Please wait a few minutes and try again.');
       else if (e instanceof ApiError && e.isNetwork) setDeleteError('Could not reach the server. Your account was not deleted.');
@@ -73,25 +74,31 @@ export default function CaregiverProfileScreen() {
     }
   };
 
+  const isAnonymousDevice = caregiver?.email?.includes('@dosesaathi.app');
+
   return (
     <AppScreen>
       <ScreenHeader title="Your account" subtitle="Caregiver account and app settings" />
 
       {caregiver ? (
-        <View style={styles.card}>
-          <View style={styles.avatar} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-            <Text style={styles.avatarText}>{initials(caregiver.displayName)}</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={[styles.avatar, { backgroundColor: colors.brandSoft }]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+            <Text style={[styles.avatarText, { color: colors.primary }]}>{initials(caregiver.displayName)}</Text>
           </View>
-          <Text style={styles.name}>{caregiver.displayName}</Text>
-          <Text style={styles.email}>{caregiver.email}</Text>
+          <Text style={[styles.name, { color: colors.textPrimary }]}>{caregiver.displayName}</Text>
+          <Text style={[styles.email, { color: colors.textSecondary }]}>
+            {isAnonymousDevice ? 'Device Paired Caregiver' : caregiver.email}
+          </Text>
         </View>
       ) : caregiverLoading ? (
-        <Text style={styles.email}>Loading...</Text>
+        <Text style={[styles.email, { color: colors.textSecondary }]}>Loading...</Text>
       ) : (
-        <View style={styles.card}>
-          <Text style={styles.name}>You're not signed in</Text>
-          <Text style={styles.email}>Sign in to connect with family members.</Text>
-          <PrimaryButton title="Sign in" onPress={() => router.push('/(caregiver)/sign-in?next=/(caregiver)/(tabs)/profile' as any)} />
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.name, { color: colors.textPrimary }]}>You're not connected</Text>
+          <Text style={[styles.email, { color: colors.textSecondary, marginBottom: Spacing.md }]}>
+            Connect with a family member to see their medication schedule. No account required.
+          </Text>
+          <PrimaryButton title="Connect a family member" onPress={() => router.push('/(caregiver)/connect')} />
         </View>
       )}
 
@@ -99,12 +106,12 @@ export default function CaregiverProfileScreen() {
 
       <View style={styles.actionBlock}>
         <PrimaryButton title="Manage connections" onPress={() => router.push('/(caregiver)/connections')} />
-        <SecondaryButton title="App settings and accessibility" onPress={() => router.push('/settings')} />
-        {caregiver && <DestructiveButton title="Sign out" onPress={signOut} loading={signingOut} />}
+        <SecondaryButton title="App settings and appearance" onPress={() => router.push('/settings')} />
+        {caregiver && <DestructiveButton title="Disconnect from this device" onPress={signOut} loading={signingOut} />}
       </View>
 
-      {caregiver && (
-        <View style={styles.actionBlock}>
+      {caregiver && !isAnonymousDevice && (
+        <View style={[styles.actionBlock, { marginTop: Spacing.lg }]}>
           {!deleteOpen ? (
             <SecondaryButton title="Delete my account" onPress={() => setDeleteOpen(true)} />
           ) : (
@@ -142,8 +149,6 @@ export default function CaregiverProfileScreen() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1,
     borderRadius: Radii.card,
     padding: Spacing.xl,
@@ -154,13 +159,12 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: Colors.brandSoft,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.md,
   },
-  avatarText: { ...Typography.headlineMedium, color: Colors.primary },
+  avatarText: { ...Typography.headlineMedium, fontWeight: '700' },
   name: { ...Typography.headlineMedium, textAlign: 'center' },
-  email: { ...Typography.bodyMedium, color: Colors.inkMuted, textAlign: 'center', marginTop: Spacing.xs },
+  email: { ...Typography.bodyMedium, textAlign: 'center', marginTop: Spacing.xs },
   actionBlock: { gap: Spacing.xs },
 });

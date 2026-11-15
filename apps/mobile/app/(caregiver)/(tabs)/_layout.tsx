@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tabs, useRouter } from 'expo-router';
-import { Colors, Typography, Spacing } from '@/theme/tokens';
+import { Typography, Spacing } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,30 +9,31 @@ import { Ionicons } from '@expo/vector-icons';
 export default function CaregiverTabsLayout() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
   const hasBottomInset = insets.bottom > 0;
 
   return (
     <Tabs
       screenOptions={{
         headerShown: true,
-        headerStyle: { backgroundColor: Colors.canvas },
+        headerStyle: { backgroundColor: colors.canvas },
         headerShadowVisible: false,
-        headerTitleStyle: { ...Typography.headlineSmall, color: Colors.ink },
+        headerTitleStyle: { ...Typography.headlineSmall, color: colors.textPrimary },
         tabBarStyle: {
-          backgroundColor: Colors.surface,
-          borderTopColor: Colors.outline,
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           borderTopWidth: StyleSheet.hairlineWidth,
           height: hasBottomInset ? 64 + insets.bottom : 68,
           paddingTop: 6,
           paddingBottom: hasBottomInset ? insets.bottom : 6,
           elevation: 4,
-          shadowColor: Colors.ink,
+          shadowColor: isDark ? '#000000' : 'rgba(0,0,0,0.08)',
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.05,
           shadowRadius: 6,
         },
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.inkMuted,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarItemStyle: {
           justifyContent: 'center',
           alignItems: 'center',
@@ -49,7 +51,7 @@ export default function CaregiverTabsLayout() {
             accessibilityRole="button"
             accessibilityLabel="Settings"
           >
-            <Ionicons name="settings-outline" size={22} color={Colors.ink} />
+            <Ionicons name="settings-outline" size={22} color={colors.textPrimary} />
           </TouchableOpacity>
         ),
       }}
@@ -60,8 +62,8 @@ export default function CaregiverTabsLayout() {
           title: 'Family Hub',
           tabBarLabel: 'Family',
           tabBarAccessibilityLabel: 'Family Hub',
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="people-outline" size={22} color={typeof color === 'string' ? color : Colors.brand} />
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name={focused ? 'people' : 'people-outline'} size={22} color={focused ? colors.primary : colors.textSecondary} />
           ),
         }}
       />
@@ -71,8 +73,8 @@ export default function CaregiverTabsLayout() {
           title: 'Schedule',
           tabBarLabel: 'Schedule',
           tabBarAccessibilityLabel: 'Schedule of the selected family member',
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="calendar-outline" size={22} color={typeof color === 'string' ? color : Colors.brand} />
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={22} color={focused ? colors.primary : colors.textSecondary} />
           ),
         }}
       />
@@ -81,8 +83,8 @@ export default function CaregiverTabsLayout() {
         options={{
           title: 'Activity',
           tabBarLabel: 'Activity',
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="receipt-outline" size={22} color={typeof color === 'string' ? color : Colors.brand} />
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name={focused ? 'receipt' : 'receipt-outline'} size={22} color={focused ? colors.primary : colors.textSecondary} />
           ),
         }}
       />
@@ -91,8 +93,8 @@ export default function CaregiverTabsLayout() {
         options={{
           title: 'Profile',
           tabBarLabel: 'Profile',
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="person-circle-outline" size={22} color={typeof color === 'string' ? color : Colors.brand} />
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name={focused ? 'person-circle' : 'person-circle-outline'} size={22} color={focused ? colors.primary : colors.textSecondary} />
           ),
         }}
       />

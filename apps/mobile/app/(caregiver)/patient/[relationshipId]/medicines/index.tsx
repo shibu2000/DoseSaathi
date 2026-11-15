@@ -6,6 +6,7 @@ import { PatientContextBar } from '@/components/PatientContextBar';
 import { MedicationRow } from '@/components/MedicationRow';
 import { PrimaryButton, SecondaryButton } from '@/components/Buttons';
 import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { DEFAULT_WIZARD_DRAFT } from '@/database';
 import { generateUUID } from '@/utils/uuid';
@@ -19,6 +20,7 @@ import { describeDeviceStatus, formatRelativeTime } from '@/caregiver/command-st
 import type { PlanMedication } from '@medchain/contracts';
 
 export default function PatientMedicinesCaregiverViewScreen() {
+  const { colors } = useTheme();
   const { relationshipId } = useLocalSearchParams<{ relationshipId: string }>();
   const router = useRouter();
   const { api, db } = useApp();
@@ -198,9 +200,9 @@ export default function PatientMedicinesCaregiverViewScreen() {
       ) : null}
 
       {stagedStore.staged.length > 0 ? (
-        <View style={styles.stagedCard} accessible={false}>
-          <Text style={styles.sectionHeading}>Not sent yet ({stagedStore.staged.length})</Text>
-          <Text style={styles.stagedHelp}>
+        <View style={[styles.stagedCard, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]} accessible={false}>
+          <Text style={[styles.sectionHeading, { color: colors.textPrimary }]}>Not sent yet ({stagedStore.staged.length})</Text>
+          <Text style={[styles.stagedHelp, { color: colors.textSecondary }]}>
             These are only on your phone. Send them together so {patientName}'s phone gets the whole prescription at once.
           </Text>
           {stagedStore.staged.map((m) => row(m, 'Not sent yet', 'queued'))}
@@ -223,14 +225,14 @@ export default function PatientMedicinesCaregiverViewScreen() {
       ) : null}
 
       {plan.loading && !plan.raw ? (
-        <ActivityIndicator size="small" color={Colors.brand} style={{ marginVertical: 30 }} accessibilityLabel="Loading medicines" />
+        <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 30 }} accessibilityLabel="Loading medicines" />
       ) : plan.raw ? (
         <>
           <View style={styles.section}>
-            <Text style={styles.sectionHeading}>Active ({active.length})</Text>
+            <Text style={[styles.sectionHeading, { color: colors.textPrimary }]}>Active ({active.length})</Text>
             {active.length === 0 ? (
-              <View style={styles.emptyCard}>
-                <Text style={styles.emptyText}>
+              <View style={[styles.emptyCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
                   {plan.medications.length === 0
                     ? `No medicines yet. ${plan.raw.deviceReport ? '' : `${patientName}'s phone has not shared a plan.`}`
                     : 'No medicines are active on the phone right now.'}
@@ -250,21 +252,21 @@ export default function PatientMedicinesCaregiverViewScreen() {
 
           {later.length > 0 ? (
             <View style={styles.section}>
-              <Text style={styles.sectionHeading}>Starts later ({later.length})</Text>
+              <Text style={[styles.sectionHeading, { color: colors.textPrimary }]}>Starts later ({later.length})</Text>
               {later.map(({ med }) => row(med, 'Starts later', 'queued'))}
             </View>
           ) : null}
 
           {notYet.length > 0 ? (
             <View style={styles.section}>
-              <Text style={styles.sectionHeading}>Waiting for the phone ({notYet.length})</Text>
+              <Text style={[styles.sectionHeading, { color: colors.textPrimary }]}>Waiting for the phone ({notYet.length})</Text>
               {notYet.map(({ med }) => row(med, 'Not on the phone yet', 'queued'))}
             </View>
           ) : null}
 
           {completed.length > 0 ? (
             <View style={styles.section}>
-              <Text style={styles.sectionHeading}>Completed ({completed.length})</Text>
+              <Text style={[styles.sectionHeading, { color: colors.textPrimary }]}>Completed ({completed.length})</Text>
               {completed.map(({ med }) => row(med, 'Completed', 'completed'))}
             </View>
           ) : null}

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { Spacing, Typography, Radii } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { MaterialIcons, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 
 interface OnboardingSlide {
@@ -31,6 +32,7 @@ export default function OnboardingSwiperScreen(props?: { initialIndex?: number }
   const { width } = useWindowDimensions();
   const [activeIndex, setActiveIndex] = useState(startIdx);
   const flatListRef = useRef<FlatList>(null);
+  const { colors } = useTheme();
 
   const handleNext = () => {
     if (activeIndex < 2) {
@@ -62,17 +64,17 @@ export default function OnboardingSwiperScreen(props?: { initialIndex?: number }
         'Manage your medications and reminders anytime, even without an internet connection. No account required.',
       renderGraphic: () => (
         <View style={styles.illustrationCard}>
-          <View style={styles.glowBackdrop} />
-          <View style={styles.deviceMockup}>
-            <View style={styles.deviceHeader} />
-            <View style={styles.iconCircle}>
-              <MaterialCommunityIcons name="pill" size={38} color={Colors.brand} />
+          <View style={[styles.glowBackdrop, { backgroundColor: colors.brandSoft }]} />
+          <View style={[styles.deviceMockup, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={[styles.deviceHeader, { backgroundColor: colors.border }]} />
+            <View style={[styles.iconCircle, { backgroundColor: colors.brandSoft }]}>
+              <MaterialCommunityIcons name="pill" size={38} color={colors.primary} />
             </View>
-            <View style={styles.offlineBadge}>
-              <MaterialIcons name="cloud-off" size={16} color={Colors.brand} />
-              <Text style={styles.offlineBadgeText}>Works offline</Text>
+            <View style={[styles.offlineBadge, { backgroundColor: colors.surfaceSecondary }]}>
+              <MaterialIcons name="cloud-off" size={16} color={colors.primary} />
+              <Text style={[styles.offlineBadgeText, { color: colors.primary }]}>Works offline</Text>
             </View>
-            <Text style={styles.deviceSubtext}>Saved on this phone</Text>
+            <Text style={[styles.deviceSubtext, { color: colors.textSecondary }]}>Saved on this phone</Text>
           </View>
         </View>
       ),
@@ -85,70 +87,70 @@ export default function OnboardingSwiperScreen(props?: { initialIndex?: number }
       renderGraphic: () => (
         <View style={styles.chainingContainer}>
           {/* Card 1: Trigger Medication (Taken) */}
-          <View style={styles.chainCard}>
+          <View style={[styles.chainCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={styles.chainHeader}>
               <View style={styles.medLeft}>
-                <View style={styles.takenIconCircle}>
-                  <MaterialIcons name="check" size={18} color={Colors.success} />
+                <View style={[styles.takenIconCircle, { backgroundColor: colors.brandSoft }]}>
+                  <MaterialIcons name="check" size={18} color={colors.success} />
                 </View>
                 <View>
-                  <Text style={styles.medName}>Omeprazole</Text>
-                  <Text style={styles.medDose}>20 mg · Capsule</Text>
+                  <Text style={[styles.medName, { color: colors.textPrimary }]}>Omeprazole</Text>
+                  <Text style={[styles.medDose, { color: colors.textSecondary }]}>20 mg · Capsule</Text>
                 </View>
               </View>
-              <View style={styles.takenBadge}>
-                <View style={styles.takenDot} />
-                <Text style={styles.takenBadgeText}>Taken</Text>
+              <View style={[styles.takenBadge, { backgroundColor: colors.brandSoft }]}>
+                <View style={[styles.takenDot, { backgroundColor: colors.success }]} />
+                <Text style={[styles.takenBadgeText, { color: colors.success }]}>Taken</Text>
               </View>
             </View>
-            <View style={styles.chainFooter}>
+            <View style={[styles.chainFooter, { borderTopColor: colors.border }]}>
               <View style={styles.rowAlign}>
-                <MaterialIcons name="check-circle" size={15} color={Colors.success} />
-                <Text style={styles.takenTimeText}>Taken at 9:15 AM</Text>
+                <MaterialIcons name="check-circle" size={15} color={colors.success} />
+                <Text style={[styles.takenTimeText, { color: colors.success }]}>Taken at 9:15 AM</Text>
               </View>
-              <Text style={styles.scheduledTimeText}>Scheduled 9:00 AM</Text>
+              <Text style={[styles.scheduledTimeText, { color: colors.textSecondary }]}>Scheduled 9:00 AM</Text>
             </View>
           </View>
 
           {/* Connecting Stem with Gap Badge */}
           <View style={styles.stemContainer}>
-            <View style={styles.verticalStem} />
-            <View style={styles.gapBadge}>
-              <MaterialIcons name="link" size={13} color={Colors.brand} />
-              <Text style={styles.gapText}>+30 min after Taken</Text>
+            <View style={[styles.verticalStem, { backgroundColor: colors.brandSoft }]} />
+            <View style={[styles.gapBadge, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+              <MaterialIcons name="link" size={13} color={colors.primary} />
+              <Text style={[styles.gapText, { color: colors.primary }]}>+30 min after Taken</Text>
             </View>
           </View>
 
           {/* Card 2: Chained Dependent Medication (Upcoming) */}
-          <View style={styles.chainCard}>
+          <View style={[styles.chainCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={styles.chainHeader}>
               <View style={styles.medLeft}>
-                <View style={styles.upcomingIconCircle}>
-                  <MaterialIcons name="schedule" size={18} color={Colors.warning} />
+                <View style={[styles.upcomingIconCircle, { backgroundColor: colors.surfaceSecondary }]}>
+                  <MaterialIcons name="schedule" size={18} color={colors.warning} />
                 </View>
                 <View>
-                  <Text style={styles.medName}>Sucralfate</Text>
-                  <Text style={styles.medDose}>1 g · Suspension</Text>
+                  <Text style={[styles.medName, { color: colors.textPrimary }]}>Sucralfate</Text>
+                  <Text style={[styles.medDose, { color: colors.textSecondary }]}>1 g · Suspension</Text>
                 </View>
               </View>
-              <View style={styles.upcomingBadge}>
-                <View style={styles.upcomingDot} />
-                <Text style={styles.upcomingBadgeText}>Upcoming</Text>
+              <View style={[styles.upcomingBadge, { backgroundColor: colors.surfaceSecondary }]}>
+                <View style={[styles.upcomingDot, { backgroundColor: colors.textSecondary }]} />
+                <Text style={[styles.upcomingBadgeText, { color: colors.textSecondary }]}>Upcoming</Text>
               </View>
             </View>
-            <View style={styles.chainFooterStacked}>
+            <View style={[styles.chainFooterStacked, { borderTopColor: colors.border }]}>
               <View style={styles.rowBetween}>
                 <View style={styles.rowAlign}>
-                  <MaterialIcons name="alarm" size={15} color={Colors.brand} />
-                  <Text style={styles.alarmTimeText}>Reminder: 09:45 AM</Text>
+                  <MaterialIcons name="alarm" size={15} color={colors.primary} />
+                  <Text style={[styles.alarmTimeText, { color: colors.textPrimary }]}>Reminder: 09:45 AM</Text>
                 </View>
-                <View style={styles.autoDelayedBadge}>
-                  <Text style={styles.autoDelayedText}>Auto-delayed</Text>
+                <View style={[styles.autoDelayedBadge, { backgroundColor: colors.brandSoft }]}>
+                  <Text style={[styles.autoDelayedText, { color: colors.primary }]}>Auto-delayed</Text>
                 </View>
               </View>
               <View style={styles.rowAlignIndent}>
-                <MaterialIcons name="autorenew" size={12} color={Colors.inkMuted} />
-                <Text style={styles.calcDetailText}>Calculated from actual dose time</Text>
+                <MaterialIcons name="autorenew" size={12} color={colors.textSecondary} />
+                <Text style={[styles.calcDetailText, { color: colors.textSecondary }]}>Calculated from actual dose time</Text>
               </View>
             </View>
           </View>
@@ -163,83 +165,83 @@ export default function OnboardingSwiperScreen(props?: { initialIndex?: number }
       renderGraphic: () => (
         <View style={styles.syncStackContainer}>
           {/* Phase 1 Card */}
-          <View style={styles.syncCard}>
+          <View style={[styles.syncCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={styles.syncCardHeader}>
-              <Text style={styles.phaseLabel}>Phase 1 · Active course</Text>
-              <View style={styles.activeStatusBadge}>
-                <Text style={styles.activeStatusText}>7/7 days</Text>
+              <Text style={[styles.phaseLabel, { color: colors.textSecondary }]}>Phase 1 · Active course</Text>
+              <View style={[styles.activeStatusBadge, { backgroundColor: colors.brandSoft }]}>
+                <Text style={[styles.activeStatusText, { color: colors.primary }]}>7/7 days</Text>
               </View>
             </View>
             <View style={styles.medRow}>
               <View style={styles.rowAlign}>
-                <Ionicons name="sunny-outline" size={16} color={Colors.ink} />
-                <Text style={styles.syncMedName}>Metformin 500 mg</Text>
+                <Ionicons name="sunny-outline" size={16} color={colors.textPrimary} />
+                <Text style={[styles.syncMedName, { color: colors.textPrimary }]}>Metformin 500 mg</Text>
               </View>
-              <Text style={styles.syncMedTime}>Morning, evening</Text>
+              <Text style={[styles.syncMedTime, { color: colors.textSecondary }]}>Morning, evening</Text>
             </View>
           </View>
 
           {/* Connector Pill */}
           <View style={styles.connectorContainer}>
-            <View style={styles.connectorPill}>
-              <MaterialIcons name="schedule-send" size={13} color={Colors.brand} />
-              <Text style={styles.connectorText}>Starts after this course</Text>
-              <MaterialIcons name="arrow-downward" size={13} color={Colors.brand} />
+            <View style={[styles.connectorPill, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <MaterialIcons name="schedule-send" size={13} color={colors.primary} />
+              <Text style={[styles.connectorText, { color: colors.textSecondary }]}>Starts after this course</Text>
+              <MaterialIcons name="arrow-downward" size={13} color={colors.primary} />
             </View>
           </View>
 
           {/* Phase 2 Card */}
-          <View style={styles.syncCard}>
+          <View style={[styles.syncCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={styles.syncCardHeader}>
-              <Text style={styles.phaseLabel}>Phase 2 · Follow-up</Text>
-              <View style={styles.queuedBadge}>
-                <View style={styles.queuedDot} />
-                <Text style={styles.queuedText}>Queued</Text>
+              <Text style={[styles.phaseLabel, { color: colors.textSecondary }]}>Phase 2 · Follow-up</Text>
+              <View style={[styles.queuedBadge, { backgroundColor: colors.surfaceSecondary }]}>
+                <View style={[styles.queuedDot, { backgroundColor: colors.textSecondary }]} />
+                <Text style={[styles.queuedText, { color: colors.textSecondary }]}>Queued</Text>
               </View>
             </View>
             <View style={styles.queuedList}>
-              <View style={styles.queuedRow}>
+              <View style={[styles.queuedRow, { backgroundColor: colors.surfaceSecondary }]}>
                 <View style={styles.rowAlign}>
-                  <Ionicons name="sunny-outline" size={14} color={Colors.inkMuted} />
-                  <Text style={styles.queuedMedName}>Probiotic Complex</Text>
+                  <Ionicons name="sunny-outline" size={14} color={colors.textSecondary} />
+                  <Text style={[styles.queuedMedName, { color: colors.textPrimary }]}>Probiotic Complex</Text>
                 </View>
-                <Text style={styles.queuedMedDetail}>Morning</Text>
+                <Text style={[styles.queuedMedDetail, { color: colors.textSecondary }]}>Morning</Text>
               </View>
-              <View style={styles.queuedRow}>
+              <View style={[styles.queuedRow, { backgroundColor: colors.surfaceSecondary }]}>
                 <View style={styles.rowAlign}>
-                  <MaterialIcons name="link" size={14} color={Colors.brand} />
-                  <Text style={styles.queuedMedName}>Sucralfate 1 g</Text>
+                  <MaterialIcons name="link" size={14} color={colors.primary} />
+                  <Text style={[styles.queuedMedName, { color: colors.textPrimary }]}>Sucralfate 1 g</Text>
                 </View>
-                <Text style={styles.queuedMedDetail}>30 min after</Text>
+                <Text style={[styles.queuedMedDetail, { color: colors.textSecondary }]}>30 min after</Text>
               </View>
-              <View style={styles.queuedRow}>
+              <View style={[styles.queuedRow, { backgroundColor: colors.surfaceSecondary }]}>
                 <View style={styles.rowAlign}>
-                  <Ionicons name="moon-outline" size={14} color={Colors.inkMuted} />
-                  <Text style={styles.queuedMedName}>Melatonin 3 mg</Text>
+                  <Ionicons name="moon-outline" size={14} color={colors.textSecondary} />
+                  <Text style={[styles.queuedMedName, { color: colors.textPrimary }]}>Melatonin 3 mg</Text>
                 </View>
-                <Text style={styles.queuedMedDetail}>Bedtime</Text>
+                <Text style={[styles.queuedMedDetail, { color: colors.textSecondary }]}>Bedtime</Text>
               </View>
             </View>
           </View>
 
           {/* Family Sync Feature Card */}
-          <View style={styles.familySyncCard}>
+          <View style={[styles.familySyncCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={styles.rowAlign}>
               <View style={styles.avatarStack}>
-                <View style={styles.avatar1}>
-                  <Text style={styles.avatarText}>EV</Text>
+                <View style={[styles.avatar1, { backgroundColor: colors.brandSoft, borderColor: colors.surface }]}>
+                  <Text style={[styles.avatarText, { color: colors.textPrimary }]}>EV</Text>
                 </View>
-                <View style={styles.avatar2}>
-                  <Text style={styles.avatarText}>AV</Text>
+                <View style={[styles.avatar2, { backgroundColor: colors.surfaceSecondary, borderColor: colors.surface }]}>
+                  <Text style={[styles.avatarText, { color: colors.textPrimary }]}>AV</Text>
                 </View>
               </View>
               <View style={styles.avatarTextCol}>
-                <Text style={styles.familyCardTitle}>Care for family remotely</Text>
-                <Text style={styles.familyCardSub}>Shared view of doses</Text>
+                <Text style={[styles.familyCardTitle, { color: colors.textPrimary }]}>Care for family remotely</Text>
+                <Text style={[styles.familyCardSub, { color: colors.textSecondary }]}>Shared view of doses</Text>
               </View>
             </View>
-            <View style={styles.syncCircle}>
-              <MaterialIcons name="sync" size={18} color={Colors.brand} />
+            <View style={[styles.syncCircle, { backgroundColor: colors.surfaceSecondary }]}>
+              <MaterialIcons name="sync" size={18} color={colors.primary} />
             </View>
           </View>
         </View>
@@ -248,8 +250,8 @@ export default function OnboardingSwiperScreen(props?: { initialIndex?: number }
   ];
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top, backgroundColor: Colors.canvas }]}>
-      {/* Fixed Top Bar (Always at top) */}
+    <View style={[styles.root, { paddingTop: insets.top, backgroundColor: colors.canvas }]}>
+      {/* Fixed Top Bar */}
       <View style={styles.topBar}>
         <TouchableOpacity
           onPress={handleSkip}
@@ -257,7 +259,7 @@ export default function OnboardingSwiperScreen(props?: { initialIndex?: number }
           accessibilityRole="button"
           accessibilityLabel="Skip onboarding"
         >
-          <Text style={styles.skipText}>Skip</Text>
+          <Text style={[styles.skipText, { color: colors.textSecondary }]}>Skip</Text>
         </TouchableOpacity>
       </View>
 
@@ -290,30 +292,33 @@ export default function OnboardingSwiperScreen(props?: { initialIndex?: number }
 
             {/* Slide Headline & Copy */}
             <View style={styles.textBlock}>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.subtitle}>{item.subtitle}</Text>
+              <Text style={[styles.title, { color: colors.textPrimary }]}>{item.title}</Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{item.subtitle}</Text>
             </View>
           </ScrollView>
         )}
       />
 
-      {/* Permanently Fixed Bottom Container (Never moves or shifts dynamically) */}
+      {/* Permanently Fixed Bottom Container */}
       <View
         style={[
           styles.fixedFooter,
           {
             paddingBottom: Math.max(insets.bottom, Spacing.md) + Spacing.sm,
+            backgroundColor: colors.canvas,
+            borderTopColor: colors.border,
           },
         ]}
       >
-        {/* Tactile Progress Indicator Dots */}
+        {/* Progress Indicator Dots */}
         <View style={styles.paginationDots}>
           {slides.map((_, i) => (
             <View
               key={i}
               style={[
                 styles.dot,
-                i === activeIndex && styles.activePill,
+                { backgroundColor: colors.border },
+                i === activeIndex && [styles.activePill, { backgroundColor: colors.primary }],
               ]}
             />
           ))}
@@ -321,13 +326,13 @@ export default function OnboardingSwiperScreen(props?: { initialIndex?: number }
 
         {/* Primary Advance Button */}
         <TouchableOpacity
-          style={styles.nextButton}
+          style={[styles.nextButton, { backgroundColor: colors.primary }]}
           onPress={handleNext}
           activeOpacity={0.88}
           accessibilityRole="button"
           accessibilityLabel={activeIndex === 2 ? 'Get started' : 'Next'}
         >
-          <Text style={styles.nextButtonText}>
+          <Text style={[styles.nextButtonText, { color: colors.white }]}>
             {activeIndex === 2 ? 'Get started' : 'Next'}
           </Text>
         </TouchableOpacity>
@@ -353,7 +358,6 @@ const styles = StyleSheet.create({
     ...Typography.labelMedium,
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.xs,
-    color: Colors.inkMuted,
   },
   slideScrollContent: {
     flexGrow: 1,
@@ -375,14 +379,12 @@ const styles = StyleSheet.create({
   },
   title: {
     ...Typography.headlineLarge,
-    color: Colors.ink,
     textAlign: 'center',
     lineHeight: 34,
     marginBottom: Spacing.xs,
   },
   subtitle: {
     ...Typography.bodyMedium,
-    color: Colors.inkMuted,
     textAlign: 'center',
     maxWidth: 320,
     lineHeight: 22,
@@ -401,14 +403,11 @@ const styles = StyleSheet.create({
     width: 200,
     height: 160,
     borderRadius: 80,
-    backgroundColor: Colors.brandSoft,
     opacity: 0.5,
   },
   deviceMockup: {
     width: 180,
     height: 180,
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1.5,
     borderRadius: 22,
     alignItems: 'center',
@@ -426,13 +425,11 @@ const styles = StyleSheet.create({
     width: 44,
     height: 4,
     borderRadius: 2,
-    backgroundColor: Colors.outline,
   },
   iconCircle: {
     width: 58,
     height: 58,
     borderRadius: 29,
-    backgroundColor: Colors.brandSoft,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.xs,
@@ -441,7 +438,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Colors.surfaceMuted,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 3,
     borderRadius: Radii.sm,
@@ -449,12 +445,10 @@ const styles = StyleSheet.create({
   },
   offlineBadgeText: {
     ...Typography.labelSmall,
-    color: Colors.brand,
     fontWeight: '600',
   },
   deviceSubtext: {
     ...Typography.bodySmall,
-    color: Colors.inkMuted,
     fontSize: 12,
   },
   // Slide 2 Chaining styles
@@ -463,8 +457,6 @@ const styles = StyleSheet.create({
     maxWidth: 330,
   },
   chainCard: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1,
     borderRadius: Radii.card,
     padding: Spacing.sm + 2,
@@ -491,7 +483,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: Colors.brandSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -499,25 +490,21 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: Colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
   },
   medName: {
     ...Typography.headlineSmall,
     fontSize: 15,
-    color: Colors.ink,
   },
   medDose: {
     ...Typography.bodySmall,
-    color: Colors.inkMuted,
     fontSize: 12,
   },
   takenBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Colors.brandSoft,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
     borderRadius: Radii.full,
@@ -526,18 +513,15 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: Colors.success,
   },
   takenBadgeText: {
     ...Typography.labelSmall,
-    color: Colors.success,
     fontSize: 12,
   },
   upcomingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Colors.surfaceMuted,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
     borderRadius: Radii.full,
@@ -546,11 +530,9 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: Colors.inkMuted,
   },
   upcomingBadgeText: {
     ...Typography.labelSmall,
-    color: Colors.inkMuted,
     fontSize: 12,
   },
   chainFooter: {
@@ -558,7 +540,6 @@ const styles = StyleSheet.create({
     gap: 4,
     marginTop: Spacing.xs,
     paddingTop: Spacing.xs,
-    borderTopColor: Colors.surfaceMuted,
     borderTopWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -567,7 +548,6 @@ const styles = StyleSheet.create({
   chainFooterStacked: {
     marginTop: Spacing.xs,
     paddingTop: Spacing.xs,
-    borderTopColor: Colors.surfaceMuted,
     borderTopWidth: 1,
     gap: 2,
   },
@@ -591,21 +571,17 @@ const styles = StyleSheet.create({
   },
   takenTimeText: {
     ...Typography.labelSmall,
-    color: Colors.success,
     fontSize: 12,
   },
   scheduledTimeText: {
     ...Typography.bodySmall,
     fontSize: 12,
-    color: Colors.inkMuted,
   },
   alarmTimeText: {
     ...Typography.labelSmall,
-    color: Colors.ink,
     fontSize: 12,
   },
   autoDelayedBadge: {
-    backgroundColor: Colors.brandSoft,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 4,
@@ -614,12 +590,10 @@ const styles = StyleSheet.create({
   autoDelayedText: {
     ...Typography.labelSmall,
     fontSize: 12,
-    color: Colors.brand,
   },
   calcDetailText: {
     ...Typography.bodySmall,
     fontSize: 12,
-    color: Colors.inkMuted,
   },
   stemContainer: {
     height: 38,
@@ -632,14 +606,11 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 2,
-    backgroundColor: Colors.brandSoft,
   },
   gapBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Colors.surfaceMuted,
-    borderColor: Colors.outline,
     borderWidth: 1,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
@@ -649,7 +620,6 @@ const styles = StyleSheet.create({
   gapText: {
     ...Typography.labelSmall,
     fontSize: 12,
-    color: Colors.brand,
     fontWeight: '600',
   },
   // Slide 3 Sync styles
@@ -659,8 +629,6 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   syncCard: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1,
     borderRadius: Radii.card,
     padding: Spacing.sm,
@@ -682,17 +650,14 @@ const styles = StyleSheet.create({
     ...Typography.labelSmall,
     fontSize: 12,
     letterSpacing: 1,
-    color: Colors.inkMuted,
   },
   activeStatusBadge: {
-    backgroundColor: Colors.brandSoft,
     paddingHorizontal: 6,
     paddingVertical: 1,
     borderRadius: Radii.full,
   },
   activeStatusText: {
     ...Typography.labelSmall,
-    color: Colors.brand,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -705,11 +670,9 @@ const styles = StyleSheet.create({
   syncMedName: {
     ...Typography.labelLarge,
     fontSize: 14,
-    color: Colors.ink,
   },
   syncMedTime: {
     ...Typography.bodySmall,
-    color: Colors.inkMuted,
     fontSize: 12,
     flexShrink: 0,
   },
@@ -723,8 +686,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 3,
@@ -739,13 +700,11 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     ...Typography.labelSmall,
     fontSize: 12,
-    color: Colors.inkMuted,
   },
   queuedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Colors.surfaceMuted,
     paddingHorizontal: 6,
     paddingVertical: 1,
     borderRadius: Radii.full,
@@ -754,12 +713,10 @@ const styles = StyleSheet.create({
     width: 5,
     height: 5,
     borderRadius: 2.5,
-    backgroundColor: Colors.inkMuted,
   },
   queuedText: {
     ...Typography.labelSmall,
     fontSize: 12,
-    color: Colors.inkMuted,
   },
   queuedList: {
     gap: 4,
@@ -769,7 +726,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: Colors.surfaceMuted,
     paddingHorizontal: Spacing.sm + 2,
     paddingVertical: 5,
     borderRadius: Radii.sm,
@@ -777,19 +733,15 @@ const styles = StyleSheet.create({
   },
   queuedMedName: {
     ...Typography.bodySmall,
-    color: Colors.ink,
     fontSize: 12,
   },
   queuedMedDetail: {
     ...Typography.bodySmall,
-    color: Colors.inkMuted,
     fontSize: 12,
     flexShrink: 0,
   },
   familySyncCard: {
     gap: Spacing.sm,
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1,
     borderRadius: Radii.card,
     padding: Spacing.sm,
@@ -806,29 +758,24 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: Colors.brandSoft,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: Colors.surface,
     zIndex: 2,
   },
   avatar2: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: Colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: -8,
     borderWidth: 1.5,
-    borderColor: Colors.surface,
     zIndex: 1,
   },
   avatarText: {
     fontSize: 12,
     fontWeight: '700',
-    color: Colors.ink,
   },
   avatarTextCol: {
     flexShrink: 1,
@@ -837,28 +784,23 @@ const styles = StyleSheet.create({
   familyCardTitle: {
     ...Typography.labelMedium,
     fontSize: 13,
-    color: Colors.ink,
   },
   familyCardSub: {
     ...Typography.bodySmall,
-    color: Colors.inkMuted,
     fontSize: 12,
   },
   syncCircle: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: Colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
   },
   // Permanently Fixed Bottom Container Styles
   fixedFooter: {
-    backgroundColor: Colors.canvas,
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.sm,
     gap: Spacing.md,
-    borderTopColor: Colors.outline,
     borderTopWidth: 1,
   },
   paginationDots: {
@@ -871,22 +813,18 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.outline,
   },
   activePill: {
     width: 24,
-    backgroundColor: Colors.brand,
   },
   nextButton: {
     width: '100%',
     minHeight: 56,
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.lg,
-    backgroundColor: Colors.brand,
     borderRadius: Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.brand,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -895,6 +833,5 @@ const styles = StyleSheet.create({
   nextButtonText: {
     ...Typography.labelLarge,
     textAlign: 'center',
-    color: Colors.white,
   },
 });

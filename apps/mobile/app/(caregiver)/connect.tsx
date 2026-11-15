@@ -8,7 +8,9 @@ import type { PermissionKey } from '@medchain/contracts';
 import { AppScreen } from '@/components/AppScreen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PrimaryButton, SecondaryButton, DestructiveButton } from '@/components/Buttons';
-import { Colors, Spacing, Typography, Radii } from '@/theme/tokens';
+import { FormField } from '@/components/FormField';
+import { Spacing, Typography, Radii } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeContext';
 import { useApp } from '@/state/AppContext';
 import { Notice } from '@/pairing/Notice';
 import { FormScreen } from '@/caregiver/ui';
@@ -25,8 +27,21 @@ const POLL_BASE_MS = 3000;
 
 export default function CaregiverConnectScreen() {
   const router = useRouter();
-  const { api, caregiver, caregiverLoading, refreshRelationships, setSelectedRelationship, isOnline } = useApp();
+  const { colors } = useTheme();
+  const {
+    api,
+    caregiver,
+    caregiverLoading,
+    quickRegisterCaregiver,
+    refreshRelationships,
+    setSelectedRelationship,
+    isOnline,
+  } = useApp();
   const [camPerm, requestCamPerm] = useCameraPermissions();
+
+  const [quickName, setQuickName] = useState('');
+  const [quickBusy, setQuickBusy] = useState(false);
+  const [quickError, setQuickError] = useState<string | null>(null);
 
   const [method, setMethod] = useState<'code' | 'scan'>('code');
   const [digits, setDigits] = useState('');
@@ -63,10 +78,6 @@ export default function CaregiverConnectScreen() {
 
   const handleError = (e: unknown) => {
     const fe = describeError(e);
-    if (fe.kind === 'auth') {
-      setError(fe);
-      return;
-    }
     setError(fe);
   };
 
@@ -79,6 +90,18 @@ export default function CaregiverConnectScreen() {
     setDigits('');
     setScanLocked(false);
     setPerms([...ALL_PERMISSIONS]);
+  };
+
+  const handleQuickConnect = async () => {
+    setQuickBusy(true);
+    setQuickError(null);
+    try {
+      await quickRegisterCaregiver(quickName);
+    } catch (e: any) {
+      setQuickError(e?.message || 'Could not connect to DoseSaathi. Please check your internet connection.');
+    } finally {
+      if (mounted.current) setQuickBusy(false);
+    }
   };
 
   // ---- validate -------------------------------------------------------------
@@ -152,7 +175,6 @@ export default function CaregiverConnectScreen() {
       const fe = describeError(e);
       setError(fe);
       if (fe.kind === 'code_invalid' || fe.kind === 'expired') {
-        // Code is gone: they need a fresh one
         setStep('entry');
         setCredential(null);
         setScanLocked(false);
@@ -198,30 +220,19 @@ export default function CaregiverConnectScreen() {
         if (s.status === 'EXPIRED') return setStep('expired');
       } catch (e) {
         if (cancelled) return;
-        const fe = describeError(e);
-        if (fe.kind === 'auth') {
-          setError(fe);
-          setStep('failed');
-          return;
-        }
-        if ((e as any)?.status === 404) {
-          setError({ kind: 'other', message: 'This request could not be found on the server.' });
-          setStep('failed');
-          return;
-        }
         errors += 1;
+        const fe = describeError(e);
         retryAfter = fe.retryAfterSeconds;
         setPollNote(fe);
       }
       if (!cancelled) timer = setTimeout(tick, nextPollDelay(POLL_BASE_MS, errors, 30000, retryAfter));
     };
-    timer = setTimeout(tick, 1500);
+    timer = setTimeout(tick, 1000);
     return () => {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, requestId, focused, recheck, api]);
+  }, [step, requestId, focused, recheck, api, refreshRelationships, setSelectedRelationship, router]);
 
   const cancelRequest = async () => {
     if (!requestId) return reset();
@@ -243,7 +254,6 @@ export default function CaregiverConnectScreen() {
   };
 
   // ---- render ---------------------------------------------------------------
-
   const header = (
     <ScreenHeader
       title="Connect to family"
@@ -256,43 +266,77 @@ export default function CaregiverConnectScreen() {
     return (
       <AppScreen>
         {header}
-        <ActivityIndicator color={Colors.brand} size="large" accessibilityLabel="Loading" />
+        <ActivityIndicator color={colors.primary} size="large" accessibilityLabel="Loading" />
       </AppScreen>
     );
   }
 
+  // Quick Device Pairing without requiring an email & password account
   if (!caregiver) {
     return (
       <AppScreen>
         {header}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.rowCenter}>
-            <MaterialIcons name="info-outline" size={22} color={Colors.warning} />
-            <Text style={styles.cardTitle}>Sign in required</Text>
+            <MaterialIcons name="qr-code-scanner" size={24} color={colors.primary} />
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Quick Device Pairing</Text>
           </View>
-          <Text style={styles.body}>
-            To connect with a family member you need a caregiver account. It is only used to link you with the people you care for.
+          <Text style={[styles.body, { color: colors.textSecondary, marginBottom: Spacing.md }]}>
+            Connect directly using the pairing code or QR code from your family member's phone. No email or password required.
           </Text>
-          <PrimaryButton title="Sign in or create account" onPress={toSignIn} />
+          <FormField
+            label="Name your family will see"
+            value={quickName}
+            onChangeText={setQuickName}
+            placeholder="For example, Daughter or Alex"
+            maxLength={60}
+            autoCapitalize="words"
+          />
+          {quickError && <Notice tone="error">{quickError}</Notice>}
+          <PrimaryButton
+            title="Start pairing with code"
+            onPress={handleQuickConnect}
+            loading={quickBusy}
+            icon="+"
+          />
         </View>
+
+        <View style={{ alignItems: 'center', marginVertical: Spacing.md }}>
+          <Text style={[styles.muted, { color: colors.textSecondary, marginBottom: Spacing.xs }]}>
+            Already have a DoseSaathi account?
+          </Text>
+          <TouchableOpacity onPress={toSignIn} accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}>
+            <Text style={[styles.linkText, { color: colors.primary }]}>Sign in with email and password</Text>
+          </TouchableOpacity>
+        </View>
+
         <SecondaryButton title="I'll do this later" onPress={later} />
       </AppScreen>
     );
   }
 
+  const isAnonymousDevice = caregiver.email.includes('@dosesaathi.app');
   const account = (
-    <View style={styles.accountRow} accessibilityLabel={`Signed in as ${caregiver.displayName}, ${caregiver.email}`}>
-      <MaterialIcons name="person" size={24} color={Colors.brand} />
+    <View
+      style={[
+        styles.accountRow,
+        { backgroundColor: colors.surfaceSecondary, borderColor: colors.border, borderWidth: 1 },
+      ]}
+      accessibilityLabel={`Caregiver: ${caregiver.displayName}`}
+    >
+      <View style={[styles.avatarIcon, { backgroundColor: colors.brandSoft }]}>
+        <MaterialIcons name="person" size={20} color={colors.primary} />
+      </View>
       <View style={{ flex: 1 }}>
-        <Text style={styles.labelStrong}>{caregiver.displayName}</Text>
-        <Text style={styles.muted}>{caregiver.email}</Text>
+        <Text style={[styles.labelStrong, { color: colors.textPrimary }]}>{caregiver.displayName}</Text>
+        <Text style={[styles.muted, { color: colors.textSecondary }]}>
+          {isAnonymousDevice ? 'Device Paired Caregiver' : caregiver.email}
+        </Text>
       </View>
     </View>
   );
 
-  const errorBlock = error && (
-    <Notice tone="error">{error.message}</Notice>
-  );
+  const errorBlock = error && <Notice tone="error">{error.message}</Notice>;
   const needsSignIn = error?.kind === 'auth';
 
   // Terminal / waiting states
@@ -300,10 +344,12 @@ export default function CaregiverConnectScreen() {
     return (
       <AppScreen>
         {header}
-        <View style={styles.card} accessibilityLiveRegion="polite">
-          <ActivityIndicator color={Colors.brand} size="large" />
-          <Text style={[styles.cardTitle, { textAlign: 'center', marginTop: Spacing.md }]}>Waiting for approval</Text>
-          <Text style={[styles.body, { textAlign: 'center' }]}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]} accessibilityLiveRegion="polite">
+          <ActivityIndicator color={colors.primary} size="large" />
+          <Text style={[styles.cardTitle, { color: colors.textPrimary, textAlign: 'center', marginTop: Spacing.md }]}>
+            Waiting for approval
+          </Text>
+          <Text style={[styles.body, { color: colors.textSecondary, textAlign: 'center' }]}>
             {patientName ? `${patientName} needs to approve your request on their phone.` : 'They need to approve your request on their phone.'} This screen updates by itself.
           </Text>
         </View>
@@ -324,12 +370,12 @@ export default function CaregiverConnectScreen() {
     return (
       <AppScreen>
         {header}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.rowCenter}>
-            <MaterialIcons name={info.icon} size={26} color={step === 'failed' ? Colors.danger : Colors.warning} />
-            <Text style={styles.cardTitle}>{info.title}</Text>
+            <MaterialIcons name={info.icon} size={26} color={step === 'failed' ? colors.error : colors.warning} />
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{info.title}</Text>
           </View>
-          <Text style={styles.body}>{info.text}</Text>
+          <Text style={[styles.body, { color: colors.textSecondary }]}>{info.text}</Text>
         </View>
         {errorBlock}
         {needsSignIn && <PrimaryButton title="Sign in again" onPress={toSignIn} />}
@@ -354,10 +400,12 @@ export default function CaregiverConnectScreen() {
       <AppScreen>
         {header}
         {account}
-        <View style={styles.card}>
-          <Text style={styles.muted}>Found</Text>
-          <Text style={styles.personName}>{patientName}</Text>
-          <Text style={[styles.body, { marginTop: Spacing.md }]}>What would you like to be able to do? {patientName} can approve all, some or none of these.</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.muted, { color: colors.textSecondary }]}>Found</Text>
+          <Text style={[styles.personName, { color: colors.primary }]}>{patientName}</Text>
+          <Text style={[styles.body, { color: colors.textSecondary, marginTop: Spacing.md }]}>
+            What would you like to be able to do? {patientName} can approve all, some or none of these.
+          </Text>
           <PermissionToggles value={perms} onChange={setPerms} labels={CAREGIVER_PERMISSION_TEXT} disabled={busy} />
         </View>
         {!isOnline && <Notice tone="warning">You appear to be offline. Sending the request needs a connection.</Notice>}
@@ -376,11 +424,14 @@ export default function CaregiverConnectScreen() {
       {header}
       {account}
 
-      <View style={styles.tabs} accessibilityRole="tablist">
+      <View style={[styles.tabs, { backgroundColor: colors.surfaceSecondary }]} accessibilityRole="tablist">
         {(['code', 'scan'] as const).map((m) => (
           <TouchableOpacity
             key={m}
-            style={[styles.tab, method === m && styles.tabActive]}
+            style={[
+              styles.tab,
+              method === m && [styles.tabActive, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 }],
+            ]}
             onPress={() => {
               setMethod(m);
               setError(null);
@@ -389,22 +440,44 @@ export default function CaregiverConnectScreen() {
             accessibilityRole="tab"
             accessibilityState={{ selected: method === m }}
           >
-            <MaterialIcons name={m === 'code' ? 'pin' : 'qr-code-scanner'} size={20} color={method === m ? Colors.primary : Colors.inkMuted} />
-            <Text style={[styles.tabText, method === m && { color: Colors.primary }]}>{m === 'code' ? 'Enter code' : 'Scan QR'}</Text>
+            <MaterialIcons
+              name={m === 'code' ? 'pin' : 'qr-code-scanner'}
+              size={20}
+              color={method === m ? colors.primary : colors.textSecondary}
+            />
+            <Text
+              style={[
+                styles.tabText,
+                { color: method === m ? colors.primary : colors.textSecondary },
+              ]}
+            >
+              {m === 'code' ? 'Enter code' : 'Scan QR'}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
 
       {method === 'code' ? (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Pairing code</Text>
-          <Text style={styles.muted}>Six numbers shown on the family member's Family tab.</Text>
-          <Pressable style={styles.boxes} onPress={() => inputRef.current?.focus()} accessibilityRole="button" accessibilityLabel={`Code entry, ${digits.length} of 6 digits entered. Double tap to type.`}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Pairing code</Text>
+          <Text style={[styles.muted, { color: colors.textSecondary }]}>Six numbers shown on your family member's Family tab.</Text>
+          <Pressable
+            style={styles.boxes}
+            onPress={() => inputRef.current?.focus()}
+            accessibilityRole="button"
+            accessibilityLabel={`Code entry, ${digits.length} of 6 digits entered. Double tap to type.`}
+          >
             {[0, 1, 2, 3, 4, 5].map((i) => (
               <React.Fragment key={i}>
-                {i === 3 && <Text style={styles.dash}>-</Text>}
-                <View style={[styles.box, digits.length === i && styles.boxActive]}>
-                  <Text style={styles.boxText}>{digits[i] ?? ''}</Text>
+                {i === 3 && <Text style={[styles.dash, { color: colors.textSecondary }]}>-</Text>}
+                <View
+                  style={[
+                    styles.box,
+                    { backgroundColor: colors.canvas, borderColor: colors.border },
+                    digits.length === i && [styles.boxActive, { borderColor: colors.primary }],
+                  ]}
+                >
+                  <Text style={[styles.boxText, { color: colors.textPrimary }]}>{digits[i] ?? ''}</Text>
                 </View>
               </React.Fragment>
             ))}
@@ -424,22 +497,22 @@ export default function CaregiverConnectScreen() {
           </Pressable>
           <View style={styles.pasteRow}>
             <TouchableOpacity style={styles.linkBtn} onPress={paste} accessibilityRole="button" accessibilityLabel="Paste code">
-              <MaterialIcons name="content-paste" size={20} color={Colors.brand} />
-              <Text style={styles.linkText}>Paste code</Text>
+              <MaterialIcons name="content-paste" size={20} color={colors.primary} />
+              <Text style={[styles.linkText, { color: colors.primary }]}>Paste code</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.linkBtn} onPress={() => setDigits('')} accessibilityRole="button" accessibilityLabel="Clear code">
-              <MaterialIcons name="backspace" size={20} color={Colors.brand} />
-              <Text style={styles.linkText}>Clear</Text>
+              <MaterialIcons name="backspace" size={20} color={colors.primary} />
+              <Text style={[styles.linkText, { color: colors.primary }]}>Clear</Text>
             </TouchableOpacity>
           </View>
         </View>
       ) : (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Scan their QR code</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Scan their QR code</Text>
           {!camPerm ? (
-            <ActivityIndicator color={Colors.brand} />
+            <ActivityIndicator color={colors.primary} />
           ) : camPerm.granted ? (
-            <View style={styles.cameraBox}>
+            <View style={[styles.cameraBox, { borderColor: colors.border, borderWidth: 1 }]}>
               {focused && (
                 <CameraView
                   style={StyleSheet.absoluteFill}
@@ -458,12 +531,14 @@ export default function CaregiverConnectScreen() {
             </>
           ) : (
             <>
-              <Text style={styles.body}>DoseSaathi uses the camera only to read the QR code on your family member's phone. Nothing is recorded or saved.</Text>
+              <Text style={[styles.body, { color: colors.textSecondary }]}>
+                DoseSaathi uses the camera only to read the QR code on your family member's phone. Nothing is recorded or saved.
+              </Text>
               <PrimaryButton title="Allow camera" onPress={() => requestCamPerm()} />
               <SecondaryButton title="Enter code instead" onPress={() => setMethod('code')} />
             </>
           )}
-          {busy && <ActivityIndicator color={Colors.brand} style={{ marginTop: Spacing.md }} />}
+          {busy && <ActivityIndicator color={colors.primary} style={{ marginTop: Spacing.md }} />}
         </View>
       )}
 
@@ -473,7 +548,7 @@ export default function CaregiverConnectScreen() {
         <PrimaryButton title="Check code" onPress={onValidateCode} loading={busy} disabled={digits.length !== 6} />
       )}
       <SecondaryButton title="I'll do this later" onPress={later} />
-      <Text style={styles.footnote}>
+      <Text style={[styles.footnote, { color: colors.textSecondary }]}>
         The person you connect with must approve your request, and can remove your access at any time. A code or QR is checked with the server before anything happens.
       </Text>
     </FormScreen>
@@ -482,8 +557,6 @@ export default function CaregiverConnectScreen() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.outline,
     borderWidth: 1,
     borderRadius: Radii.card,
     padding: Spacing.xl,
@@ -493,23 +566,50 @@ const styles = StyleSheet.create({
   rowCenter: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.sm },
   body: { ...Typography.bodyMedium },
   muted: { ...Typography.bodySmall },
-  footnote: { ...Typography.bodySmall, marginTop: Spacing.md },
-  labelStrong: { ...Typography.labelMedium },
+  footnote: { ...Typography.bodySmall, marginTop: Spacing.md, textAlign: 'center' },
+  labelStrong: { ...Typography.labelMedium, fontWeight: '700' },
   personName: { ...Typography.headlineMedium },
   accountRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.md,
-    backgroundColor: Colors.brandSoft,
     borderRadius: Radii.card,
-    padding: Spacing.lg,
+    padding: Spacing.md,
     marginBottom: Spacing.sm,
   },
-  tabs: { flexDirection: 'row', backgroundColor: Colors.surfaceMuted, borderRadius: Radii.md, padding: 4, marginVertical: Spacing.sm },
-  tab: { flex: 1, minHeight: 48, paddingVertical: Spacing.xs, paddingHorizontal: Spacing.xs, flexDirection: 'row', gap: Spacing.xs, alignItems: 'center', justifyContent: 'center', borderRadius: Radii.sm },
-  tabActive: { backgroundColor: Colors.surface },
-  tabText: { ...Typography.labelMedium, color: Colors.inkMuted, flexShrink: 1 },
-  boxes: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.xs, marginVertical: Spacing.lg },
+  avatarIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabs: {
+    flexDirection: 'row',
+    borderRadius: Radii.md,
+    padding: 4,
+    marginVertical: Spacing.sm,
+  },
+  tab: {
+    flex: 1,
+    minHeight: 48,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.xs,
+    flexDirection: 'row',
+    gap: Spacing.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: Radii.sm,
+  },
+  tabActive: {},
+  tabText: { ...Typography.labelMedium, flexShrink: 1 },
+  boxes: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    marginVertical: Spacing.lg,
+  },
   box: {
     flex: 1,
     maxWidth: 48,
@@ -517,17 +617,15 @@ const styles = StyleSheet.create({
     minHeight: 60,
     borderRadius: Radii.md,
     borderWidth: 1.5,
-    borderColor: Colors.outline,
-    backgroundColor: Colors.canvas,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  boxActive: { borderColor: Colors.brand },
-  boxText: { fontSize: 26, lineHeight: 32, fontWeight: '700', color: Colors.ink },
-  dash: { ...Typography.headlineSmall, color: Colors.inkMuted },
+  boxActive: {},
+  boxText: { fontSize: 26, lineHeight: 32, fontWeight: '700' },
+  dash: { ...Typography.headlineSmall },
   hiddenInput: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, opacity: 0.02, color: 'transparent' },
   pasteRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', columnGap: Spacing.lg },
   linkBtn: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
-  linkText: { ...Typography.labelMedium, color: Colors.brand, flexShrink: 1 },
-  cameraBox: { height: 300, borderRadius: Radii.card, overflow: 'hidden', backgroundColor: Colors.ink, marginTop: Spacing.md },
+  linkText: { ...Typography.labelMedium, fontWeight: '600', flexShrink: 1 },
+  cameraBox: { height: 300, borderRadius: Radii.card, overflow: 'hidden', backgroundColor: '#000000', marginTop: Spacing.md },
 });
