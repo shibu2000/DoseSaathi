@@ -484,11 +484,24 @@ export function AppProvider({
     };
   }, [initialDatabase]);
 
+  /** Re-sends the FCM/APNs token on every launch: it was missing or rotated on phones registered before push was configured. */
+  const syncPushToken = useCallback(async () => {
+    if (!(await api.hasDeviceIdentity())) return;
+    try {
+      const N = await import('expo-notifications');
+      const pushToken = (await N.getDevicePushTokenAsync()).data as string;
+      await api.patchDevice({ pushToken, appVersion: Constants.expoConfig?.version ?? '0.0.0' });
+    } catch {
+      // No FCM in this build or offline: pushes stay off, foreground sync still works
+    }
+  }, [api]);
+
   // Once the local database is ready, load family state (relationship list, sharing status)
   useEffect(() => {
     if (!db || !isReady) return;
     refreshRelationships();
     refreshPatientRelationships();
+    void syncPushToken();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [db, isReady]);
 

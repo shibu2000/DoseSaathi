@@ -2,7 +2,7 @@
   "expo": {
     "name": "DoseSaathi",
     "slug": "dosesaathi",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -35,7 +35,7 @@
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
       ],
-      "versionCode": 6
+      "versionCode": 7
     },
     "plugins": [
       "expo-router",
