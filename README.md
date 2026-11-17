@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/shibu2000/DoseSaathi/releases/latest"><img src="https://img.shields.io/badge/Release-v1.0.6-006156.svg?style=for-the-badge&logo=android&logoColor=white" alt="Release v1.0.6" /></a>
+  <a href="https://github.com/shibu2000/DoseSaathi/releases/latest"><img src="https://img.shields.io/badge/Release-v1.0.7-006156.svg?style=for-the-badge&logo=android&logoColor=white" alt="Release v1.0.7" /></a>
   <a href="https://github.com/shibu2000/DoseSaathi/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-teal.svg?style=for-the-badge" alt="License MIT" /></a>
   <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS-25845D.svg?style=for-the-badge&logo=apple&logoColor=white" alt="Platforms" />
   <img src="https://img.shields.io/badge/Offline--First-SQLite%20%2B%20Exact%20Alarms-1E8E80.svg?style=for-the-badge" alt="Offline First" />
@@ -18,7 +18,7 @@
 
 <p align="center">
   <a href="#-about-dosesaathi"><b>📖 About</b></a> •
-  <a href="#-direct-downloads--latest-builds-v106"><b>⬇️ Download APK</b></a> •
+  <a href="#-direct-downloads--latest-builds-v107"><b>⬇️ Download APK</b></a> •
   <a href="#-key-capabilities--highlights"><b>✨ Features</b></a> •
   <a href="#-four-signature-appearance-themes"><b>🎨 Themes</b></a> •
   <a href="#%EF%B8%8F-repository-architecture"><b>🏗️ Architecture</b></a> •
@@ -53,7 +53,7 @@ Most medication apps today are designed either as soulless clinical alarms or cl
 
 ---
 
-## 📥 Direct Downloads & Latest Builds (v1.0.6)
+## 📥 Direct Downloads & Latest Builds (v1.0.7)
 
 Download the pre-compiled production packages directly from [GitHub Releases](https://github.com/shibu2000/DoseSaathi/releases/latest):
 
