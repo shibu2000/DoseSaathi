@@ -169,10 +169,6 @@ export function AppProvider({
       await db.settings.set('app_theme', newMode);
     }
     if (MedchainAlarm) {
-      MedchainAlarm.updateWidgetData({
-        hasUpcoming: false,
-        theme: newMode === 'glassmorphism' ? 'glassmorphism' : 'classic',
-      }).catch(() => {});
       MedchainAlarm.setAppIcon(newMode).catch(() => {});
     }
   }, [db]);

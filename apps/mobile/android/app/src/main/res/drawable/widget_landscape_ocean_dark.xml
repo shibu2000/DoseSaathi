@@ -1,0 +1,106 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="115dp"
+    android:viewportWidth="360"
+    android:viewportHeight="115">
+
+    <!-- Sun Glow & Sun -->
+    <path
+        android:pathData="M 127,58 a 28,28 0 1,0 56,0 a 28,28 0 1,0 -56,0"
+        android:fillColor="#33E6A845" />
+    <path
+        android:pathData="M 140,58 a 15,15 0 1,0 30,0 a 15,15 0 1,0 -30,0"
+        android:fillColor="#E6A845" />
+
+    <!-- Far Background Rolling Hills -->
+    <path
+        android:pathData="M -10,115 L -10,75 Q 40,50 110,65 T 240,68 Q 290,55 370,70 L 370,115 Z"
+        android:fillColor="#1B3A5A" />
+
+    <!-- Middle Hills -->
+    <path
+        android:pathData="M -10,115 L -10,82 Q 60,66 140,80 T 280,72 Q 320,68 370,78 L 370,115 Z"
+        android:fillColor="#224A72" />
+
+    <!-- Cozy Cottage -->
+    <group
+        android:translateX="262"
+        android:translateY="54">
+        <!-- Chimney -->
+        <path
+            android:pathData="M 26,0 h 5 v 12 h -5 Z"
+            android:fillColor="#B3583C" />
+        <!-- Roof -->
+        <path
+            android:pathData="M -4,13 L 17,0 L 38,13 Z"
+            android:fillColor="#BA6D4D" />
+        <!-- Walls -->
+        <path
+            android:pathData="M 0,13 h 34 v 24 h -34 Z"
+            android:fillColor="#E0DDD4" />
+        <!-- Door -->
+        <path
+            android:pathData="M 13,23 h 8 v 14 h -8 Z"
+            android:fillColor="#14253B" />
+        <!-- Window -->
+        <path
+            android:pathData="M 4,17 h 6 v 6 h -6 Z"
+            android:fillColor="#FEECA8" />
+    </group>
+
+    <!-- Tree Left (Large) -->
+    <group
+        android:translateX="18"
+        android:translateY="52">
+        <path
+            android:pathData="M 14,24 h 4 v 18 h -4 Z"
+            android:fillColor="#5E4A3B" />
+        <path
+            android:pathData="M 2,18 a 14,14 0 1,0 28,0 a 14,14 0 1,0 -28,0"
+            android:fillColor="#2B5E8F" />
+        <path
+            android:pathData="M 0,14 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0"
+            android:fillColor="#2B5E8F" />
+    </group>
+
+    <!-- Tree Left (Small) -->
+    <group
+        android:translateX="42"
+        android:translateY="60">
+        <path
+            android:pathData="M 8,18 h 3 v 14 h -3 Z"
+            android:fillColor="#5E4A3B" />
+        <path
+            android:pathData="M 0,12 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0"
+            android:fillColor="#2B5E8F" />
+    </group>
+
+    <!-- Tree Right behind house -->
+    <group
+        android:translateX="235"
+        android:translateY="48">
+        <path
+            android:pathData="M 10,22 h 4 v 16 h -4 Z"
+            android:fillColor="#5E4A3B" />
+        <path
+            android:pathData="M -1,16 a 13,13 0 1,0 26,0 a 13,13 0 1,0 -26,0"
+            android:fillColor="#2B5E8F" />
+    </group>
+
+    <!-- Tree Far Right -->
+    <group
+        android:translateX="315"
+        android:translateY="52">
+        <path
+            android:pathData="M 10,20 h 4 v 16 h -4 Z"
+            android:fillColor="#5E4A3B" />
+        <path
+            android:pathData="M 0,14 a 12,12 0 1,0 24,0 a 12,12 0 1,0 -24,0"
+            android:fillColor="#2B5E8F" />
+    </group>
+
+    <!-- Near Foreground Hill -->
+    <path
+        android:pathData="M -10,115 L -10,94 Q 70,82 170,96 T 370,88 L 370,115 Z"
+        android:fillColor="#2B5E8F" />
+</vector>

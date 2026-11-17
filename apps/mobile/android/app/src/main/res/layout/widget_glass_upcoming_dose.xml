@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_glass_root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg_apple_glass"
+    android:padding="13dp">
+
+    <!-- Top Header: Dynamic Theme App Icon on Left, Minimalist Apple Frosted Glass Pill on Right -->
+    <RelativeLayout
+        android:id="@+id/widget_glass_header_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <ImageView
+            android:id="@+id/widget_glass_brand_icon"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/app_name"
+            android:src="@mipmap/ic_launcher_round" />
+
+        <TextView
+            android:id="@+id/widget_glass_status_pill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/widget_badge_glass"
+            android:paddingStart="9dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="9dp"
+            android:paddingBottom="3dp"
+            android:text="NEXT DOSE"
+            android:textColor="#006156"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <!-- Center Dose Content -->
+    <LinearLayout
+        android:id="@+id/widget_glass_dose_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/widget_glass_header_row"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="7dp"
+        android:orientation="vertical">
+
+        <!-- Prominent Apple SF-styled Medicine Name -->
+        <TextView
+            android:id="@+id/widget_glass_med_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Upcoming Medicine"
+            android:textColor="#1F302C"
+            android:textSize="18.5sp"
+            android:textStyle="bold" />
+
+        <!-- Time & Dosage Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- Frosted Glass Time Chip -->
+            <LinearLayout
+                android:id="@+id/widget_glass_time_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/widget_time_chip_glass"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="7dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="7dp"
+                android:paddingBottom="2dp">
+
+                <ImageView
+                    android:id="@+id/widget_glass_clock_icon"
+                    android:layout_width="11dp"
+                    android:layout_height="11dp"
+                    android:contentDescription="Time"
+                    android:src="@drawable/ic_widget_clock" />
+
+                <TextView
+                    android:id="@+id/widget_glass_time_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="08:00 AM"
+                    android:textColor="#006156"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/widget_glass_dosage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="1 tablet • After meal"
+                android:textColor="#58645F"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Live Chronometer in Frosted Apple Glass Capsule -->
+        <LinearLayout
+            android:id="@+id/widget_glass_countdown_row"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <Chronometer
+                android:id="@+id/widget_glass_chronometer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/widget_badge_glass"
+                android:paddingStart="10dp"
+                android:paddingTop="3.5dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="3.5dp"
+                android:textColor="#006156"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="visible" />
+
+            <TextView
+                android:id="@+id/widget_glass_countdown_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/widget_badge_due"
+                android:paddingStart="11dp"
+                android:paddingTop="3.5dp"
+                android:paddingEnd="11dp"
+                android:paddingBottom="3.5dp"
+                android:text="🚨 DUE NOW • Take Medicine"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Empty State -->
+    <LinearLayout
+        android:id="@+id/widget_glass_empty_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/widget_glass_header_row"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:contentDescription="All Doses Taken"
+            android:src="@drawable/ic_widget_check_circle" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_glass_empty_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="All caught up!"
+                android:textColor="#1F302C"
+                android:textSize="15.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_glass_empty_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="No more medicines scheduled for today"
+                android:textColor="#58645F"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

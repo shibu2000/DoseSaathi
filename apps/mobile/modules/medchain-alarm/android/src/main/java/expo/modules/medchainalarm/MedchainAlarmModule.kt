@@ -16,6 +16,7 @@ import expo.modules.kotlin.exception.Exceptions
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import expo.modules.medchainalarm.widget.UpcomingDoseWidgetProvider
+import expo.modules.medchainalarm.widget.GlassUpcomingDoseWidgetProvider
 import expo.modules.medchainalarm.widget.WidgetDataStore
 import expo.modules.medchainalarm.widget.WidgetDoseData
 
@@ -161,7 +162,12 @@ class MedchainAlarmModule : Module() {
     }
 
     AsyncFunction("requestPinWidget") {
-      UpcomingDoseWidgetProvider.requestPin(context)
+      val isGlass = WidgetDataStore.get(context)?.theme == "glassmorphism"
+      if (isGlass) {
+        GlassUpcomingDoseWidgetProvider.requestPin(context)
+      } else {
+        UpcomingDoseWidgetProvider.requestPin(context)
+      }
     }
 
     AsyncFunction("updateWidgetData") { data: Map<String, Any?> ->

@@ -36,7 +36,8 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
     private const val REQUEST_CODE_CLICK = 7701
     private const val REQUEST_CODE_SCHEDULE = 7702
 
-    private data class WidgetThemeColors(
+    data class WidgetThemeColors(
+      val themeName: String,
       val bgDrawableName: String,
       val primaryColor: Int,
       val textPrimaryColor: Int,
@@ -44,33 +45,33 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
       val isDark: Boolean
     )
 
-    private fun resolveTheme(theme: String?, isDark: Boolean): WidgetThemeColors {
+    fun resolveTheme(theme: String?, isDark: Boolean): WidgetThemeColors {
       val norm = (theme ?: "nature").lowercase()
       return when {
         norm.contains("ocean") -> if (isDark) {
-          WidgetThemeColors("widget_bg_ocean_dark", 0xFF4EA1E3.toInt(), 0xFFF0F7FD.toInt(), 0xFF8AAAC8.toInt(), true)
+          WidgetThemeColors("ocean", "widget_bg_ocean_dark", 0xFF4EA1E3.toInt(), 0xFFF0F7FD.toInt(), 0xFF8AAAC8.toInt(), true)
         } else {
-          WidgetThemeColors("widget_bg_ocean", 0xFF1E517B.toInt(), 0xFF182633.toInt(), 0xFF53677A.toInt(), false)
+          WidgetThemeColors("ocean", "widget_bg_ocean", 0xFF1E517B.toInt(), 0xFF182633.toInt(), 0xFF53677A.toInt(), false)
         }
         norm.contains("sunset") -> if (isDark) {
-          WidgetThemeColors("widget_bg_sunset_dark", 0xFFE87A5B.toInt(), 0xFFFDF6F3.toInt(), 0xFFBA9B91.toInt(), true)
+          WidgetThemeColors("sunset", "widget_bg_sunset_dark", 0xFFE87A5B.toInt(), 0xFFFDF6F3.toInt(), 0xFFBA9B91.toInt(), true)
         } else {
-          WidgetThemeColors("widget_bg_sunset", 0xFFA8482A.toInt(), 0xFF331F19.toInt(), 0xFF7A5B52.toInt(), false)
+          WidgetThemeColors("sunset", "widget_bg_sunset", 0xFFA8482A.toInt(), 0xFF331F19.toInt(), 0xFF7A5B52.toInt(), false)
         }
         norm.contains("lavender") -> if (isDark) {
-          WidgetThemeColors("widget_bg_lavender_dark", 0xFFA57DCE.toInt(), 0xFFFAF6FD.toInt(), 0xFFB4A1C8.toInt(), true)
+          WidgetThemeColors("lavender", "widget_bg_lavender_dark", 0xFFA57DCE.toInt(), 0xFFFAF6FD.toInt(), 0xFFB4A1C8.toInt(), true)
         } else {
-          WidgetThemeColors("widget_bg_lavender", 0xFF5D437A.toInt(), 0xFF291E33.toInt(), 0xFF69567D.toInt(), false)
+          WidgetThemeColors("lavender", "widget_bg_lavender", 0xFF5D437A.toInt(), 0xFF291E33.toInt(), 0xFF69567D.toInt(), false)
         }
         norm.contains("glass") -> if (isDark) {
-          WidgetThemeColors("widget_bg_glass_dark", 0xFF38B2A3.toInt(), 0xFFF0FDFC.toInt(), 0xFF96ABA3.toInt(), true)
+          WidgetThemeColors("nature", "widget_bg_glass_dark", 0xFF38B2A3.toInt(), 0xFFF0FDFC.toInt(), 0xFF96ABA3.toInt(), true)
         } else {
-          WidgetThemeColors("widget_bg_glass", 0xFF006156.toInt(), 0xFF1F302C.toInt(), 0xFF58645F.toInt(), false)
+          WidgetThemeColors("nature", "widget_bg_glass", 0xFF006156.toInt(), 0xFF1F302C.toInt(), 0xFF58645F.toInt(), false)
         }
         else -> if (isDark) { // Nature & Classic
-          WidgetThemeColors("widget_bg_nature_dark", 0xFF38B2A3.toInt(), 0xFFF0FDFC.toInt(), 0xFF96ABA3.toInt(), true)
+          WidgetThemeColors("nature", "widget_bg_nature_dark", 0xFF38B2A3.toInt(), 0xFFF0FDFC.toInt(), 0xFF96ABA3.toInt(), true)
         } else {
-          WidgetThemeColors("widget_bg_nature", 0xFF006156.toInt(), 0xFF1F302C.toInt(), 0xFF58645F.toInt(), false)
+          WidgetThemeColors("nature", "widget_bg_nature", 0xFF006156.toInt(), 0xFF1F302C.toInt(), 0xFF58645F.toInt(), false)
         }
       }
     }
@@ -83,6 +84,8 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
           val provider = UpcomingDoseWidgetProvider()
           provider.onUpdate(context, appWidgetManager, ids)
         }
+        // Simultaneously update Apple Glass widget
+        GlassUpcomingDoseWidgetProvider.updateAll(context)
       } catch (e: Exception) {
         // Safe fallback in case widgets are uninstalled or disabled
       }
@@ -124,7 +127,6 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
       var scheduledTimeStr = ""
       var dosageText = ""
       var targetMillis = 0L
-      var occurrenceId = ""
       var hasDose = false
       var isSnoozed = false
 
@@ -135,7 +137,6 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
         scheduledTimeStr = cached.scheduledTimeStr
         dosageText = cached.dosageText
         targetMillis = cached.triggerAtMillis
-        occurrenceId = cached.occurrenceId
         isSnoozed = cached.state == "SNOOZED"
       } else {
         // Fall back to AlarmStore
@@ -145,22 +146,21 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
           medName = nextAlarm.title
           dosageText = nextAlarm.body
           targetMillis = nextAlarm.triggerAtMillis
-          occurrenceId = nextAlarm.occurrenceId
         }
       }
 
       // 2. Resolve Theme & Dynamic Palette
       val themeConfig = resolveTheme(cached?.theme, cached?.isDark == true)
       val pkg = context.packageName
+      val isDark = themeConfig.isDark
 
       // View ID Lookups
       val rootId = context.resources.getIdentifier("widget_root_layout", "id", pkg)
-      val brandTextId = context.resources.getIdentifier("widget_brand_name", "id", pkg)
+      val bgArtId = context.resources.getIdentifier("widget_bg_art", "id", pkg)
+      val scrimId = context.resources.getIdentifier("widget_scrim", "id", pkg)
+      val brandIconId = context.resources.getIdentifier("widget_brand_icon", "id", pkg)
       val statusPillId = context.resources.getIdentifier("widget_status_pill", "id", pkg)
       val doseContainerId = context.resources.getIdentifier("widget_dose_container", "id", pkg)
-      val emptyContainerId = context.resources.getIdentifier("widget_empty_container", "id", pkg)
-      val iconContainerId = context.resources.getIdentifier("widget_icon_container", "id", pkg)
-      val iconPillImageId = context.resources.getIdentifier("widget_icon_pill_image", "id", pkg)
       val medNameId = context.resources.getIdentifier("widget_med_name", "id", pkg)
       val timeChipId = context.resources.getIdentifier("widget_time_chip", "id", pkg)
       val timeChipClockIconId = context.resources.getIdentifier("widget_time_clock_icon", "id", pkg)
@@ -168,16 +168,14 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
       val dosageTextId = context.resources.getIdentifier("widget_time_dosage", "id", pkg)
       val chronometerId = context.resources.getIdentifier("widget_chronometer", "id", pkg)
       val countdownBadgeId = context.resources.getIdentifier("widget_countdown_badge", "id", pkg)
+      val emptyContainerId = context.resources.getIdentifier("widget_empty_container", "id", pkg)
       val emptyTitleId = context.resources.getIdentifier("widget_empty_title", "id", pkg)
       val emptySubtitleId = context.resources.getIdentifier("widget_empty_subtitle", "id", pkg)
-      val footerLabelId = context.resources.getIdentifier("widget_footer_label", "id", pkg)
-      val footerButtonId = context.resources.getIdentifier("widget_footer_button", "id", pkg)
 
       // Theme-Specific Drawable Resources
       var bgRes = context.resources.getIdentifier(themeConfig.bgDrawableName, "drawable", pkg)
       if (bgRes == 0) bgRes = context.resources.getIdentifier("widget_bg", "drawable", pkg)
 
-      val isDark = themeConfig.isDark
       var badgeUpcomingRes = context.resources.getIdentifier(
         if (isDark) "widget_badge_upcoming_dark" else "widget_badge_upcoming",
         "drawable", pkg
@@ -196,23 +194,40 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
         if (isDark) "widget_time_chip_dark" else "widget_time_chip",
         "drawable", pkg
       )
-      var pillIconBgRes = context.resources.getIdentifier(
-        if (isDark) "widget_pill_icon_bg_dark" else "widget_pill_icon_bg",
-        "drawable", pkg
-      )
-      var footerBtnRes = context.resources.getIdentifier(
-        if (isDark) "widget_footer_button_dark" else "widget_footer_button",
-        "drawable", pkg
-      )
 
       // Apply Root Background
       if (rootId != 0 && bgRes != 0) {
         views.setInt(rootId, "setBackgroundResource", bgRes)
       }
 
-      // Apply Header Branding Colors
-      if (brandTextId != 0) {
-        views.setTextColor(brandTextId, themeConfig.primaryColor)
+      // Apply Scenic Landscape Artwork
+      val artName = "widget_landscape_${themeConfig.themeName}${if (isDark) "_dark" else ""}"
+      var artRes = context.resources.getIdentifier(artName, "drawable", pkg)
+      if (artRes == 0) artRes = context.resources.getIdentifier("widget_landscape_nature", "drawable", pkg)
+      if (bgArtId != 0 && artRes != 0) {
+        views.setImageViewResource(bgArtId, artRes)
+      }
+
+      // Apply Protective Contrast Scrim
+      val scrimRes = context.resources.getIdentifier(
+        if (isDark) "widget_art_scrim_dark" else "widget_art_scrim",
+        "drawable", pkg
+      )
+      if (scrimId != 0 && scrimRes != 0) {
+        views.setInt(scrimId, "setBackgroundResource", scrimRes)
+      }
+
+      // Apply Dynamic Launcher App Icon Matching Theme
+      val iconName = when (themeConfig.themeName) {
+        "ocean" -> "ic_launcher_ocean_round"
+        "sunset" -> "ic_launcher_sunset_round"
+        "lavender" -> "ic_launcher_lavender_round"
+        else -> "ic_launcher_nature_round"
+      }
+      var iconRes = context.resources.getIdentifier(iconName, "mipmap", pkg)
+      if (iconRes == 0) iconRes = context.resources.getIdentifier("ic_launcher_round", "mipmap", pkg)
+      if (brandIconId != 0 && iconRes != 0) {
+        views.setImageViewResource(brandIconId, iconRes)
       }
 
       if (hasDose && medName.isNotBlank()) {
@@ -223,7 +238,7 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
         if (doseContainerId != 0) views.setViewVisibility(doseContainerId, View.VISIBLE)
         if (emptyContainerId != 0) views.setViewVisibility(emptyContainerId, View.GONE)
 
-        // Medicine Name
+        // Medicine Name (Full Horizontal Width, no brand text blocking it)
         if (medNameId != 0) {
           views.setTextViewText(medNameId, medName)
           views.setTextColor(medNameId, themeConfig.textPrimaryColor)
@@ -250,17 +265,8 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
           views.setViewVisibility(timeChipId, View.GONE)
         }
 
-        // Medication Icon Container & Tint
-        if (iconContainerId != 0 && pillIconBgRes != 0) {
-          views.setInt(iconContainerId, "setBackgroundResource", pillIconBgRes)
-        }
-        if (iconPillImageId != 0) {
-          views.setInt(iconPillImageId, "setColorFilter", themeConfig.primaryColor)
-        }
-
         if (isDue) {
           // ==================== 1. DUE NOW ALERT STATE ====================
-          // Hide Chronometer, show vivid Due badge
           if (chronometerId != 0) views.setViewVisibility(chronometerId, View.GONE)
 
           val minsAgo = (-diffMs) / 60_000L
@@ -283,7 +289,6 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
           scheduleNextRefresh(context, now + 5 * 60 * 1000L)
         } else {
           // ==================== 2. UPCOMING / SNOOZED LIVE COUNTDOWN ====================
-          // Use Android's native Chronometer counting down every second
           val remainingMs = diffMs
           val base = SystemClock.elapsedRealtime() + remainingMs
 
@@ -309,7 +314,7 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
           }
 
           if (statusPillId != 0) {
-            views.setTextViewText(statusPillId, if (isSnoozed) "💤 SNOOZED" else "UPCOMING DOSE")
+            views.setTextViewText(statusPillId, if (isSnoozed) "💤 SNOOZED" else "NEXT DOSE")
             val badgeRes = if (isSnoozed) badgeSnoozedRes else badgeUpcomingRes
             if (badgeRes != 0) views.setInt(statusPillId, "setBackgroundResource", badgeRes)
             val textColor = if (isSnoozed) {
@@ -340,15 +345,6 @@ class UpcomingDoseWidgetProvider : AppWidgetProvider() {
           if (badgeUpcomingRes != 0) views.setInt(statusPillId, "setBackgroundResource", badgeUpcomingRes)
           views.setTextColor(statusPillId, themeConfig.primaryColor)
         }
-      }
-
-      // Footer Styling
-      if (footerLabelId != 0) {
-        views.setTextColor(footerLabelId, themeConfig.textSecondaryColor)
-      }
-      if (footerButtonId != 0) {
-        if (footerBtnRes != 0) views.setInt(footerButtonId, "setBackgroundResource", footerBtnRes)
-        views.setTextColor(footerButtonId, themeConfig.primaryColor)
       }
 
       // Tap Intent -> Opens DoseSaathi actual app home screen
