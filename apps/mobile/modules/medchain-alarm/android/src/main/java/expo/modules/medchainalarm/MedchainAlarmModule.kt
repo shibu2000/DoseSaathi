@@ -166,7 +166,8 @@ class MedchainAlarmModule : Module() {
 
     AsyncFunction("updateWidgetData") { data: Map<String, Any?> ->
       val hasUpcoming = data["hasUpcoming"] as? Boolean ?: false
-      val currentTheme = data["theme"] as? String ?: (WidgetDataStore.get(context)?.theme ?: "classic")
+      val currentTheme = data["theme"] as? String ?: (WidgetDataStore.get(context)?.theme ?: "nature")
+      val isDark = data["isDark"] as? Boolean ?: (WidgetDataStore.get(context)?.isDark ?: false)
       if (hasUpcoming) {
         val doseData = WidgetDoseData(
           hasUpcoming = true,
@@ -176,13 +177,15 @@ class MedchainAlarmModule : Module() {
           triggerAtMillis = (data["triggerAtMillis"] as? Number)?.toLong() ?: 0L,
           occurrenceId = data["occurrenceId"] as? String ?: "",
           state = data["state"] as? String ?: "UPCOMING",
-          theme = currentTheme
+          theme = currentTheme,
+          isDark = isDark
         )
         WidgetDataStore.save(context, doseData)
       } else {
         val doseData = WidgetDoseData(
           hasUpcoming = false,
-          theme = currentTheme
+          theme = currentTheme,
+          isDark = isDark
         )
         WidgetDataStore.save(context, doseData)
       }

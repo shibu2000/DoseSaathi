@@ -11,7 +11,8 @@ data class WidgetDoseData(
   val triggerAtMillis: Long = 0L,
   val occurrenceId: String = "",
   val state: String = "NONE", // "UPCOMING", "DUE", "SNOOZED", "NONE"
-  val theme: String = "classic" // "classic" or "glassmorphism"
+  val theme: String = "nature",
+  val isDark: Boolean = false
 ) {
   fun toJson(): String = JSONObject().apply {
     put("hasUpcoming", hasUpcoming)
@@ -22,6 +23,7 @@ data class WidgetDoseData(
     put("occurrenceId", occurrenceId)
     put("state", state)
     put("theme", theme)
+    put("isDark", isDark)
   }.toString()
 
   companion object {
@@ -35,7 +37,8 @@ data class WidgetDoseData(
         triggerAtMillis = o.optLong("triggerAtMillis", 0L),
         occurrenceId = o.optString("occurrenceId", ""),
         state = o.optString("state", "NONE"),
-        theme = o.optString("theme", "classic")
+        theme = o.optString("theme", "nature"),
+        isDark = o.optBoolean("isDark", false)
       )
     } catch (e: Exception) {
       null

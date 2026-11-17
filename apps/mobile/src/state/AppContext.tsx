@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { AppState as RNAppState } from 'react-native';
+import { AppState as RNAppState, Appearance } from 'react-native';
 import type { Medication, Schedule, RelationshipSummary, PatientRelationship } from '@medchain/contracts';
 import Constants from 'expo-constants';
 import { localDateInZone } from '@medchain/domain';
@@ -392,6 +392,10 @@ export function AppProvider({
       return triggerTime >= nowMs - 45 * 60 * 1000;
     });
 
+    const isDark =
+      appearanceMode === 'dark' ||
+      (appearanceMode === 'system' && Appearance?.getColorScheme?.() === 'dark');
+
     const nextOcc = upcomingOrDue[0];
     if (nextOcc) {
       const triggerTime = new Date(nextOcc.snoozedUntil || nextOcc.scheduledAtUtc).getTime();
@@ -404,11 +408,12 @@ export function AppProvider({
         occurrenceId: nextOcc.id,
         state: nextOcc.snoozedUntil ? 'SNOOZED' : 'UPCOMING',
         theme: themeMode,
+        isDark,
       }).catch(() => {});
     } else {
-      MedchainAlarm.updateWidgetData({ hasUpcoming: false, theme: themeMode }).catch(() => {});
+      MedchainAlarm.updateWidgetData({ hasUpcoming: false, theme: themeMode, isDark }).catch(() => {});
     }
-  }, [todayOccurrences, themeMode]);
+  }, [todayOccurrences, themeMode, appearanceMode]);
 
   // Initial SQLite Setup & Seed
   useEffect(() => {

@@ -31,6 +31,7 @@ export interface WidgetDosePayload {
   occurrenceId?: string;
   state?: 'UPCOMING' | 'DUE' | 'SNOOZED' | 'NONE';
   theme?: string;
+  isDark?: boolean;
 }
 
 interface MedchainAlarmNative {
