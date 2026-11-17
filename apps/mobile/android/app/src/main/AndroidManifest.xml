@@ -92,31 +92,5 @@
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
     </activity-alias>
-    <receiver
-      android:name="expo.modules.medchainalarm.widget.UpcomingDoseWidgetProvider"
-      android:exported="true"
-      android:label="@string/widget_name"
-      android:icon="@mipmap/ic_launcher"
-      android:roundIcon="@mipmap/ic_launcher_round">
-      <intent-filter>
-        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-      </intent-filter>
-      <meta-data
-        android:name="android.appwidget.provider"
-        android:resource="@xml/widget_upcoming_dose_info" />
-    </receiver>
-    <receiver
-      android:name="expo.modules.medchainalarm.widget.GlassUpcomingDoseWidgetProvider"
-      android:exported="true"
-      android:label="@string/widget_glass_name"
-      android:icon="@mipmap/ic_launcher"
-      android:roundIcon="@mipmap/ic_launcher_round">
-      <intent-filter>
-        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-      </intent-filter>
-      <meta-data
-        android:name="android.appwidget.provider"
-        android:resource="@xml/widget_glass_upcoming_dose_info" />
-    </receiver>
   </application>
 </manifest>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Day/night aliases used when the app appearance is "System": the launcher resolves them against the phone's current dark mode. -->
+<resources>
+    <item name="widget_sky_nature_auto" type="drawable">@drawable/widget_sky_nature</item>
+    <item name="widget_landscape_nature_auto" type="drawable">@drawable/widget_landscape_nature</item>
+    <item name="widget_sky_ocean_auto" type="drawable">@drawable/widget_sky_ocean</item>
+    <item name="widget_landscape_ocean_auto" type="drawable">@drawable/widget_landscape_ocean</item>
+    <item name="widget_sky_sunset_auto" type="drawable">@drawable/widget_sky_sunset</item>
+    <item name="widget_landscape_sunset_auto" type="drawable">@drawable/widget_landscape_sunset</item>
+    <item name="widget_sky_lavender_auto" type="drawable">@drawable/widget_sky_lavender</item>
+    <item name="widget_landscape_lavender_auto" type="drawable">@drawable/widget_landscape_lavender</item>
+    <item name="widget_glass_bg_auto" type="drawable">@drawable/widget_glass_bg_light</item>
+    <item name="widget_glass_card_auto" type="drawable">@drawable/widget_glass_card_light</item>
+    <item name="widget_scenic_card_auto" type="drawable">@drawable/widget_scenic_card_light</item>
+    <item name="widget_glass_pill_auto" type="drawable">@drawable/widget_shape_pill_medium</item>
+</resources>

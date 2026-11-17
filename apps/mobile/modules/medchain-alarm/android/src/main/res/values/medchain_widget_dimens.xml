@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Outer widget radius; Android 12+ uses the launcher's own radius (values-v31). -->
+    <dimen name="medchain_widget_radius">24dp</dimen>
+    <dimen name="medchain_widget_inner_radius">16dp</dimen>
+    <!--
+      Android 11 and older cannot clip widget content to the rounded background, so the landscape is
+      inset and its bottom corners are rounded with masks. Android 12+ clips (clipToOutline) and runs it full-bleed.
+    -->
+    <dimen name="medchain_widget_art_inset">8dp</dimen>
+    <dimen name="medchain_widget_art_corner">14dp</dimen>
+</resources>

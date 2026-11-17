@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="medchain_widget_radius">@android:dimen/system_app_widget_background_radius</dimen>
+    <dimen name="medchain_widget_inner_radius">@android:dimen/system_app_widget_inner_radius</dimen>
+    <dimen name="medchain_widget_art_inset">0dp</dimen>
+</resources>

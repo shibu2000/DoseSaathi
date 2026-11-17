@@ -1,5 +1,3 @@
 <resources>
   <string name="app_name">DoseSaathi</string>
-  <string name="widget_name">DoseSaathi - Dose Tracker</string>
-  <string name="widget_glass_name">DoseSaathi - Apple Glass</string>
 </resources>

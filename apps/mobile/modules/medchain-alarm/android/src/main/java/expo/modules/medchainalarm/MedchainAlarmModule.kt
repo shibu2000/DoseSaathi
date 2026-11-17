@@ -161,8 +161,13 @@ class MedchainAlarmModule : Module() {
       UpcomingDoseWidgetProvider.canPin(context)
     }
 
-    AsyncFunction("requestPinWidget") {
-      val isGlass = WidgetDataStore.get(context)?.theme == "glassmorphism"
+    /** style: "scenic" or "glass"; when omitted, the glass widget is offered to users of the glass theme. */
+    AsyncFunction("requestPinWidget") { style: String? ->
+      val isGlass = when (style?.lowercase()) {
+        "glass" -> true
+        "scenic" -> false
+        else -> WidgetDataStore.get(context)?.theme == "glassmorphism"
+      }
       if (isGlass) {
         GlassUpcomingDoseWidgetProvider.requestPin(context)
       } else {
@@ -174,6 +179,7 @@ class MedchainAlarmModule : Module() {
       val hasUpcoming = data["hasUpcoming"] as? Boolean ?: false
       val currentTheme = data["theme"] as? String ?: (WidgetDataStore.get(context)?.theme ?: "nature")
       val isDark = data["isDark"] as? Boolean ?: (WidgetDataStore.get(context)?.isDark ?: false)
+      val appearance = data["appearance"] as? String ?: (WidgetDataStore.get(context)?.appearance ?: "")
       if (hasUpcoming) {
         val doseData = WidgetDoseData(
           hasUpcoming = true,
@@ -184,14 +190,16 @@ class MedchainAlarmModule : Module() {
           occurrenceId = data["occurrenceId"] as? String ?: "",
           state = data["state"] as? String ?: "UPCOMING",
           theme = currentTheme,
-          isDark = isDark
+          isDark = isDark,
+          appearance = appearance
         )
         WidgetDataStore.save(context, doseData)
       } else {
         val doseData = WidgetDoseData(
           hasUpcoming = false,
           theme = currentTheme,
-          isDark = isDark
+          isDark = isDark,
+          appearance = appearance
         )
         WidgetDataStore.save(context, doseData)
       }

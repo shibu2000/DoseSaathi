@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Scenic widget, medium (default 4x2). -->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_sky_nature"
+    android:clipToOutline="true"
+    tools:ignore="UseAppTint,UselessLeaf,UseCompoundDrawables,RtlHardcoded,SmallSp,UnusedAttribute">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/medchain_widget_art_inset"
+        android:paddingEnd="@dimen/medchain_widget_art_inset"
+        android:paddingBottom="@dimen/medchain_widget_art_inset">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="56" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="44">
+
+            <ImageView
+                android:id="@+id/w_art"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:scaleType="centerCrop"
+                android:src="@drawable/widget_landscape_nature" />
+
+            <ImageView
+                android:id="@+id/w_corner_left"
+                android:layout_width="@dimen/medchain_widget_art_corner"
+                android:layout_height="@dimen/medchain_widget_art_corner"
+                android:importantForAccessibility="no"
+                android:layout_gravity="bottom|left"
+                android:scaleType="fitXY"
+                android:tint="#CEE8D0"
+                android:visibility="gone"
+                android:src="@drawable/widget_corner_mask_left" />
+
+            <ImageView
+                android:id="@+id/w_corner_right"
+                android:layout_width="@dimen/medchain_widget_art_corner"
+                android:layout_height="@dimen/medchain_widget_art_corner"
+                android:importantForAccessibility="no"
+                android:layout_gravity="bottom|right"
+                android:scaleType="fitXY"
+                android:tint="#CEE8D0"
+                android:visibility="gone"
+                android:src="@drawable/widget_corner_mask_right" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/w_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="14dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/w_brand"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_widget_medication" />
+
+            <TextView
+                android:id="@+id/w_brand_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:layout_weight="1"
+                android:alpha="0.85"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:singleLine="true"
+                android:includeFontPadding="false"
+                android:text="@string/medchain_widget_brand"
+                android:textColor="#12302A"
+                android:textSize="12.5sp" />
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp">
+
+                <ImageView
+                    android:id="@+id/w_status_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitXY"
+                    android:tint="#006156"
+                    android:src="@drawable/widget_shape_pill_soft" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="8dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="9dp"
+                    android:paddingBottom="4dp">
+
+                    <ImageView
+                        android:id="@+id/w_status_dot"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:importantForAccessibility="no"
+                        android:tint="#006156"
+                        android:src="@drawable/widget_shape_dot" />
+
+                    <TextView
+                        android:id="@+id/w_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.08"
+                        android:singleLine="true"
+                        android:textStyle="bold"
+                        android:includeFontPadding="false"
+                        android:text="@string/medchain_widget_status_next"
+                        android:textColor="#006156"
+                        android:textSize="9.5sp" />
+                </LinearLayout>
+            </FrameLayout>
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:id="@+id/w_dose_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/w_med_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif"
+                android:letterSpacing="-0.01"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:includeFontPadding="false"
+                android:text="@string/medchain_widget_sample_name"
+                android:textColor="#12302A"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/w_time_icon"
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:importantForAccessibility="no"
+                    android:tint="#006156"
+                    android:src="@drawable/ic_widget_clock" />
+
+                <TextView
+                    android:id="@+id/w_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:singleLine="true"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false"
+                    android:text="@string/medchain_widget_sample_time"
+                    android:textColor="#006156"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/w_sep"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:includeFontPadding="false"
+                    android:text="·"
+                    android:textColor="#4C615A"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/w_dosage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:includeFontPadding="false"
+                    android:text="@string/medchain_widget_sample_dosage"
+                    android:textColor="#4C615A"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/w_empty_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="36dp"
+                android:layout_height="36dp">
+
+                <ImageView
+                    android:id="@+id/w_empty_icon_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitXY"
+                    android:tint="#006156"
+                    android:src="@drawable/widget_shape_circle_soft" />
+
+                <ImageView
+                    android:id="@+id/w_empty_icon"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:importantForAccessibility="no"
+                    android:layout_gravity="center"
+                    android:tint="#006156"
+                    android:src="@drawable/ic_widget_check" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/w_empty_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:singleLine="true"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false"
+                    android:text="@string/medchain_widget_empty_title"
+                    android:textColor="#12302A"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/w_empty_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:includeFontPadding="false"
+                    android:text="@string/medchain_widget_empty_subtitle"
+                    android:textColor="#4C615A"
+                    android:textSize="12.5sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <FrameLayout
+            android:id="@+id/w_timer_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/w_timer_bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:scaleType="fitXY"
+                android:tint="#FFFFFF"
+                android:src="@drawable/widget_shape_pill_strong" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="10dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="6dp">
+
+                <ImageView
+                    android:id="@+id/w_timer_icon"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:importantForAccessibility="no"
+                    android:tint="#006156"
+                    android:src="@drawable/ic_widget_timer" />
+
+                <Chronometer
+                    android:id="@+id/w_timer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:format="@string/medchain_widget_countdown_format"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    android:textColor="#006156"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>

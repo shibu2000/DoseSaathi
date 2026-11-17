@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="medchain_widget_scenic_label">Next Dose · Scenic</string>
+    <string name="medchain_widget_scenic_description">Your next medicine with a live countdown, on the same landscape as your home screen.</string>
+    <string name="medchain_widget_glass_label">Next Dose · Glass</string>
+    <string name="medchain_widget_glass_description">A frosted, see-through card with your next medicine and a live countdown.</string>
+
+    <string name="medchain_widget_brand">DoseSaathi</string>
+    <string name="medchain_widget_status_next">NEXT DOSE</string>
+    <string name="medchain_widget_status_snoozed">SNOOZED</string>
+    <string name="medchain_widget_status_due">TAKE NOW</string>
+    <string name="medchain_widget_status_done">ALL DONE</string>
+
+    <string name="medchain_widget_countdown_format">in %s</string>
+    <string name="medchain_widget_overdue_format">Overdue %s</string>
+    <string name="medchain_widget_caption_next">until your next dose</string>
+    <string name="medchain_widget_caption_snoozed">until snooze ends</string>
+    <string name="medchain_widget_caption_due">overdue · take it now</string>
+
+    <string name="medchain_widget_empty_title">All caught up</string>
+    <string name="medchain_widget_empty_subtitle">No more doses today</string>
+
+    <string name="medchain_widget_sample_name">Vitamin D3</string>
+    <string name="medchain_widget_sample_time">8:00 AM</string>
+    <string name="medchain_widget_sample_dosage">1 tablet · After breakfast</string>
+</resources>

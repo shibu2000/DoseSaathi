@@ -405,9 +405,15 @@ export function AppProvider({
         state: nextOcc.snoozedUntil ? 'SNOOZED' : 'UPCOMING',
         theme: themeMode,
         isDark,
+        appearance: appearanceMode,
       }).catch(() => {});
     } else {
-      MedchainAlarm.updateWidgetData({ hasUpcoming: false, theme: themeMode, isDark }).catch(() => {});
+      MedchainAlarm.updateWidgetData({
+        hasUpcoming: false,
+        theme: themeMode,
+        isDark,
+        appearance: appearanceMode,
+      }).catch(() => {});
     }
   }, [todayOccurrences, themeMode, appearanceMode]);
 

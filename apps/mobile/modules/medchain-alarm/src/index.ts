@@ -32,6 +32,8 @@ export interface WidgetDosePayload {
   state?: 'UPCOMING' | 'DUE' | 'SNOOZED' | 'NONE';
   theme?: string;
   isDark?: boolean;
+  /** 'system' lets the widget follow the phone's dark mode on its own (Android 12+). */
+  appearance?: 'light' | 'dark' | 'system';
 }
 
 interface MedchainAlarmNative {
@@ -51,7 +53,8 @@ interface MedchainAlarmNative {
   requestIgnoreBatteryOptimizations(): Promise<void>;
   endAlarmSession(): Promise<void>;
   canPinWidget(): boolean;
-  requestPinWidget(): Promise<boolean>;
+  /** Defaults to the glass widget for the glassmorphism theme, otherwise the scenic one. */
+  requestPinWidget(style?: 'scenic' | 'glass'): Promise<boolean>;
   updateWidgetData(data: WidgetDosePayload): Promise<void>;
   refreshWidget(): Promise<void>;
   setAppIcon(themeName: string): Promise<void>;

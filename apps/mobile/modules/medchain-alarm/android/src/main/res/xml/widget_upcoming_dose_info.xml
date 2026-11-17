@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Default size is 4x2 (minWidth/minHeight on Android 11 and older, targetCell* on 12+).
+  The widget can be resized from 2x1 up; the provider picks one of four layouts
+  (slim / small / medium / large) for whatever size the launcher reports.
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="250dp"
+    android:minHeight="110dp"
+    android:minResizeWidth="110dp"
+    android:minResizeHeight="40dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="1800000"
+    android:initialLayout="@layout/widget_scenic_loading"
+    android:previewLayout="@layout/widget_scenic_medium"
+    android:previewImage="@drawable/widget_landscape_nature"
+    android:description="@string/medchain_widget_scenic_description"
+    android:widgetCategory="home_screen" />

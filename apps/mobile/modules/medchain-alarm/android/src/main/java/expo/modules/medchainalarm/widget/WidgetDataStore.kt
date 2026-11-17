@@ -12,7 +12,9 @@ data class WidgetDoseData(
   val occurrenceId: String = "",
   val state: String = "NONE", // "UPCOMING", "DUE", "SNOOZED", "NONE"
   val theme: String = "nature",
-  val isDark: Boolean = false
+  val isDark: Boolean = false,
+  /** "light", "dark" or "system" (follow the phone). Empty for data saved by older app versions. */
+  val appearance: String = ""
 ) {
   fun toJson(): String = JSONObject().apply {
     put("hasUpcoming", hasUpcoming)
@@ -24,6 +26,7 @@ data class WidgetDoseData(
     put("state", state)
     put("theme", theme)
     put("isDark", isDark)
+    put("appearance", appearance)
   }.toString()
 
   companion object {
@@ -38,7 +41,8 @@ data class WidgetDoseData(
         occurrenceId = o.optString("occurrenceId", ""),
         state = o.optString("state", "NONE"),
         theme = o.optString("theme", "nature"),
-        isDark = o.optBoolean("isDark", false)
+        isDark = o.optBoolean("isDark", false),
+        appearance = o.optString("appearance", "")
       )
     } catch (e: Exception) {
       null
