@@ -5,6 +5,29 @@
       android:name="expo.modules.medchainalarm.AlarmReceiver"
       android:exported="false" />
 
+    <!-- Native full-screen alarm: own task, shows over the lock screen, wakes the display. -->
+    <activity
+      android:name="expo.modules.medchainalarm.AlarmActivity"
+      android:exported="false"
+      android:excludeFromRecents="true"
+      android:launchMode="singleTask"
+      android:taskAffinity="${applicationId}.alarm"
+      android:showWhenLocked="true"
+      android:turnScreenOn="true"
+      android:screenOrientation="portrait"
+      android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
+      android:theme="@style/MedchainAlarmTheme" />
+
+    <!-- Notification buttons (Taken / Snooze / Skip), handled without opening the app -->
+    <receiver
+      android:name="expo.modules.medchainalarm.AlarmActionReceiver"
+      android:exported="false" />
+
+    <!-- Records alarm actions in the app database when the app is not running (headless JS) -->
+    <service
+      android:name="expo.modules.medchainalarm.AlarmActionTaskService"
+      android:exported="false" />
+
     <!-- Re-arms every stored alarm after a reboot / app update, without opening the app -->
     <receiver
       android:name="expo.modules.medchainalarm.BootReceiver"

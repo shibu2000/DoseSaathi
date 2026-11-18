@@ -23,16 +23,24 @@ import { ThemeThumbnail } from '@/components/ThemeThumbnail';
 import { MedChainLogo } from '@/components/MedChainLogo';
 import { FormField } from '@/components/FormField';
 
+type SoundStyleId = 'signature' | 'companion' | 'melodic' | 'classic';
+
 const SOUND_STYLES: Array<{
-  id: 'companion' | 'melodic' | 'classic';
+  id: SoundStyleId;
   name: string;
   badge: string;
   description: string;
 }> = [
   {
+    id: 'signature',
+    name: 'Signature',
+    badge: 'Premium',
+    description: 'Crystal glass-bell chime over a soft ambient pad, with a calm, caring voice.',
+  },
+  {
     id: 'companion',
     name: 'Warm Companion',
-    badge: 'Recommended',
+    badge: 'Upbeat',
     description: 'Upbeat acoustic guitar & marimba groove with caring hydration & wellness check-ins.',
   },
   {
@@ -69,7 +77,7 @@ export default function SettingsScreen() {
   const { colors, colorScheme, setColorScheme, isDark } = useTheme();
 
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [soundStyle, setSoundStyle] = useState<'companion' | 'melodic' | 'classic'>('companion');
+  const [soundStyle, setSoundStyle] = useState<SoundStyleId>('signature');
   const [voiceGender, setVoiceGender] = useState<'female' | 'male'>('female');
   const [playingKey, setPlayingKey] = useState<string | null>(null);
   const [voiceError, setVoiceError] = useState<string | null>(null);
@@ -95,7 +103,8 @@ export default function SettingsScreen() {
   // Accordion section states
   const [expandedSection, setExpandedSection] = useState<'notifications' | 'backup' | 'language' | 'accessibility' | null>(null);
 
-  const getFullSoundKey = (style: 'companion' | 'melodic' | 'classic', gender: 'female' | 'male') => {
+  const getFullSoundKey = (style: SoundStyleId, gender: 'female' | 'male') => {
+    if (style === 'signature') return `signature_${gender}`;
     if (style === 'companion') return `companion_${gender}`;
     if (style === 'melodic') return `melodic_${gender}`;
     return gender;
@@ -109,7 +118,10 @@ export default function SettingsScreen() {
       setVibrationEnabled(vib);
 
       const savedVoice = await db.settings.get('alarm_voice');
-      if (savedVoice?.startsWith('companion_')) {
+      if (savedVoice?.startsWith('signature_')) {
+        setSoundStyle('signature');
+        setVoiceGender(savedVoice.endsWith('_male') ? 'male' : 'female');
+      } else if (savedVoice?.startsWith('companion_')) {
         setSoundStyle('companion');
         setVoiceGender(savedVoice.endsWith('male') && !savedVoice.endsWith('female') ? 'male' : 'female');
       } else if (savedVoice?.startsWith('melodic_')) {
@@ -122,7 +134,7 @@ export default function SettingsScreen() {
         setSoundStyle('classic');
         setVoiceGender('female');
       } else {
-        setSoundStyle('companion');
+        setSoundStyle('signature');
         setVoiceGender('female');
       }
     }
@@ -197,7 +209,7 @@ export default function SettingsScreen() {
     );
   };
 
-  const handleSelectSound = async (newStyle: 'companion' | 'melodic' | 'classic', newGender: 'female' | 'male') => {
+  const handleSelectSound = async (newStyle: SoundStyleId, newGender: 'female' | 'male') => {
     setSoundStyle(newStyle);
     setVoiceGender(newGender);
     setVoiceError(null);

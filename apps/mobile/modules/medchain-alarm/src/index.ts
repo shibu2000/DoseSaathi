@@ -20,6 +20,21 @@ export interface NativeAlarm {
   soundEnabled: boolean;
   vibrationEnabled: boolean;
   voice: string;
+  medicationName?: string;
+  dosageText?: string;
+  instructions?: string;
+  /** The dose's own scheduled time (shown on the alarm screen even after a snooze). */
+  scheduledAtMillis?: number;
+}
+
+/** A dose action taken on the native alarm screen or notification, waiting to be saved by the app. */
+export interface PendingAlarmAction {
+  id: string;
+  occurrenceId: string;
+  medicationId: string;
+  action: 'TAKEN' | 'SNOOZED' | 'SKIPPED';
+  atMillis: number;
+  snoozeMinutes: number;
 }
 
 export interface WidgetDosePayload {
@@ -58,6 +73,10 @@ interface MedchainAlarmNative {
   updateWidgetData(data: WidgetDosePayload): Promise<void>;
   refreshWidget(): Promise<void>;
   setAppIcon(themeName: string): Promise<void>;
+  getPendingAlarmActions(): PendingAlarmAction[];
+  ackPendingAlarmActions(ids: string[]): void;
+  /** Fires when the user acts on the alarm screen / notification while the app is running. */
+  addListener(eventName: 'onAlarmAction', listener: (event: { pending: boolean }) => void): { remove(): void };
 }
 
 /** The native Android module; null on iOS, in Expo Go and in Bun tests. */

@@ -16,4 +16,6 @@ android {
 
 dependencies {
   implementation "androidx.core:core-ktx:1.17.0"
+  // HeadlessJsTaskService: records alarm actions in the app database while the app is closed
+  compileOnly "com.facebook.react:react-android"
 }

@@ -33,6 +33,12 @@ export interface NativeAlarmRequest {
   vibrationEnabled?: boolean;
   /** Recorded reminder voice / ringtone sound (Settings). */
   voice?: string;
+  /** Structured details shown on the native alarm screen. */
+  medicationName?: string;
+  dosageText?: string;
+  instructions?: string;
+  /** The dose's own time; differs from scheduledTimestampUtc when snoozed. */
+  originalScheduledUtc?: string;
 }
 
 export interface AlarmAdapter {

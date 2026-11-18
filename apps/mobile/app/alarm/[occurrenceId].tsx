@@ -20,6 +20,9 @@ import type { DependencyRecord } from '@/database/repositories/dependency-reposi
 import type { DoseOccurrenceRow } from '@/database';
 import { MedchainAlarm } from '../../modules/medchain-alarm/src';
 
+/** Snooze lengths offered on the alarm (e.g. "30 min" when you are on your way home). */
+const SNOOZE_OPTIONS = [10, 20, 30] as const;
+
 export default function MedicationAlarmScreen() {
   const { occurrenceId, action: launchAction } = useLocalSearchParams<{ occurrenceId: string; action?: string }>();
   const router = useRouter();
@@ -162,9 +165,18 @@ export default function MedicationAlarmScreen() {
 
   const snoozeTimeStr = useMemo(() => {
     if (snoozedUntilStr) return snoozedUntilStr;
-    const d = new Date(Date.now() + 10 * 60 * 1000);
-    return formatTime(d);
-  }, [snoozedUntilStr]);
+    if (occurrence?.snoozedUntil) return formatTime(new Date(occurrence.snoozedUntil));
+    return formatTime(new Date(Date.now() + 10 * 60 * 1000));
+  }, [snoozedUntilStr, occurrence?.snoozedUntil]);
+
+  /** Stops the ringing straight away; the dose itself is saved by the caller before the screen closes. */
+  const silenceAlarm = () => {
+    try {
+      Vibration.cancel();
+    } catch {}
+    // Native alarm ids are "alarm_<occurrenceId>" (the test alarm is "alarm_test_occurrence_preview")
+    MedchainAlarm?.dismiss(`alarm_${occurrenceId}`).catch(() => {});
+  };
 
   const reloadMed = async (medicationId: string) => {
     if (!db) return;
@@ -176,17 +188,16 @@ export default function MedicationAlarmScreen() {
     if (handling) return;
     setActionError(null);
     if (isTestPreview) {
+      silenceAlarm();
       setTakenAtTimeStr(formatTime(new Date()));
       closeScreen();
       return;
     }
     setHandling(true);
+    silenceAlarm();
     try {
-      await recordDoseTaken(activeMed.id, occurrenceId);
-      try {
-        Vibration.cancel();
-      } catch {}
-      MedchainAlarm?.dismiss(occurrenceId).catch(() => {});
+      // Resolves as soon as the dose is saved; alarm re-planning continues in the background.
+      await recordDoseTaken(activeMed.id, occurrenceId, { background: true });
       closeScreen();
     } catch (err) {
       // Never show success for something that was not saved
@@ -195,20 +206,18 @@ export default function MedicationAlarmScreen() {
     }
   };
 
-  const handleSnooze = async () => {
+  const handleSnooze = async (minutes: number = 10) => {
     if (handling) return;
     setActionError(null);
     if (isTestPreview) {
+      silenceAlarm();
       closeScreen();
       return;
     }
     setHandling(true);
+    silenceAlarm();
     try {
-      await recordDoseSnooze(activeMed.id, occurrenceId);
-      try {
-        Vibration.cancel();
-      } catch {}
-      MedchainAlarm?.dismiss(occurrenceId).catch(() => {});
+      await recordDoseSnooze(activeMed.id, occurrenceId, minutes, { background: true });
       closeScreen();
     } catch (err) {
       setActionError('We could not set the reminder. Please try again.');
@@ -244,7 +253,7 @@ export default function MedicationAlarmScreen() {
     if (occurrence.state === 'TAKEN' || occurrence.state === 'SKIPPED') return;
     autoActed.current = true;
     if (launchAction === 'taken') handleTake();
-    else if (launchAction === 'snooze') handleSnooze();
+    else if (launchAction === 'snooze') handleSnooze(10);
     else if (launchAction === 'skip') handleSkip();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [launchAction, med, occurrence, alarmState]);
@@ -254,16 +263,14 @@ export default function MedicationAlarmScreen() {
     setShowSkipModal(false);
     setActionError(null);
     if (isTestPreview) {
+      silenceAlarm();
       closeScreen();
       return;
     }
     setHandling(true);
+    silenceAlarm();
     try {
-      await recordDoseSkip(activeMed.id, occurrenceId, policy);
-      try {
-        Vibration.cancel();
-      } catch {}
-      MedchainAlarm?.dismiss(occurrenceId).catch(() => {});
+      await recordDoseSkip(activeMed.id, occurrenceId, policy, { background: true });
       closeScreen();
     } catch (err) {
       setActionError('We could not save this change. Please try again.');
@@ -534,40 +541,35 @@ export default function MedicationAlarmScreen() {
               <MaterialIcons name="arrow-forward" size={24} color="#FFFFFF" />
             </TouchableOpacity>
 
-            {/* Secondary Action: Snooze 10 minutes */}
-            <TouchableOpacity
-              style={[
-                styles.snoozeButton,
-                {
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                },
-              ]}
-              onPress={handleSnooze}
-              activeOpacity={0.88}
-              accessibilityRole="button"
-              accessibilityLabel="Snooze 10 minutes"
-            >
-              <View style={styles.snoozeBtnLeft}>
-                <View
-                  style={[
-                    styles.snoozeIconCircle,
-                    { backgroundColor: colors.surfaceSecondary },
-                  ]}
-                >
-                  <MaterialIcons name="snooze" size={20} color={colors.textSecondary} />
-                </View>
-                <View style={styles.btnTextCol}>
-                  <Text style={[styles.snoozeBtnTitle, { color: colors.textPrimary }]}>
-                    Remind me in 10 minutes
-                  </Text>
-                  <Text style={[styles.snoozeBtnSubtitle, { color: colors.textSecondary }]}>
-                    Rings again at {snoozeTimeStr}
-                  </Text>
-                </View>
+            {/* Secondary Action: Snooze 10 / 20 / 30 minutes */}
+            <View style={styles.snoozeGroup}>
+              <View style={styles.snoozeHeader}>
+                <MaterialIcons name="snooze" size={18} color={colors.textSecondary} />
+                <Text style={[styles.snoozeHeaderText, { color: colors.textSecondary }]}>Remind me in</Text>
               </View>
-              <MaterialIcons name="notifications-paused" size={20} color={colors.textSecondary} />
-            </TouchableOpacity>
+              <View style={styles.snoozeRow}>
+                {SNOOZE_OPTIONS.map((minutes) => (
+                  <TouchableOpacity
+                    key={minutes}
+                    style={[
+                      styles.snoozeChip,
+                      {
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : colors.surface,
+                        borderColor: colors.primary,
+                      },
+                    ]}
+                    onPress={() => handleSnooze(minutes)}
+                    disabled={handling}
+                    activeOpacity={0.85}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Remind me in ${minutes} minutes, at ${formatTime(new Date(Date.now() + minutes * 60000))}`}
+                  >
+                    <Text style={[styles.snoozeChipValue, { color: colors.primary }]}>{minutes}</Text>
+                    <Text style={[styles.snoozeChipUnit, { color: colors.textSecondary }]}>min</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
             {/* Tertiary Action: Skip Dose */}
             <TouchableOpacity
@@ -1237,43 +1239,41 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.medium,
     fontSize: scaleFont(12),
   },
-  snoozeButton: {
-    minHeight: 56,
-    paddingVertical: Spacing.sm,
+  snoozeGroup: {
     gap: Spacing.sm,
+  },
+  snoozeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 4,
+  },
+  snoozeHeaderText: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: scaleFont(13),
+  },
+  snoozeRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  snoozeChip: {
+    flex: 1,
+    minHeight: 56,
     borderRadius: Radii.card,
     borderWidth: 1.5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  snoozeBtnLeft: {
-    flex: 1,
-    flexShrink: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-  },
-  snoozeIconCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 4,
   },
-  snoozeBtnTitle: {
-    fontFamily: FontFamily.semiBold,
-    fontSize: scaleFont(15),
+  snoozeChipValue: {
+    fontFamily: FontFamily.bold,
+    fontSize: scaleFont(20),
   },
-  snoozeBtnSubtitle: {
-    fontFamily: FontFamily.regular,
-    fontSize: scaleFont(11.5),
+  snoozeChipUnit: {
+    fontFamily: FontFamily.medium,
+    fontSize: scaleFont(13),
+    marginTop: 3,
   },
   skipButton: {
     minHeight: 48,

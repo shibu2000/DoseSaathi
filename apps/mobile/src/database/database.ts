@@ -563,8 +563,11 @@ export class AppDatabase {
     timezoneId?: string;
     fallbackPolicy?: 'SKIP_CHILD' | 'USE_FALLBACK_TIME';
     fallbackTime?: string;
+    /** SNOOZED only: minutes until it rings again (alarm screen offers 10/20/30). Defaults to SNOOZE_MINUTES. */
+    snoozeMinutes?: number;
   }): Promise<DoseActionResult> {
     const { medicationId, occurrenceId, action, actionTimestampUtc, fallbackPolicy, fallbackTime } = params;
+    const snoozeMinutes = Math.min(Math.max(Math.round(params.snoozeMinutes ?? SNOOZE_MINUTES), 1), 120);
 
     const result: DoseActionResult = { applied: false, courseCompleted: false, childOccurrenceScheduled: false };
 
@@ -677,7 +680,7 @@ export class AppDatabase {
         }
       } else if (action === 'SNOOZED') {
         // Snooze never starts a dependent countdown and never touches stock or course count.
-        const snoozeAt = new Date(new Date(actionTimestampUtc).getTime() + SNOOZE_MINUTES * 60 * 1000);
+        const snoozeAt = new Date(new Date(actionTimestampUtc).getTime() + snoozeMinutes * 60 * 1000);
         await this.occurrences.snooze(occurrenceId, snoozeAt.toISOString());
       }
 

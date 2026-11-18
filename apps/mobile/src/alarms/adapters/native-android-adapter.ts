@@ -49,6 +49,10 @@ export class NativeAndroidAlarmAdapter implements AlarmAdapter {
       soundEnabled: request.soundEnabled ?? true,
       vibrationEnabled: request.vibrationEnabled ?? true,
       voice: request.voice ?? 'female',
+      medicationName: request.medicationName ?? '',
+      dosageText: request.dosageText ?? '',
+      instructions: request.instructions ?? '',
+      scheduledAtMillis: request.originalScheduledUtc ? new Date(request.originalScheduledUtc).getTime() : 0,
     });
     return { success: true, alarmId: request.id };
   }

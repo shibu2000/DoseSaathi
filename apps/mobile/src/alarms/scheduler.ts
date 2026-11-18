@@ -8,6 +8,7 @@ import type {
 import { createAlarmAdapter } from './adapters';
 import { localDateInZone, addDays } from '@medchain/domain';
 import type { DoseActionResult } from '../database';
+import { applyPendingAlarmActions } from './pending-actions';
 
 /** How far ahead alarms are armed. Long enough that reminders survive days without opening the app. */
 export const DEFAULT_HORIZON_HOURS = 14 * 24;
@@ -15,6 +16,16 @@ export const DEFAULT_HORIZON_HOURS = 14 * 24;
 const IOS_MAX_PENDING = 60;
 /** Android allows ~500 concurrent alarms per app; stay far below it. */
 const ANDROID_MAX_PENDING = 200;
+
+/**
+ * Reconciles are serialized app-wide (the UI and the headless alarm-action task each create their own
+ * SchedulerService). Two overlapping runs could otherwise interleave their cancel-all / re-arm steps
+ * and drop a snooze that only the later run knew about.
+ */
+let reconcileQueue: Promise<unknown> = Promise.resolve();
+
+type AlarmPrefs = { soundEnabled: boolean; vibrationEnabled: boolean; voice: string };
+type AlarmMed = { id: string; name: string; doseQuantity: number; doseUnit: string; dosageText: string; instructions?: string };
 
 export class SchedulerService {
   constructor(
@@ -37,35 +48,76 @@ export class SchedulerService {
     scheduledCount: number;
     activeAlarms: NativeAlarmRequest[];
   }> {
-    const horizonHours = options.horizonHours ?? DEFAULT_HORIZON_HOURS;
-    const now = this.db.clock();
-    const today = localDateInZone(now, this.db.timeZone());
-    const endDate = addDays(today, Math.ceil(horizonHours / 24));
+    const run = reconcileQueue.then(
+      () => this.reconcileNow(options),
+      () => this.reconcileNow(options)
+    );
+    reconcileQueue = run.catch(() => {});
+    return run;
+  }
 
-    // Calendar-day courses that ended while the app/phone was off must retire before any alarm is armed
-    await this.db.completeDueCalendarCourses(now);
-    await this.db.markUnconfirmedDoses(now);
-    const horizonUtc = new Date(now.getTime() + horizonHours * 3600 * 1000).toISOString();
+  private async alarmPrefs(): Promise<AlarmPrefs> {
+    return {
+      soundEnabled: await this.db.settings.getBoolean('alarm_sound_enabled', true),
+      vibrationEnabled: await this.db.settings.getBoolean('alarm_vibration_enabled', true),
+      voice: (await this.db.settings.get('alarm_voice')) || 'signature_female',
+    };
+  }
 
-    await this.db.materializeOccurrences(today, endDate);
-
-    const soundEnabled = await this.db.settings.getBoolean('alarm_sound_enabled', true);
-    const vibrationEnabled = await this.db.settings.getBoolean('alarm_vibration_enabled', true);
-    const voice = (await this.db.settings.get('alarm_voice')) || 'companion_female';
-
-    const requests: NativeAlarmRequest[] = [];
-    const build = (med: { id: string; name: string; doseQuantity: number; doseUnit: string; dosageText: string; instructions?: string }, occurrenceId: string, atUtc: string): NativeAlarmRequest => ({
+  private buildRequest(med: AlarmMed, occurrenceId: string, atUtc: string, originalUtc: string, prefs: AlarmPrefs): NativeAlarmRequest {
+    return {
       id: `alarm_${occurrenceId}`,
       occurrenceId,
       medicationId: med.id,
       title: `Medication Reminder: ${med.name}`,
       body: `Time to take ${med.doseQuantity} ${med.doseUnit} of ${med.name} (${med.dosageText}). ${med.instructions || ''}`.trim(),
+      medicationName: med.name,
+      dosageText: [`${med.doseQuantity} ${med.doseUnit}`, med.dosageText].filter((s) => s && s.trim()).join(' · '),
+      instructions: med.instructions || '',
+      originalScheduledUtc: originalUtc,
       scheduledTimestampUtc: atUtc,
       allowSnooze: true,
-      soundEnabled,
-      vibrationEnabled,
-      voice,
-    });
+      ...prefs,
+    };
+  }
+
+  /**
+   * Arms the alarm for one dose straight away (e.g. right after a snooze), without waiting for a full
+   * reconcile. A later reconcile re-arms the same alarm id, so this never creates duplicates.
+   */
+  async armOccurrence(occurrenceId: string): Promise<boolean> {
+    const occ = await this.db.occurrences.getById(occurrenceId);
+    if (!occ || occ.state === 'TAKEN' || occ.state === 'SKIPPED') return false;
+    const med = await this.db.medications.getById(occ.medicationId);
+    if (!med || med.lifecycleStatus !== 'ACTIVE') return false;
+    const effectiveUtc = occ.snoozedUntil || occ.scheduledAtUtc;
+    if (new Date(effectiveUtc).getTime() <= this.db.clock().getTime()) return false;
+    await this.adapter.scheduleAlarm(this.buildRequest(med, occ.id, effectiveUtc, occ.scheduledAtUtc, await this.alarmPrefs()));
+    return true;
+  }
+
+  private async reconcileNow(options: { horizonHours?: number }): Promise<{
+    scheduledCount: number;
+    activeAlarms: NativeAlarmRequest[];
+  }> {
+    const horizonHours = options.horizonHours ?? DEFAULT_HORIZON_HOURS;
+    const now = this.db.clock();
+    const today = localDateInZone(now, this.db.timeZone());
+    const endDate = addDays(today, Math.ceil(horizonHours / 24));
+
+    // Calendar-day courses that ended while the app/phone was off must retire before any alarm is armed.
+    // This also creates the real rows for follow-up doses that were armed as predictions.
+    await this.db.completeDueCalendarCourses(now);
+    await this.db.materializeOccurrences(today, endDate);
+    // Then save actions taken on the native alarm screen (they may target those new rows), BEFORE
+    // doses are flagged as unconfirmed and before the cancel-all below, which would otherwise drop a
+    // snooze the database does not know about yet.
+    await applyPendingAlarmActions(this.db);
+    await this.db.markUnconfirmedDoses(now);
+    const horizonUtc = new Date(now.getTime() + horizonHours * 3600 * 1000).toISOString();
+
+    const prefs = await this.alarmPrefs();
+    const requests: NativeAlarmRequest[] = [];
 
     // Real doses of ACTIVE medicines. Queued/completed medicines never get an alarm from this path.
     const medCache = new Map<string, Awaited<ReturnType<AppDatabase['medications']['getById']>>>();
@@ -77,14 +129,14 @@ export class SchedulerService {
       const effectiveUtc = occ.snoozedUntil || occ.scheduledAtUtc;
       // Past alarms are never re-armed (the "not confirmed" sweep handles unacknowledged doses)
       if (new Date(effectiveUtc).getTime() <= now.getTime()) continue;
-      requests.push(build(med, occ.id, effectiveUtc));
+      requests.push(this.buildRequest(med, occ.id, effectiveUtc, occ.scheduledAtUtc, prefs));
     }
 
     // Predicted doses of follow-ups whose prerequisite ends on a known calendar day.
     for (const { medication, occurrences } of await this.db.projectQueuedOccurrences(today, endDate)) {
       for (const o of occurrences) {
         if (o.scheduledAtUtc > horizonUtc || new Date(o.scheduledAtUtc).getTime() <= now.getTime()) continue;
-        requests.push(build(medication, o.occurrenceId, o.scheduledAtUtc));
+        requests.push(this.buildRequest(medication, o.occurrenceId, o.scheduledAtUtc, o.scheduledAtUtc, prefs));
       }
     }
 

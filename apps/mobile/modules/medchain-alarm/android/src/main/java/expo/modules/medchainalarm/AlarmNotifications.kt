@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.app.KeyguardManager
@@ -18,13 +19,19 @@ object AlarmNotifications {
   private fun channelId(sound: Boolean, vibrate: Boolean, voice: String) =
     "medchain_dose_alarm_v4_" + voice + "_" + (if (sound) "s" else "x") + (if (vibrate) "v" else "x")
 
+  /** "signature_male" -> "male"; anything else (including every "*female") -> "female". */
+  fun genderOf(voice: String): String = if (voice == "male" || voice.endsWith("_male")) "male" else "female"
+
+  /** res/raw id of the recorded reminder for a Settings sound key, falling back to the classic voice. */
+  fun reminderRes(c: Context, voice: String): Int {
+    val res = c.resources.getIdentifier("medchain_reminder_" + voice, "raw", c.packageName)
+    if (res != 0) return res
+    return c.resources.getIdentifier("medchain_reminder_" + genderOf(voice), "raw", c.packageName)
+  }
+
   /** The recorded reminder (res/raw/medchain_reminder_<voice>), or the system alarm tone if it is missing. */
   private fun reminderSound(c: Context, voice: String): android.net.Uri {
-    var res = c.resources.getIdentifier("medchain_reminder_" + voice, "raw", c.packageName)
-    if (res == 0) {
-      val fallback = if (voice.contains("male")) "male" else "female"
-      res = c.resources.getIdentifier("medchain_reminder_" + fallback, "raw", c.packageName)
-    }
+    val res = reminderRes(c, voice)
     return if (res != 0) android.net.Uri.parse("android.resource://" + c.packageName + "/" + res)
     else RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
   }
@@ -58,10 +65,24 @@ object AlarmNotifications {
     return id
   }
 
-  private fun actionIntent(c: Context, a: StoredAlarm, action: String, requestSalt: Int): PendingIntent =
+  /** Opens the native alarm screen (also used as the full-screen intent). */
+  private fun screenIntent(c: Context, a: StoredAlarm): PendingIntent =
     PendingIntent.getActivity(
+      c, AlarmScheduler.notificationId(a.id), AlarmActivity.intent(c, a),
+      PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
+  /** Notification buttons act in the background (no screen, no app start), so they respond instantly. */
+  private fun actionIntent(c: Context, a: StoredAlarm, action: String, minutes: Int, requestSalt: Int): PendingIntent =
+    PendingIntent.getBroadcast(
       c, AlarmScheduler.notificationId(a.id) + requestSalt,
-      AlarmScheduler.launchIntent(c, a, action),
+      Intent(c, AlarmActionReceiver::class.java).apply {
+        this.action = "expo.modules.medchainalarm.ACTION_$action"
+        data = android.net.Uri.parse("medchain-alarm://action/${a.id}/$action")
+        putExtra(AlarmActionReceiver.EXTRA_ALARM_JSON, a.toJson())
+        putExtra(AlarmActionReceiver.EXTRA_ACTION, action)
+        putExtra(AlarmActionReceiver.EXTRA_MINUTES, minutes)
+      },
       PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
@@ -73,11 +94,11 @@ object AlarmNotifications {
   fun post(c: Context, a: StoredAlarm) {
     val nm = c.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     val channel = ensureChannel(c, a.soundEnabled, a.vibrationEnabled, a.voice)
-    val open = actionIntent(c, a, "open", 0)
+    val open = screenIntent(c, a)
 
     val b = NotificationCompat.Builder(c, channel)
       .setSmallIcon(c.applicationInfo.icon)
-      .setContentTitle(a.title)
+      .setContentTitle(a.displayName())
       .setContentText(a.body)
       .setStyle(NotificationCompat.BigTextStyle().bigText(a.body))
       .setCategory(NotificationCompat.CATEGORY_ALARM)
@@ -86,13 +107,13 @@ object AlarmNotifications {
       .setOngoing(true)
       .setAutoCancel(false)
       .setContentIntent(open)
-      .setWhen(a.triggerAtMillis)
+      .setWhen(a.displayTimeMillis())
       .setShowWhen(true)
       // Stop ringing after 10 minutes if nobody responds; the app then flags the dose as not confirmed
       .setTimeoutAfter(10 * 60 * 1000L)
-      .addAction(0, "Taken", actionIntent(c, a, "taken", 1))
-      .addAction(0, "Remind me in 10 min", actionIntent(c, a, "snooze", 2))
-      .addAction(0, "Skip", actionIntent(c, a, "skip", 3))
+      .addAction(0, c.getString(R.string.medchain_alarm_notif_taken), actionIntent(c, a, AlarmActions.TAKEN, 0, 1))
+      .addAction(0, c.getString(R.string.medchain_alarm_notif_snooze), actionIntent(c, a, AlarmActions.SNOOZED, 10, 2))
+      .addAction(0, c.getString(R.string.medchain_alarm_notif_skip), actionIntent(c, a, AlarmActions.SKIPPED, 0, 3))
 
     val canFullScreen = Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE || nm.canUseFullScreenIntent()
     if (canFullScreen) b.setFullScreenIntent(open, true)
@@ -130,5 +151,6 @@ object AlarmNotifications {
 
   fun dismiss(c: Context, id: String) {
     (c.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(AlarmScheduler.notificationId(id))
+    AlarmActivity.closeIfShowing(id)
   }
 }

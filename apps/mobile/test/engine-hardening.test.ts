@@ -108,6 +108,26 @@ describe('Engine hardening (production gaps)', () => {
     expect(activeAlarms.map((a) => a.scheduledTimestampUtc)).toContain('2026-11-09T02:55:00.000Z');
   });
 
+  it('Snooze honours a chosen length (alarm screen 20/30 min) and clamps nonsense values', async () => {
+    const med = await db.createMedicationWithSchedule(draft({ name: 'A' }), profileId);
+    const occ = (await db.occurrences.getByDate('2026-11-09'))[0];
+    advance(75 * 60 * 1000); // 08:15 IST (02:45Z), dose is due
+    await db.recordDoseAction({
+      medicationId: med.medication.id, occurrenceId: occ.id, action: 'SNOOZED',
+      actionTimestampUtc: new Date(clockMs).toISOString(), snoozeMinutes: 30,
+    });
+    expect((await db.occurrences.getById(occ.id))!.snoozedUntil).toBe('2026-11-09T03:15:00.000Z');
+    const { activeAlarms } = await scheduler.reconcileAlarms();
+    expect(activeAlarms.map((a) => a.scheduledTimestampUtc)).toContain('2026-11-09T03:15:00.000Z');
+
+    // Out-of-range values are clamped to 1..120 minutes rather than breaking the schedule
+    await db.recordDoseAction({
+      medicationId: med.medication.id, occurrenceId: occ.id, action: 'SNOOZED',
+      actionTimestampUtc: new Date(clockMs).toISOString(), snoozeMinutes: 10_000,
+    });
+    expect((await db.occurrences.getById(occ.id))!.snoozedUntil).toBe('2026-11-09T04:45:00.000Z');
+  });
+
   it('dependent dose starts from the actual taken time (drift), in local time', async () => {
     const parent = await db.createMedicationWithSchedule(draft({ name: 'A' }), profileId);
     const child = await db.createMedicationWithSchedule(

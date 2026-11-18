@@ -23,8 +23,30 @@ import expo.modules.medchainalarm.widget.WidgetDoseData
 class MedchainAlarmModule : Module() {
   private var sample: MediaPlayer? = null
 
-  /** Alarm launch intents already turned into a session (so reopening the app later does not restart one). */
-  private val consumedLaunches = HashSet<String>()
+  companion object {
+    @Volatile private var live: MedchainAlarmModule? = null
+
+    /**
+     * Tells running JavaScript that alarm actions are waiting to be recorded. Returns false when no JS
+     * listener is attached (app not running), so the caller can start the headless task instead.
+     */
+    fun notifyAlarmAction(): Boolean {
+      val m = live ?: return false
+      if (!m.observing) return false
+      return try {
+        m.sendEvent("onAlarmAction", mapOf("pending" to true))
+        true
+      } catch (e: Exception) {
+        false
+      }
+    }
+
+    /** Sound keys are file-name fragments (e.g. "signature_female"); anything else falls back to "female". */
+    private val VOICE_KEY = Regex("^[a-z0-9_]{1,40}$")
+  }
+
+  @Volatile private var observing = false
+
 
   private fun stopSampleInternal() {
     try {
@@ -86,7 +108,11 @@ class MedchainAlarmModule : Module() {
           body = alarm["body"] as String,
           soundEnabled = alarm["soundEnabled"] as? Boolean ?: true,
           vibrationEnabled = alarm["vibrationEnabled"] as? Boolean ?: true,
-          voice = (alarm["voice"] as? String)?.takeIf { it == "male" || it == "female" } ?: "female"
+          voice = (alarm["voice"] as? String)?.takeIf { VOICE_KEY.matches(it) } ?: "female",
+          medicationName = alarm["medicationName"] as? String ?: "",
+          dosageText = alarm["dosageText"] as? String ?: "",
+          instructions = alarm["instructions"] as? String ?: "",
+          scheduledAtMillis = (alarm["scheduledAtMillis"] as? Number)?.toLong() ?: 0L
         )
       )
     }
@@ -114,11 +140,7 @@ class MedchainAlarmModule : Module() {
     /** Plays the recorded reminder so the user can hear a voice before choosing it. */
     AsyncFunction("playSample") { voice: String ->
       stopSampleInternal()
-      var res = context.resources.getIdentifier("medchain_reminder_" + voice, "raw", context.packageName)
-      if (res == 0) {
-        val safe = if (voice.contains("male")) "male" else "female"
-        res = context.resources.getIdentifier("medchain_reminder_" + safe, "raw", context.packageName)
-      }
+      val res = AlarmNotifications.reminderRes(context, voice)
       if (res == 0) throw IllegalStateException("The reminder recording ($voice) is missing from this build")
       val mp = MediaPlayer.create(context, res) ?: throw IllegalStateException("Could not start the player")
       mp.setOnCompletionListener {
@@ -277,27 +299,43 @@ class MedchainAlarmModule : Module() {
       if (km.isKeyguardLocked) activity?.moveTaskToBack(true)
     }
 
+    Events("onAlarmAction")
+
+    OnStartObserving { observing = true }
+
+    OnStopObserving { observing = false }
+
+    /** Dose actions taken on the alarm screen or notification that the app has not saved yet. */
+    Function("getPendingAlarmActions") {
+      AlarmActionQueue.all(context).map { it.toMap() }
+    }
+
+    /** Removes actions the app has saved (or deliberately dropped). */
+    Function("ackPendingAlarmActions") { ids: List<String> ->
+      AlarmActionQueue.remove(context, ids)
+    }
+
     OnCreate {
+      live = this@MedchainAlarmModule
       AlarmSession.attach(appContext.currentActivity)
+    }
+
+    OnDestroy {
+      if (live === this@MedchainAlarmModule) live = null
+      observing = false
     }
 
     OnActivityEntersForeground {
       val activity = appContext.currentActivity
       AlarmSession.attach(activity)
-      // A cold start straight from an alarm: the launch intent carries the marker
-      if (activity?.intent?.getBooleanExtra(AlarmScheduler.EXTRA_ALARM_LAUNCH, false) == true && !AlarmSession.isActive()) {
-        val alarmId = activity.intent.getStringExtra(AlarmScheduler.EXTRA_ALARM_ID)
-        if (alarmId != null && !consumedLaunches.contains(alarmId + "@" + activity.intent.filterHashCode())) {
-          consumedLaunches.add(alarmId + "@" + activity.intent.filterHashCode())
-          AlarmSession.begin()
-        }
-      }
+      // The native AlarmActivity owns the lock screen. The app is only reached after unlocking, so it
+      // never needs (and must never get) permission to show over the lock screen.
       AlarmSession.sync()
     }
 
     OnNewIntent { intent ->
       AlarmSession.attach(appContext.currentActivity)
-      if (intent.getBooleanExtra(AlarmScheduler.EXTRA_ALARM_LAUNCH, false)) AlarmSession.begin()
+      AlarmSession.sync()
     }
   }
 }

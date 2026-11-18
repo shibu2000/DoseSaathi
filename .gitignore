@@ -15,6 +15,7 @@ apps/mobile/ios/
 # Local APK & iOS builds
 build-output/
 *.apk
+*.aab
 *.ipa
 DoseSaathi-*.zip
 

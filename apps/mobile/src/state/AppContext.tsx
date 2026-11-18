@@ -13,6 +13,7 @@ import {
 } from '@/database';
 import { notifyLowStock, notifyCourseTransition } from '@/services/local-notifications';
 import { SchedulerService } from '@/alarms';
+import { applyPendingAlarmActions, onAlarmActionsApplied } from '@/alarms/pending-actions';
 import { ApiClient, ApiError, SyncWorker, type SyncResult, type CaregiverSession } from '@/sync';
 import {
   checkDevicePermissions,
@@ -37,6 +38,11 @@ export type CaregiverUser = CaregiverSession['caregiver'];
 
 export type AppThemeMode = 'nature' | 'ocean' | 'sunset' | 'lavender' | 'classic' | 'glassmorphism';
 export type AppAppearanceMode = 'light' | 'dark' | 'system';
+
+export interface DoseActionOptions {
+  /** Do not wait for alarm re-planning / list refresh (they still run). */
+  background?: boolean;
+}
 
 export interface AppState {
   isReady: boolean;
@@ -88,12 +94,27 @@ export interface AppState {
   refreshTodayOccurrences: () => Promise<void>;
   addMedicationWithSchedule: (med: Medication, sched: Schedule) => void;
   updateMedication: (med: Medication) => void;
-  recordDoseTaken: (medicationId: string, occurrenceId: string) => Promise<DoseActionResult>;
-  recordDoseSnooze: (medicationId: string, occurrenceId: string) => Promise<void>;
+  /**
+   * Dose actions resolve once the dose is saved. With `background: true` the follow-up work
+   * (re-arming alarms, refreshing lists) runs afterwards instead of being awaited: the alarm screen
+   * uses this so it can close the moment the dose is safely recorded.
+   */
+  recordDoseTaken: (
+    medicationId: string,
+    occurrenceId: string,
+    opts?: DoseActionOptions
+  ) => Promise<DoseActionResult>;
+  recordDoseSnooze: (
+    medicationId: string,
+    occurrenceId: string,
+    snoozeMinutes?: number,
+    opts?: DoseActionOptions
+  ) => Promise<void>;
   recordDoseSkip: (
     medicationId: string,
     occurrenceId: string,
-    fallbackPolicy?: 'SKIP_CHILD' | 'USE_FALLBACK_TIME'
+    fallbackPolicy?: 'SKIP_CHILD' | 'USE_FALLBACK_TIME',
+    opts?: DoseActionOptions
   ) => Promise<void>;
   undoCourseCompletion: (
     transitionEventId: string,
@@ -221,7 +242,7 @@ export function AppProvider({
   }, []);
 
   const scheduleTestAlarm = useCallback(async (delaySeconds: number = 5) => {
-    const v = (await db?.settings.get('alarm_voice')) || 'companion_female';
+    const v = (await db?.settings.get('alarm_voice')) || 'signature_female';
     return await schedTestAlarm(delaySeconds, v);
   }, [db]);
 
@@ -642,6 +663,9 @@ export function AppProvider({
         const ended = await db.medications.getById(c.medicationId);
         if (ended) notifyCourseTransition(ended.name, c.activatedNames);
       }
+      // Doses handled on the lock-screen alarm are saved before anything can flag them as missed
+      // (and after course transitions, which create the rows for follow-up medicines' doses).
+      await applyPendingAlarmActions(db);
       await db.markUnconfirmedDoses();
       await scheduler.reconcileAlarms();
       await refreshMedications();
@@ -692,8 +716,45 @@ export function AppProvider({
     })();
   }, [db, sharingActive, refreshPatientRelationships, syncNow]);
 
+  // Alarm-screen / notification actions while the app is running: save them now and refresh.
+  const afterPlanChangeRef = useRef(afterPlanChange);
+  afterPlanChangeRef.current = afterPlanChange;
+  useEffect(() => {
+    if (!MedchainAlarm?.addListener) return;
+    const sub = MedchainAlarm.addListener('onAlarmAction', () => {
+      // reconcileAlarms() (inside afterPlanChange) saves the queued actions first
+      afterPlanChangeRef.current().catch((err) => console.warn('Saving alarm action failed:', err));
+    });
+    return () => sub.remove();
+  }, []);
+  useEffect(() => {
+    return onAlarmActionsApplied((applied) => {
+      for (const a of applied) {
+        if (a.result.lowStock) notifyLowStock(a.result.lowStock);
+        if (a.result.courseCompleted && db) {
+          db.medications
+            .getById(a.medicationId)
+            .then((ended) => ended && notifyCourseTransition(ended.name, a.result.activatedMedicationNames ?? []))
+            .catch(() => {});
+        }
+      }
+    });
+  }, [db]);
+
+  /** Runs the post-action re-plan, awaited or in the background. */
+  const finishPlanChange = useCallback(
+    async (opts?: DoseActionOptions) => {
+      if (opts?.background) {
+        afterPlanChange().catch((err) => console.warn('Re-planning after dose action failed:', err));
+        return;
+      }
+      await afterPlanChange();
+    },
+    [afterPlanChange]
+  );
+
   const recordDoseTaken = useCallback(
-    async (medicationId: string, occurrenceId: string) => {
+    async (medicationId: string, occurrenceId: string, opts?: DoseActionOptions) => {
       if (!db) throw new Error('Database not initialized');
       const result = await db.recordDoseAction({
         medicationId,
@@ -707,33 +768,43 @@ export function AppProvider({
         const ended = await db.medications.getById(medicationId);
         if (ended) notifyCourseTransition(ended.name, result.activatedMedicationNames ?? []);
       }
-      await afterPlanChange();
+      await finishPlanChange(opts);
       return result;
     },
-    [db, scheduler, afterPlanChange]
+    [db, scheduler, finishPlanChange]
   );
 
   const recordDoseSnooze = useCallback(
-    async (medicationId: string, occurrenceId: string) => {
+    async (medicationId: string, occurrenceId: string, snoozeMinutes?: number, opts?: DoseActionOptions) => {
       if (!db) throw new Error('Database not initialized');
       await db.recordDoseAction({
         medicationId,
         occurrenceId,
         action: 'SNOOZED',
         actionTimestampUtc: new Date().toISOString(),
+        snoozeMinutes,
       });
-      scheduler?.dismissOccurrence(occurrenceId).catch(() => {});
-      // Re-arms the native alarm for the snoozed time
-      await afterPlanChange();
+      if (scheduler) {
+        // Re-arm this one dose right now (fast), so the snooze rings even if the full re-plan below
+        // is cut short (e.g. the app is frozen in the background on a locked phone).
+        try {
+          await scheduler.dismissOccurrence(occurrenceId);
+          await scheduler.armOccurrence(occurrenceId);
+        } catch (err) {
+          console.warn('Could not arm snoozed alarm:', err);
+        }
+      }
+      await finishPlanChange(opts);
     },
-    [db, afterPlanChange]
+    [db, scheduler, finishPlanChange]
   );
 
   const recordDoseSkip = useCallback(
     async (
       medicationId: string,
       occurrenceId: string,
-      fallbackPolicy?: 'SKIP_CHILD' | 'USE_FALLBACK_TIME'
+      fallbackPolicy?: 'SKIP_CHILD' | 'USE_FALLBACK_TIME',
+      opts?: DoseActionOptions
     ) => {
       if (!db) throw new Error('Database not initialized');
       await db.recordDoseAction({
@@ -744,9 +815,9 @@ export function AppProvider({
         fallbackPolicy,
       });
       scheduler?.dismissOccurrence(occurrenceId).catch(() => {});
-      await afterPlanChange();
+      await finishPlanChange(opts);
     },
-    [db, afterPlanChange]
+    [db, scheduler, finishPlanChange]
   );
 
   const undoCourseCompletionAction = useCallback(

@@ -13,9 +13,20 @@ data class StoredAlarm(
   val body: String,
   val soundEnabled: Boolean,
   val vibrationEnabled: Boolean,
-  /** "female" or "male": which recorded reminder voice to play. */
-  val voice: String = "female"
+  /** Sound key from Settings, e.g. "signature_female" -> res/raw/medchain_reminder_signature_female. */
+  val voice: String = "female",
+  /** Structured details for the alarm screen; empty for alarms armed by older app versions. */
+  val medicationName: String = "",
+  val dosageText: String = "",
+  val instructions: String = "",
+  /** The dose's own scheduled time; triggerAtMillis is the snooze time after a snooze. 0 = unknown. */
+  val scheduledAtMillis: Long = 0L
 ) {
+  fun displayTimeMillis(): Long = if (scheduledAtMillis > 0) scheduledAtMillis else triggerAtMillis
+
+  /** Medicine name for display, falling back to the notification title. */
+  fun displayName(): String = medicationName.ifBlank { title.removePrefix("Medication Reminder:").trim().ifBlank { title } }
+
   fun toJson(): String = JSONObject().apply {
     put("id", id)
     put("triggerAtMillis", triggerAtMillis)
@@ -26,6 +37,10 @@ data class StoredAlarm(
     put("soundEnabled", soundEnabled)
     put("vibrationEnabled", vibrationEnabled)
     put("voice", voice)
+    put("medicationName", medicationName)
+    put("dosageText", dosageText)
+    put("instructions", instructions)
+    put("scheduledAtMillis", scheduledAtMillis)
   }.toString()
 
   companion object {
@@ -40,7 +55,11 @@ data class StoredAlarm(
         o.getString("body"),
         o.optBoolean("soundEnabled", true),
         o.optBoolean("vibrationEnabled", true),
-        o.optString("voice", "female")
+        o.optString("voice", "female"),
+        o.optString("medicationName", ""),
+        o.optString("dosageText", ""),
+        o.optString("instructions", ""),
+        o.optLong("scheduledAtMillis", 0L)
       )
     } catch (e: Exception) {
       null

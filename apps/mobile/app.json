@@ -2,7 +2,7 @@
   "expo": {
     "name": "DoseSaathi",
     "slug": "dosesaathi",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -35,7 +35,7 @@
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
       ],
-      "versionCode": 8
+      "versionCode": 9
     },
     "plugins": [
       "expo-router",
@@ -45,6 +45,8 @@
           "icon": "./assets/icon.png",
           "color": "#006156",
           "sounds": [
+            "./assets/sounds/medchain_reminder_signature_female.ogg",
+            "./assets/sounds/medchain_reminder_signature_male.ogg",
             "./assets/sounds/medchain_reminder_female.ogg",
             "./assets/sounds/medchain_reminder_male.ogg",
             "./assets/sounds/medchain_reminder_companion_female.ogg",

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="medchain_alarm_eyebrow">MEDICINE REMINDER</string>
+    <string name="medchain_alarm_eyebrow_count">%d REMINDERS</string>
+    <string name="medchain_alarm_taken">I\'ve taken it</string>
+    <string name="medchain_alarm_remind_in">Remind me in</string>
+    <string name="medchain_alarm_snooze_option">%d min</string>
+    <string name="medchain_alarm_skip">Skip this dose</string>
+    <string name="medchain_alarm_details">Open app</string>
+    <string name="medchain_alarm_scheduled">Scheduled %s</string>
+    <string name="medchain_alarm_snoozed_toast">Okay, I\'ll remind you at %s</string>
+    <string name="medchain_alarm_notif_taken">Taken</string>
+    <string name="medchain_alarm_notif_snooze">Snooze 10 min</string>
+    <string name="medchain_alarm_notif_skip">Skip</string>
+</resources>

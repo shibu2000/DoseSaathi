@@ -71,12 +71,22 @@ object AlarmScheduler {
     UpcomingDoseWidgetProvider.updateAll(c)
   }
 
+  /**
+   * Cancels every armed alarm except snoozes still waiting in [AlarmActionQueue]: the app re-arms from
+   * its database, which may not know about a snooze tapped a moment ago. A kept snooze is simply
+   * re-armed again (same id) once the app has saved it.
+   */
   fun cancelAll(c: Context) {
+    val pendingSnoozes = AlarmActionQueue.all(c)
+      .filter { it.action == AlarmActions.SNOOZED }
+      .map { it.occurrenceId }
+      .toSet()
     AlarmStore.all(c).forEach {
+      if (it.occurrenceId in pendingSnoozes && it.triggerAtMillis > System.currentTimeMillis()) return@forEach
       alarmManager(c).cancel(firePendingIntent(c, it.id))
       AlarmNotifications.dismiss(c, it.id)
+      AlarmStore.remove(c, it.id)
     }
-    AlarmStore.clear(c)
     UpcomingDoseWidgetProvider.updateAll(c)
   }
 

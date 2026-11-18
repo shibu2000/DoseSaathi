@@ -277,7 +277,7 @@ export async function openAppSettings(): Promise<void> {
 /**
  * Schedules a live test alarm notification on the physical device in N seconds.
  */
-export async function scheduleTestAlarm(delaySeconds: number = 5, voice: string = 'companion_female'): Promise<string> {
+export async function scheduleTestAlarm(delaySeconds: number = 5, voice: string = 'signature_female'): Promise<string> {
   const Notifications = await getNotificationsModule();
   if (!Notifications) {
     throw new Error('Notifications module not available');
@@ -298,6 +298,8 @@ export async function scheduleTestAlarm(delaySeconds: number = 5, voice: string 
       medicationId: 'test_med_preview',
       title: 'DoseSaathi test alarm',
       body: 'This is a test. If you can see and hear this, reminders can reach you.',
+      medicationName: 'Test alarm',
+      dosageText: 'No medicine: this is only a test',
       soundEnabled: true,
       vibrationEnabled: true,
       voice,
