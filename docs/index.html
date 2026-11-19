@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - DoseSaathi (Medicine Companion)</title>
+  <meta name="description" content="Privacy Policy for DoseSaathi - Free, Open-Source, Offline-First Medication Reminder and Adherence Companion.">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <style>
+    :root {
+      --primary: #006156;
+      --primary-dark: #004C43;
+      --primary-light: #007D70;
+      --accent: #10B981;
+      --accent-bg: #ECFDF5;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --bg-page: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --border: #E2E8F0;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 16px -2px rgba(0,0,0,0.08);
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-stack);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      color: #FFFFFF;
+      padding: 3.5rem 1.5rem 3rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .brand-bar {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .app-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      border: 2px solid rgba(255,255,255,0.2);
+      background: #FFFFFF;
+      display: block;
+    }
+
+    .brand-info h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .brand-badge {
+      display: inline-block;
+      margin-top: 0.35rem;
+      padding: 0.2rem 0.65rem;
+      background: rgba(255,255,255,0.15);
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      backdrop-filter: blur(4px);
+    }
+
+    .doc-meta {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.85);
+      margin-top: 1rem;
+    }
+
+    /* Key Guarantees Grid */
+    .highlights {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: -1.75rem auto 2.5rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .highlight-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .highlight-icon {
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+    }
+
+    .highlight-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .highlight-desc {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Main Content */
+    main {
+      padding-bottom: 4rem;
+    }
+
+    .content-box {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem 2.25rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+    }
+
+    .toc {
+      background: #F1F5F9;
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.75rem;
+      margin-bottom: 2.5rem;
+      border-left: 4px solid var(--primary);
+    }
+
+    .toc h2 {
+      font-size: 1.05rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-main);
+    }
+
+    .toc ul {
+      list-style-type: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.4rem 1.25rem;
+    }
+
+    .toc a {
+      color: var(--primary-light);
+      text-decoration: none;
+      font-size: 0.925rem;
+      font-weight: 500;
+    }
+
+    .toc a:hover {
+      text-decoration: underline;
+      color: var(--primary-dark);
+    }
+
+    section {
+      margin-bottom: 2.25rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    section:last-of-type {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin: 1.25rem 0 0.5rem;
+    }
+
+    p {
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+      font-size: 0.975rem;
+    }
+
+    ul {
+      margin-left: 1.25rem;
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    li {
+      margin-bottom: 0.45rem;
+    }
+
+    strong {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    /* Permission Table */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 1rem 0 1.5rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: #F8FAFC;
+      color: var(--text-main);
+      font-weight: 600;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-block;
+      font-family: monospace;
+      font-size: 0.775rem;
+      background: #F1F5F9;
+      color: #334155;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #CBD5E1;
+      white-space: nowrap;
+    }
+
+    .callout {
+      background: var(--accent-bg);
+      border-left: 4px solid var(--accent);
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius-sm);
+      margin: 1.25rem 0;
+      color: #065F46;
+      font-size: 0.95rem;
+    }
+
+    .callout strong {
+      color: #064E3B;
+    }
+
+    /* Footer */
+    footer {
+      background: #0F172A;
+      color: #94A3B8;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      font-size: 0.875rem;
+    }
+
+    footer a {
+      color: #38BDF8;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 2rem 1rem;
+      }
+      .brand-info h1 {
+        font-size: 1.5rem;
+      }
+      .content-box {
+        padding: 1.5rem 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <div class="brand-bar">
+        <img src="assets/icon.png" alt="DoseSaathi App Icon" class="app-icon">
+        <div class="brand-info">
+          <h1>DoseSaathi</h1>
+          <span class="brand-badge">Offline-First Medicine Companion</span>
+        </div>
+      </div>
+      <p class="doc-meta">
+        <strong>Privacy Policy</strong> &bull; Effective Date: November 19, 2026 &bull; Application ID: <code>com.dosesaathi.app</code>
+      </p>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="highlights">
+      <div class="highlight-card">
+        <span class="highlight-icon">🔒</span>
+        <div class="highlight-title">100% Offline</div>
+        <div class="highlight-desc">All health data is stored strictly in your phone's local SQLite database.</div>
+      </div>
+      <div class="highlight-card">
+        <span class="highlight-icon">🚫</span>
+        <div class="highlight-title">Zero Accounts</div>
+        <div class="highlight-desc">No login, email, phone number, or personal profiling required.</div>
+      </div>
+      <div class="highlight-card">
+        <span class="highlight-icon">🛡️</span>
+        <div class="highlight-title">Zero Tracking</div>
+        <div class="highlight-desc">No advertisements, no analytical trackers, and no telemetry cookies.</div>
+      </div>
+      <div class="highlight-card">
+        <span class="highlight-icon">🤝</span>
+        <div class="highlight-title">Private Family Sync</div>
+        <div class="highlight-desc">Optional ephemeral 15-minute codes without permanent cloud accounts.</div>
+      </div>
+    </div>
+
+    <div class="content-box">
+
+      <nav class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+          <li><a href="#introduction">1. Introduction & Overview</a></li>
+          <li><a href="#data-collection">2. Information We Collect</a></li>
+          <li><a href="#permissions">3. Android Device Permissions</a></li>
+          <li><a href="#family-sync">4. Optional Family Caregiver Sync</a></li>
+          <li><a href="#third-parties">5. Third-Party Services & Ads</a></li>
+          <li><a href="#data-retention">6. Data Retention & Deletion</a></li>
+          <li><a href="#security">7. Data Security Measures</a></li>
+          <li><a href="#children">8. Children's Privacy</a></li>
+          <li><a href="#changes">9. Changes to This Policy</a></li>
+          <li><a href="#contact">10. Contact Information</a></li>
+        </ul>
+      </nav>
+
+      <section id="introduction">
+        <h2>1. Introduction & Overview</h2>
+        <p>
+          Welcome to <strong>DoseSaathi</strong> ("we", "our", or "the App"), an open-source, privacy-first medication reminder and adherence companion developed by <strong>Shibu Dhara</strong>.
+        </p>
+        <p>
+          We believe personal health data is among the most sensitive information a person possesses. Unlike conventional medical applications that mandate cloud registrations and harvest telemetry for advertising or data brokers, <strong>DoseSaathi is built from the ground up as an offline-first utility</strong>.
+        </p>
+        <div class="callout">
+          <strong>Core Privacy Principle:</strong> DoseSaathi operates entirely on your personal device without requiring an account. We do not operate tracking servers, we do not monetize your data, and we do not display advertisements.
+        </div>
+      </section>
+
+      <section id="data-collection">
+        <h2>2. Information We Collect (and What We Do NOT Collect)</h2>
+        
+        <h3>Information Stored Locally on Your Device</h3>
+        <p>
+          When you use DoseSaathi to organize your medication regimens, the following information is generated and stored <strong>locally in an encrypted SQLite database on your device</strong>:
+        </p>
+        <ul>
+          <li><strong>Medication Details:</strong> Medicine name, dosage forms (tablets, drops, syrups, injections), strength, meal-relative instructions (before/with/after food), and current inventory counts.</li>
+          <li><strong>Schedules & Reminders:</strong> Daily scheduled times, dose intervals, and cyclical schedules (e.g., 21-day cycles).</li>
+          <li><strong>Adherence Logs:</strong> Timestamps when doses are confirmed taken, snoozed, or skipped.</li>
+          <li><strong>Preferences:</strong> User-selected themes, audio chime preferences, and font contrast configurations.</li>
+        </ul>
+
+        <h3>Information We Never Collect</h3>
+        <ul>
+          <li><strong>No Personal Identifiers:</strong> We do not ask for your real name, government ID, birthdate, email address, or phone number.</li>
+          <li><strong>No Payment Details:</strong> DoseSaathi is free and open-source; no financial or credit card information is ever requested.</li>
+          <li><strong>No Biometric or Location Data:</strong> The app never requests access to your GPS location, Bluetooth beacon tracking, or biometric sensors.</li>
+        </ul>
+      </section>
+
+      <section id="permissions">
+        <h2>3. Android Device Permissions & Explicit Usage</h2>
+        <p>
+          To ensure reliable, unmissable medication alerts even when your phone is locked or running in low-power battery-saving modes, DoseSaathi requests specific system permissions on Android. Every requested permission is strictly used for core app functionality:
+        </p>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Permission</th>
+                <th>Android Identifier</th>
+                <th>Why It Is Required</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Exact Alarms</strong></td>
+                <td><span class="badge">SCHEDULE_EXACT_ALARM</span></td>
+                <td>Guarantees medication reminders trigger at the precise minute scheduled, preventing delays caused by Android system battery optimizations.</td>
+              </tr>
+              <tr>
+                <td><strong>Full-Screen Alert</strong></td>
+                <td><span class="badge">USE_FULL_SCREEN_INTENT</span></td>
+                <td>Enables the critical, full-screen medication confirmation screen to display over the lockscreen when a dose is due.</td>
+              </tr>
+              <tr>
+                <td><strong>Post Notifications</strong></td>
+                <td><span class="badge">POST_NOTIFICATIONS</span></td>
+                <td>Required on Android 13+ (API 33+) to display dose notifications, snooze prompts, and inventory low-stock refill reminders.</td>
+              </tr>
+              <tr>
+                <td><strong>Wake CPU</strong></td>
+                <td><span class="badge">WAKE_LOCK</span></td>
+                <td>Briefly wakes the device processor to play the reminder tone and vibrate when the alarm triggers while the screen is off.</td>
+              </tr>
+              <tr>
+                <td><strong>Foreground Service</strong></td>
+                <td><span class="badge">FOREGROUND_SERVICE</span></td>
+                <td>Keeps the active alarm ringing and responsive until you tap "Mark Taken", "Snooze", or "Skip".</td>
+              </tr>
+              <tr>
+                <td><strong>Run at Startup</strong></td>
+                <td><span class="badge">RECEIVE_BOOT_COMPLETED</span></td>
+                <td>Automatically reschedules your future medication reminders whenever your phone finishes restarting or rebooting.</td>
+              </tr>
+              <tr>
+                <td><strong>Vibration</strong></td>
+                <td><span class="badge">VIBRATE</span></td>
+                <td>Provides tactile haptic feedback during alarms so users in noisy environments do not miss doses.</td>
+              </tr>
+              <tr>
+                <td><strong>Battery Exemption</strong></td>
+                <td><span class="badge">REQUEST_IGNORE_BATTERY_OPTIMIZATIONS</span></td>
+                <td>Optional prompt to whitelist DoseSaathi from aggressive OEM battery killers (e.g. Xiaomi MIUI, OnePlus OxygenOS, Samsung OneUI) that silently kill background alarms.</td>
+              </tr>
+              <tr>
+                <td><strong>Camera (Optional)</strong></td>
+                <td><span class="badge">CAMERA</span></td>
+                <td>Used strictly on-demand to scan a family caregiver's pairing QR code. No photos or video streams are ever saved, stored, or transmitted.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="family-sync">
+        <h2>4. Optional Family Caregiver Sync Feature</h2>
+        <p>
+          DoseSaathi includes an optional family link feature allowing caregivers to monitor adherence of elderly parents or loved ones. This feature operates with minimal data exposure:
+        </p>
+        <ul>
+          <li><strong>Ephemeral Pairing Codes:</strong> Pairing is established using a temporary, 6-digit numeric code or QR code that automatically expires after 15 minutes. No permanent accounts, usernames, or passwords exist.</li>
+          <li><strong>What is Synced:</strong> Only medicine adherence status timestamps (e.g., "Medicine A marked taken at 09:05 AM") and display names are synced between paired devices.</li>
+          <li><strong>Serverless Edge Infrastructure:</strong> Ephemeral sync payloads are handled via serverless Cloudflare Workers with an encrypted Cloudflare D1 database.</li>
+          <li><strong>User Control & Revocation:</strong> Either party can unpair the connection at any time in the app settings, which immediately purges the active pairing session.</li>
+        </ul>
+      </section>
+
+      <section id="third-parties">
+        <h2>5. Third-Party Services, Analytics & Advertisements</h2>
+        <p>
+          We take a strict stance against third-party commercial surveillance:
+        </p>
+        <ul>
+          <li><strong>Zero Advertisements:</strong> DoseSaathi contains no advertising banners, interstitial videos, or sponsored links.</li>
+          <li><strong>Zero Commercial Trackers:</strong> We do not embed Google Analytics, Firebase Analytics, Meta Pixel, Adjust, AppsFlyer, or any commercial user tracking SDKs.</li>
+          <li><strong>No Data Brokering:</strong> We will never sell, lease, trade, or share user health data with insurers, pharmaceutical companies, advertisers, or third-party data brokers.</li>
+        </ul>
+      </section>
+
+      <section id="data-retention">
+        <h2>6. Data Retention, Backup & Permanent Deletion</h2>
+        <p>
+          Because all your data lives directly on your phone:
+        </p>
+        <ul>
+          <li><strong>Complete User Ownership:</strong> You retain complete ownership of your medication schedules and adherence history.</li>
+          <li><strong>Instant Deletion:</strong> You can wipe all app data at any time by navigating to your Android <em>Settings &gt; Apps &gt; DoseSaathi &gt; Storage &gt; Clear Storage</em>, or by uninstalling the app. Uninstalling permanently erases all local SQLite database records.</li>
+          <li><strong>No Residual Cloud Copies:</strong> Because we do not maintain a permanent user database in the cloud, no remnant copies of your health schedules remain on any servers after uninstallation.</li>
+        </ul>
+      </section>
+
+      <section id="security">
+        <h2>7. Data Security Measures</h2>
+        <p>
+          We employ robust technical safeguards to protect your information:
+        </p>
+        <ul>
+          <li><strong>Local Database Sandboxing:</strong> Android's application sandbox prevents other installed apps from accessing DoseSaathi's local SQLite database.</li>
+          <li><strong>Transport Layer Security (TLS 1.3):</strong> When utilizing the optional family sync feature, all payloads are encrypted in transit using industry-standard TLS encryption.</li>
+          <li><strong>Open Source Transparency:</strong> DoseSaathi's complete source code is public and inspectable by security researchers and community developers on GitHub.</li>
+        </ul>
+      </section>
+
+      <section id="children">
+        <h2>8. Children's Privacy (COPPA & GDPR-K Compliance)</h2>
+        <p>
+          DoseSaathi is not targeted at children under the age of 13. We do not knowingly collect personal information from children. If a child uses DoseSaathi to manage medications, it should only be done under the direct supervision of a parent, legal guardian, or caregiver.
+        </p>
+      </section>
+
+      <section id="changes">
+        <h2>9. Changes to This Privacy Policy</h2>
+        <p>
+          We may update our Privacy Policy periodically to reflect app updates, new capabilities, or legal requirements. Any modifications will be posted to this URL with an updated "Effective Date". Because we do not hold your email address, we encourage you to review this policy whenever updating the application.
+        </p>
+      </section>
+
+      <section id="contact">
+        <h2>10. Contact Information & Open-Source Repository</h2>
+        <p>
+          If you have any questions, feedback, or concerns regarding this Privacy Policy or DoseSaathi's data practices, please reach out directly:
+        </p>
+        <ul>
+          <li><strong>Developer:</strong> Shibu Dhara</li>
+          <li><strong>Contact Email:</strong> <a href="mailto:shibudhara420@gmail.com">shibudhara420@gmail.com</a></li>
+          <li><strong>Open-Source Repository:</strong> <a href="https://github.com/shibu2000/DoseSaathi" target="_blank" rel="noopener">github.com/shibu2000/DoseSaathi</a></li>
+          <li><strong>Bug Reports & Issue Tracker:</strong> <a href="https://github.com/shibu2000/DoseSaathi/issues" target="_blank" rel="noopener">github.com/shibu2000/DoseSaathi/issues</a></li>
+        </ul>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 DoseSaathi &bull; Developed by <a href="https://github.com/shibu2000" target="_blank" rel="noopener">Shibu Dhara</a> &bull; Licensed under MIT</p>
+      <p style="margin-top: 0.5rem; font-size: 0.8rem;">
+        DoseSaathi is an open-source, offline-first medication reminder companion. Not a substitute for professional medical advice.
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>

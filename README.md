@@ -22,7 +22,8 @@
   <a href="#-key-capabilities--highlights"><b>✨ Features</b></a> •
   <a href="#-four-signature-appearance-themes"><b>🎨 Themes</b></a> •
   <a href="#%EF%B8%8F-repository-architecture"><b>🏗️ Architecture</b></a> •
-  <a href="#-local-development-setup"><b>🚀 Quickstart</b></a>
+  <a href="#-local-development-setup"><b>🚀 Quickstart</b></a> •
+  <a href="https://shibu2000.github.io/DoseSaathi/privacy"><b>🔒 Privacy Policy</b></a>
 </p>
 
 ---
@@ -186,6 +187,16 @@ cd apps/mobile/android
 ./gradlew assembleRelease
 ```
 *Generated APKs will be output to `apps/mobile/android/app/build/outputs/apk/release/`.*
+
+---
+
+## 🔒 Privacy & Security
+
+DoseSaathi is built as a strictly offline-first application. All sensitive medication schedules, notes, and adherence logs remain encrypted in your local device SQLite storage.
+
+- **Zero Cloud Storage:** No user accounts, passwords, or emails.
+- **Zero Trackers:** No analytics SDKs, advertising networks, or background telemetry.
+- **Hosted Privacy Policy:** [https://shibu2000.github.io/DoseSaathi/privacy](https://shibu2000.github.io/DoseSaathi/privacy) or view [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
 ---
 
