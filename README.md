@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://www.phonepeappstore.com/apps/health-and-fitness/dosesaathi/com.dosesaathi.app/?page=details&id=com.dosesaathi.app"><img src="https://img.shields.io/badge/PhonePe%20Appstore-Verified-5F259F.svg?style=for-the-badge&logo=android&logoColor=white" alt="Get it on PhonePe Appstore (Verified)" /></a>
-  <a href="https://github.com/shibu2000/DoseSaathi/releases/latest"><img src="https://img.shields.io/badge/Release-v1.0.7-006156.svg?style=for-the-badge&logo=android&logoColor=white" alt="Release v1.0.7" /></a>
+  <a href="https://github.com/shibu2000/DoseSaathi/releases/latest"><img src="https://img.shields.io/badge/Release-v1.0.9-006156.svg?style=for-the-badge&logo=android&logoColor=white" alt="Release v1.0.9" /></a>
   <a href="https://github.com/shibu2000/DoseSaathi/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-teal.svg?style=for-the-badge" alt="License MIT" /></a>
   <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS-25845D.svg?style=for-the-badge&logo=apple&logoColor=white" alt="Platforms" />
   <img src="https://img.shields.io/badge/Offline--First-SQLite%20%2B%20Exact%20Alarms-1E8E80.svg?style=for-the-badge" alt="Offline First" />
@@ -20,7 +20,7 @@
 <p align="center">
   <a href="#-about-dosesaathi"><b>📖 About</b></a> •
   <a href="https://www.phonepeappstore.com/apps/health-and-fitness/dosesaathi/com.dosesaathi.app/?page=details&id=com.dosesaathi.app"><b>📲 PhonePe Appstore</b></a> •
-  <a href="#-direct-downloads--latest-builds-v107"><b>⬇️ Download APK</b></a> •
+  <a href="#-direct-downloads--latest-builds-v109"><b>⬇️ Download APK</b></a> •
   <a href="#-key-capabilities--highlights"><b>✨ Features</b></a> •
   <a href="#-four-signature-appearance-themes"><b>🎨 Themes</b></a> •
   <a href="#%EF%B8%8F-repository-architecture"><b>🏗️ Architecture</b></a> •
@@ -56,7 +56,7 @@ Most medication apps today are designed either as soulless clinical alarms or cl
 
 ---
 
-## 📥 Direct Downloads & Latest Builds (v1.0.7)
+## 📥 Direct Downloads & Latest Builds (v1.0.9)
 
 > **📲 Recommended: install from the [PhonePe Appstore](https://www.phonepeappstore.com/apps/health-and-fitness/dosesaathi/com.dosesaathi.app/?page=details&id=com.dosesaathi.app)**, where DoseSaathi is listed as a ✅ **Verified** app (Health & Fitness). Installing from the store gives you automatic updates.
 
@@ -64,12 +64,12 @@ Download the pre-compiled production packages directly from [GitHub Releases](ht
 
 | Package | Platform | Target Architecture | Size | Who is this for? | Download Link |
 |:---|:---|:---|:---|:---|:---:|
-| **`dosesaathi-arm64-v8a-release.apk`** | Android | `arm64-v8a` | **46 MB** | **⭐ Recommended for 99% of Android phones** (Samsung, Pixel, OnePlus, Xiaomi, Vivo, Oppo, Realme, Motorola, etc.). Fastest performance and smallest download size. | [⬇️ Download APK](https://github.com/shibu2000/DoseSaathi/releases/latest/download/dosesaathi-arm64-v8a-release.apk) |
-| **`dosesaathi-universal-release.apk`** | Android | All (Universal) | **126 MB** | Universal compatibility for any Android device, older architectures, custom ROMs, or if you are unsure of your processor. | [⬇️ Download APK](https://github.com/shibu2000/DoseSaathi/releases/latest/download/dosesaathi-universal-release.apk) |
-| **`dosesaathi-armeabi-v7a-release.apk`** | Android | `armeabi-v7a` | **37 MB** | For older 32-bit legacy Android smartphones (released before 2017). | [⬇️ Download APK](https://github.com/shibu2000/DoseSaathi/releases/latest/download/dosesaathi-armeabi-v7a-release.apk) |
-| **`dosesaathi-x86_64-release.apk`** | Android | `x86_64` | **48 MB** | For Android Studio emulators and ChromeOS/PC Android environments. | [⬇️ Download APK](https://github.com/shibu2000/DoseSaathi/releases/latest/download/dosesaathi-x86_64-release.apk) |
-| **`DoseSaathi-Simulator.zip`** | iOS | Simulator (x86_64 / arm64) | **~35 MB** | For macOS iOS Simulator testing. Unzip and drag `DoseSaathi.app` directly into Xcode Simulator. | [⬇️ Download ZIP](https://github.com/shibu2000/DoseSaathi/releases/latest/download/DoseSaathi-Simulator.zip) |
-| **`DoseSaathi-Unsigned.ipa`** | iOS | Physical iPhone | **~35 MB** | For physical iPhones via sideloading (AltStore, Sideloadly, TrollStore, or free personal Xcode signing). | [⬇️ Download IPA](https://github.com/shibu2000/DoseSaathi/releases/latest/download/DoseSaathi-Unsigned.ipa) |
+| **`dosesaathi-arm64-v8a-release.apk`** | Android | `arm64-v8a` | **29 MB** | **⭐ Recommended for 99% of Android phones** (Samsung, Pixel, OnePlus, Xiaomi, Vivo, Oppo, Realme, Motorola, etc.). Fastest performance and smallest download size. | [⬇️ Download APK](https://github.com/shibu2000/DoseSaathi/releases/latest/download/dosesaathi-arm64-v8a-release.apk) |
+| **`dosesaathi-universal-release.apk`** | Android | All (Universal) | **61 MB** | Universal compatibility for any Android device, older architectures, custom ROMs, or if you are unsure of your processor. | [⬇️ Download APK](https://github.com/shibu2000/DoseSaathi/releases/latest/download/dosesaathi-universal-release.apk) |
+| **`dosesaathi-armeabi-v7a-release.apk`** | Android | `armeabi-v7a` | **28 MB** | For older 32-bit legacy Android smartphones (released before 2017). | [⬇️ Download APK](https://github.com/shibu2000/DoseSaathi/releases/latest/download/dosesaathi-armeabi-v7a-release.apk) |
+| **`dosesaathi-x86_64-release.apk`** | Android | `x86_64` | **30 MB** | For Android Studio emulators and ChromeOS/PC Android environments. | [⬇️ Download APK](https://github.com/shibu2000/DoseSaathi/releases/latest/download/dosesaathi-x86_64-release.apk) |
+| **`DoseSaathi-Simulator.zip`** | iOS | Simulator (x86_64 / arm64) | **~30 MB** | For macOS iOS Simulator testing. Unzip and drag `DoseSaathi.app` directly into Xcode Simulator. | [⬇️ Download ZIP](https://github.com/shibu2000/DoseSaathi/releases/latest/download/DoseSaathi-Simulator.zip) |
+| **`DoseSaathi-Unsigned.ipa`** | iOS | Physical iPhone | **~18 MB** | For physical iPhones via sideloading (AltStore, Sideloadly, TrollStore, or free personal Xcode signing). | [⬇️ Download IPA](https://github.com/shibu2000/DoseSaathi/releases/latest/download/DoseSaathi-Unsigned.ipa) |
 
 ---
 
