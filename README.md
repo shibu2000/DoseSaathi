@@ -9,6 +9,7 @@
 </p>
 
 <p align="center">
+  <a href="https://www.phonepeappstore.com/apps/health-and-fitness/dosesaathi/com.dosesaathi.app/?page=details&id=com.dosesaathi.app"><img src="https://img.shields.io/badge/PhonePe%20Appstore-Verified-5F259F.svg?style=for-the-badge&logo=android&logoColor=white" alt="Get it on PhonePe Appstore (Verified)" /></a>
   <a href="https://github.com/shibu2000/DoseSaathi/releases/latest"><img src="https://img.shields.io/badge/Release-v1.0.7-006156.svg?style=for-the-badge&logo=android&logoColor=white" alt="Release v1.0.7" /></a>
   <a href="https://github.com/shibu2000/DoseSaathi/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-teal.svg?style=for-the-badge" alt="License MIT" /></a>
   <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS-25845D.svg?style=for-the-badge&logo=apple&logoColor=white" alt="Platforms" />
@@ -18,6 +19,7 @@
 
 <p align="center">
   <a href="#-about-dosesaathi"><b>📖 About</b></a> •
+  <a href="https://www.phonepeappstore.com/apps/health-and-fitness/dosesaathi/com.dosesaathi.app/?page=details&id=com.dosesaathi.app"><b>📲 PhonePe Appstore</b></a> •
   <a href="#-direct-downloads--latest-builds-v107"><b>⬇️ Download APK</b></a> •
   <a href="#-key-capabilities--highlights"><b>✨ Features</b></a> •
   <a href="#-four-signature-appearance-themes"><b>🎨 Themes</b></a> •
@@ -55,6 +57,8 @@ Most medication apps today are designed either as soulless clinical alarms or cl
 ---
 
 ## 📥 Direct Downloads & Latest Builds (v1.0.7)
+
+> **📲 Recommended: install from the [PhonePe Appstore](https://www.phonepeappstore.com/apps/health-and-fitness/dosesaathi/com.dosesaathi.app/?page=details&id=com.dosesaathi.app)**, where DoseSaathi is listed as a ✅ **Verified** app (Health & Fitness). Installing from the store gives you automatic updates.
 
 Download the pre-compiled production packages directly from [GitHub Releases](https://github.com/shibu2000/DoseSaathi/releases/latest):
 
